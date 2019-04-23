@@ -13,15 +13,31 @@ public class CameraController : MonoBehaviour
     private Transform m_RigCamera;
     private Camera m_Cam;
 
-    private Quaternion m_WorldRotation
+    private float m_RotatorPitchEuler
     {
         get
         {
-            return m_RigRotation.rotation;
+            return m_RigRotation.rotation.eulerAngles.x;
+        }
+    }
+
+    private float m_RotatorYawEuler
+    {
+        get
+        {
+            return m_RigRotation.rotation.eulerAngles.y;
+        }
+    }
+
+    private float m_CameraRollEuler
+    {
+        get
+        {
+            return m_RigCamera.localRotation.eulerAngles.z;
         }
         set
         {
-            m_RigRotation.rotation = value;
+            m_RigCamera.localRotation = Quaternion.Euler(0f, 0f, value);
         }
     }
 
@@ -33,11 +49,35 @@ public class CameraController : MonoBehaviour
         }
         set
         {
-            m_RigPosition.SetPositionAndRotation(value, Quaternion.identity);
+            m_RigPosition.position = value;
         }
     }
 
-    private float m_CamBridgeLength
+    private Quaternion m_WorldRotation
+    {
+        get
+        {
+            return Quaternion.Euler(m_RotatorPitchEuler, m_RotatorYawEuler, m_CameraRollEuler);
+        }
+        set
+        {
+            Vector3 euler = value.eulerAngles;
+            m_RigRotation.rotation = Quaternion.Euler(euler.x, euler.y, 0f);
+            m_RigCamera.localRotation = Quaternion.Euler(0f, 0f, euler.z);
+        }
+    }
+
+    private Quaternion m_LocalRotation
+    {
+        set
+        {
+            Vector3 euler = value.eulerAngles;
+            m_RigRotation.localRotation = Quaternion.Euler(euler.x, euler.y, 0f);
+            m_RigCamera.localRotation = Quaternion.Euler(0f, 0f, euler.z);
+        }
+    }
+
+    private float m_CameraZLength
     {
         get
         {
@@ -48,6 +88,9 @@ public class CameraController : MonoBehaviour
             m_RigCamera.localPosition = Vector3.forward * value;
         }
     }
+
+    private Quaternion m_TargetWorldRotation;
+    private Vector3 m_TargetWorldPosition;
 
     /* Controller */
     void Awake()
@@ -64,14 +107,32 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    void Start()
+    public void transferImmediate(Vector3 worldPosition, Quaternion worldRotation)
     {
-
+        m_WorldPosition = worldPosition;
+        m_WorldRotation = worldRotation;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void transferImmediate(Vector3 worldPosition)
     {
+        m_WorldPosition = worldPosition;
+    }
+    public void transferImmediate(Quaternion worldRotation)
+    {
+        m_WorldRotation = worldRotation;
+    }
+
+    public void transferImmediate(float zLength){
+        m_CameraZLength = zLength;
+    }
+
+    public void transferInLerp()
+    {
+        
+    }
+
+    // 相机只在最后进行更新
+    void LateUpdate(){
 
     }
 }
