@@ -1,0 +1,28 @@
+# Unity Temperature Dir
+/[Bb]in/
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Ll]ogs/
+/[Pp]ackages/
+/[Pp]rojectSettings/
+
+# Assets
+/Assets/*
+!/Assets/Scripts.meta
+!/Assets/Scripts
+!/Assets/Shaders
+!/Assets/Editor
+!*.cs
+
+# unity ignore file
+*.csproj
+*.unityproj
+*.sln
+*.user
+*.userprefs
+*.tmp
+*.meta
+
+# VSCode ignore
+/.vscode/
