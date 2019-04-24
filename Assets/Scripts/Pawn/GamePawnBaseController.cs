@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 玩家和各种AI的接口
-public interface IGamePawnBase
+public interface IGamePawnBaseController
 {
     // +z -> forward
-    void movePawnBy(Vector3 localDirection);
+    // -1 ~ 1
+    void updateUserInput(Vector3 input);
 }
