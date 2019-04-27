@@ -8,4 +8,6 @@ public interface IGamePawnBaseController
     // +z -> forward
     // -1 ~ 1
     void updateUserInput(Vector3 input);
+    float getVelocity();
+    Vector3 getWorldPosition();
 }

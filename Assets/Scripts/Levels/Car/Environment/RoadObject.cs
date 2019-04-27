@@ -8,7 +8,7 @@ namespace CarLevel
 {
     // 根据视角情况对路面进行初始化，在路后方生成车辆
     // 路恒定往+z方向生长
-    public class RoadController : MonoBehaviour
+    public class RoadObject : MonoBehaviour
     {
         [SerializeField]
         private int m_RoadNum;
@@ -39,12 +39,12 @@ namespace CarLevel
         }
     }
 
-    [CustomEditor(typeof(RoadController))]
+    [CustomEditor(typeof(RoadObject))]
     public class RoadControllerEditor : Editor
     {
 
         [DrawGizmo(GizmoType.Selected | GizmoType.InSelectionHierarchy)]
-        static void DrawGizmosSelected(RoadController script, GizmoType type)
+        static void DrawGizmosSelected(RoadObject script, GizmoType type)
         {
             if (script.getRoadNum() == 0) return;
 

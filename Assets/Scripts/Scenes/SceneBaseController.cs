@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class SceneController : MonoBehaviour
+public abstract class SceneBaseController : MonoBehaviour
 {
     [SerializeField]
     private string m_SceneName;

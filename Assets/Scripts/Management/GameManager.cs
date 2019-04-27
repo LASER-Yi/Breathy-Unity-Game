@@ -4,20 +4,30 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private static Object _lock = new Object();
+    private static GameManager _instance;
+
+    public static GameManager instance
+    {
+        get
+        {
+            lock (_lock)
+            {
+                if (_instance == null)
+                {
+                    var obj = FindObjectOfType<GameManager>();
+                    if (obj != null)
+                    {
+                        _instance = obj;
+                    }
+                }
+            }
+            return _instance;
+        }
+    }
     public DataManager saveDataDict{
         get{
             return DataManager.Instance;
         }
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

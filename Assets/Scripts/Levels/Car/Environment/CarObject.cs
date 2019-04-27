@@ -5,7 +5,9 @@ using UnityEngine;
 
 namespace CarLevel
 {
+    [RequireComponent(typeof(Rigidbody))]
     // 控制车辆的接口, 实现移动的功能
+    // TODO: 将车辆行为改成物理基础
     public class CarObject : MonoBehaviour, IGamePawnBaseController
     {
         [SerializeField]
@@ -21,6 +23,7 @@ namespace CarLevel
 
         [SerializeField]
         private AnimationCurve m_SpeedCurve;
+        private Rigidbody m_Rigibody;
 
         /* Control */
         // RANGE -90 ~ 90
@@ -37,6 +40,25 @@ namespace CarLevel
         private float m_CurrentEnginePercent;
         private float m_TargetEnginePercent;
         private float m_RefDeltaSpeed = 0f;
+        private float m_Velocity;
+
+        private void setupRigibody()
+        {
+            m_Rigibody = GetComponent<Rigidbody>();
+            m_Rigibody.isKinematic = false;
+        }
+        void Start()
+        {
+            setupRigibody();
+        }
+
+        public float getVelocity(){
+            return m_Velocity;
+        }
+
+        public Vector3 getWorldPosition(){
+            return transform.position;
+        }
 
         float computeDeltaShift(float deltaV)
         {
@@ -82,10 +104,10 @@ namespace CarLevel
 
         void updateTransformation()
         {
-            float deltaSpeed = computeCurrentSpeed() * Time.deltaTime;
+            m_Velocity = computeCurrentSpeed() * Time.deltaTime;
 
-            float deltaForward = computeDeltaForward(deltaSpeed);
-            float deltaShift = computeDeltaShift(deltaSpeed);
+            float deltaForward = computeDeltaForward(m_Velocity);
+            float deltaShift = computeDeltaShift(m_Velocity);
             float rotateAngle = computeObjectRotateAngle(deltaShift);
 
             Vector3 currentRotator = transform.rotation.eulerAngles;
@@ -94,10 +116,10 @@ namespace CarLevel
             Vector3 deltaPosition = Vector3.forward * deltaForward +
             Vector3.right * deltaShift;
 
-            transform.position = currentPosition + transform.TransformDirection(deltaPosition);
+            m_Rigibody.MovePosition(currentPosition + transform.TransformDirection(deltaPosition));
 
             currentRotator.y += rotateAngle;
-            transform.rotation = Quaternion.Euler(currentRotator);
+            m_Rigibody.MoveRotation(Quaternion.Euler(currentRotator));
         }
 
         void Update()
