@@ -37,19 +37,26 @@ public class UiCanvasController : MonoBehaviour
         m_Stack = new Stack<RectTransform>();
     }
 
-    public void pushToStack(RectTransform prefab, bool isBase){
+    public RectTransform pushToStack(RectTransform prefab, bool isBase){
         var rect = Instantiate(prefab) as RectTransform;
         rect.SetParent(m_Canvas.transform, false);
         m_Stack.Push(rect);
 
         if(isBase) m_StackBase = m_Stack.Count;
+
+        return rect;
     }
 
     // 推出UI栈直到发现这个prefab为止
-    public void popFromStack(RectTransform prefab){
+    public void popStack(RectTransform prefab){
         while (m_Stack.Count != 0)
         {
             var peek = m_Stack.Peek();
+            if(peek == prefab){
+                break;
+            }else {
+                m_Stack.Pop();
+            }
         }
     }
 

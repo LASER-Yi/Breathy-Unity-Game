@@ -17,26 +17,105 @@ public class MenuManager : SceneBaseController
     }
     [SerializeField]
     private RectTransform m_Menu;
+    private bool m_IsEnableMouse;
 
     void Awake(){
-        m_UiController.pushToStack(m_Menu, true);
+        var rect = m_UiController.pushToStack(m_Menu, true);
+        var menu = rect.GetComponent<MenuUiController>();
+        if(menu != null){
+            menu.setManager(this);
+        }
     }
 
     void Start(){
         StartCoroutine(IE_StartupTransfer());
     }
 
+    public void startSelectGame(){
+        StartCoroutine(IE_PlaySelectTransfer());
+    }
+
     IEnumerator IE_StartupTransfer(){
         m_Controller.setFovOnCamera(30f);
-        m_Controller.setTransform(Vector3.up*35f, Quaternion.identity);
+        m_Controller.setTransform(Quaternion.identity);
 
+        var height = 50f;
+        var refHeight = 0f;
         var zlength = 210f;
-        var refSpeed = 0f;
-        while (zlength - 200f > float.Epsilon)
+        var refLength = 0f;
+
+        var timer = 0f;
+
+        while (timer < 1f)
         {
-            zlength = Mathf.SmoothDamp(zlength, 200f, ref refSpeed, 0.6f);
+            zlength = Mathf.SmoothDamp(zlength, 200f, ref refLength, 0.6f);
+            height = Mathf.SmoothDamp(height, 35f, ref refHeight, 0.6f);
             m_Controller.setZLength(zlength);
+            m_Controller.setTransform(Vector3.up * height, Quaternion.identity);
+            yield return null;
+            timer += Time.deltaTime;
+        }
+        m_IsEnableMouse = true;
+    }
+
+    IEnumerator IE_PlaySelectTransfer(){
+        m_IsEnableMouse = false;
+
+        var fov = m_Controller.getAttachCamera().fieldOfView;
+        var refFov = 0f;
+        var zlength = m_Controller.getZLength();
+        var refZlength = 0f;
+
+        Vector3 rotator;
+        Quaternion current;
+        while (true)
+        {
+            fov = Mathf.SmoothDamp(fov, 50f, ref refFov, 0.2f);
+            m_Controller.setFovOnCamera(fov);
+
+            // zlength = Mathf.SmoothDamp(zlength, 190f, ref refZlength, 0.6f);
+            // m_Controller.setZLength(zlength);
+
+            current = m_Controller.getWorldRotation();
+            rotator = current.eulerAngles;
+
+            rotator.y -= Time.deltaTime * 10f;
+            rotator.x = 0f;
+            rotator.z = 0f;
+
+            current = Quaternion.Lerp(current, Quaternion.Euler(rotator), 0.3f);
+            m_Controller.setTransform(current);
             yield return null;
         }
+    }
+
+    Vector2 computeMousePercent(){
+        if (Input.mousePresent)
+        {
+            var mousePos = Input.mousePosition;
+            Vector2 percent = Vector2.zero;
+            percent.x = mousePos.x / Screen.width;
+            percent.y = mousePos.y / Screen.height;
+            return percent;
+        }else{
+            return new Vector2(0.5f, 0.5f);
+        }
+    }
+
+    void handleMouseMove(){
+        var percent = computeMousePercent();
+        var target = Vector3.zero;
+
+        var degree = 5f;
+        target.y = Mathf.Lerp(-degree, degree, percent.x);
+        target.x = Mathf.Lerp(degree, -degree, percent.y);
+
+        var current = m_Controller.getWorldRotation();
+        current = Quaternion.Slerp(current, Quaternion.Euler(target), 0.3f);
+        m_Controller.setTransform(current);
+    }
+
+    void LateUpdate(){
+        if(m_IsEnableMouse) handleMouseMove();
     }
 }

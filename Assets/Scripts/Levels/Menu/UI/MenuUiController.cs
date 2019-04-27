@@ -4,15 +4,27 @@ using UnityEngine;
 
 public class MenuUiController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+
+    private MenuManager m_Manager;
+
+    public void setManager(MenuManager instance){
+        m_Manager = instance;
+    }
+    public void onStartPress()
     {
-        
+        m_Manager.startSelectGame();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void onExitPress()
     {
-        
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+    public void onBtnHover()
+    {
+
     }
 }
