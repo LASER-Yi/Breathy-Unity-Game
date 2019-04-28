@@ -17,6 +17,10 @@ public class MenuManager : SceneBaseController
     }
     [SerializeField]
     private RectTransform m_Menu;
+    [SerializeField]
+    private float m_MouseDropDegree = 5f;
+    [SerializeField, Range(0f, 1f)]
+    private float m_UpDownDropPrecent = 0.5f;
     private bool m_IsEnableMouse;
 
     void Awake(){
@@ -106,9 +110,10 @@ public class MenuManager : SceneBaseController
         var percent = computeMousePercent();
         var target = Vector3.zero;
 
-        var degree = 5f;
-        target.y = Mathf.Lerp(-degree, degree, percent.x);
-        target.x = Mathf.Lerp(degree, -degree, percent.y);
+        var horiDegree = m_MouseDropDegree;
+        var vertDegree = horiDegree * m_UpDownDropPrecent;
+        target.x = Mathf.Lerp(vertDegree, -vertDegree, percent.y);
+        target.y = Mathf.Lerp(-horiDegree, horiDegree, percent.x);
 
         var current = m_Controller.getWorldRotation();
         current = Quaternion.Slerp(current, Quaternion.Euler(target), 0.3f);
