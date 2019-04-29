@@ -8,7 +8,7 @@ namespace CarLevel
     // 左右转只能在前进时候进行
     // 松开油门会减速
 
-    // TODO: 根据轮胎角度计算真实的转向
+
     public class CarPlayerPawn : MonoBehaviour
     {
         private IGamePawnBaseController m_Controller;

@@ -9,16 +9,24 @@ namespace CarLevel
 {
     public class CarAiPawn : MonoBehaviour
     {
-        // Start is called before the first frame update
-        void Start()
-        {
+        private IGamePawnBaseController m_Controller;
 
+        [SerializeField]
+        private float m_ReactionTime;
+        [SerializeField]
+        private float m_SafeDistance;
+        [SerializeField]
+        private float m_SteerSpeed;
+        [SerializeField]
+        private float m_MaxSpeed;
+        void Awake()
+        {
+            m_Controller = GetComponent<IGamePawnBaseController>();
         }
 
         // Update is called once per frame
         void Update()
         {
-
         }
     }
 }

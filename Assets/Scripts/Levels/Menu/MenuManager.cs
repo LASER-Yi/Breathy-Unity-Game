@@ -4,23 +4,15 @@ using UnityEngine;
 
 public class MenuManager : SceneBaseController
 {
-    private CameraController m_Controller{
-        get{
-            return CameraController.instance;
-        }
-    }
 
-    private UiCanvasController m_UiController{
-        get{
-            return UiCanvasController.instance;
-        }
-    }
     [SerializeField]
     private RectTransform m_Menu;
     [SerializeField]
     private float m_MouseDropDegree = 5f;
     [SerializeField, Range(0f, 1f)]
     private float m_UpDownDropPrecent = 0.5f;
+    [SerializeField]
+    private float m_RotateSpeed = 10f;
     private bool m_IsEnableMouse;
 
     void Awake(){
@@ -32,11 +24,16 @@ public class MenuManager : SceneBaseController
     }
 
     void Start(){
+        base.Start();
         StartCoroutine(IE_StartupTransfer());
     }
 
     public void startSelectGame(){
         StartCoroutine(IE_PlaySelectTransfer());
+    }
+
+    public void setupComfirmTransition(AsyncOperation op){
+        StartCoroutine(IE_ComfirmTransfer(op));
     }
 
     IEnumerator IE_StartupTransfer(){
@@ -83,13 +80,46 @@ public class MenuManager : SceneBaseController
             current = m_Controller.getWorldRotation();
             rotator = current.eulerAngles;
 
-            rotator.y -= Time.deltaTime * 10f;
+            rotator.y -= Time.deltaTime * m_RotateSpeed;
             rotator.x = 0f;
             rotator.z = 0f;
 
-            current = Quaternion.Lerp(current, Quaternion.Euler(rotator), 0.3f);
+            current = Quaternion.Slerp(current, Quaternion.Euler(rotator), 0.3f);
             m_Controller.setTransform(current);
             yield return null;
+        }
+    }
+
+    IEnumerator IE_ComfirmTransfer(AsyncOperation op){
+        m_IsEnableMouse = false;
+
+        Vector3 rotator;
+        Quaternion current;
+        while (op.isDone)
+        {
+            current = m_Controller.getWorldRotation();
+            rotator = current.eulerAngles;
+
+            rotator.y -= Time.deltaTime * m_RotateSpeed;
+            rotator.x = 90f;
+            rotator.z = 0f;
+
+            current = Quaternion.Slerp(current, Quaternion.Euler(rotator), 0.3f);
+            m_Controller.setTransform(current);
+            yield return null;
+        }
+
+        var zlength = m_Controller.getZLength();
+        var refZlength = 0f;
+
+        var timer = 0.8f;
+
+        while (timer > 0f)
+        {
+            timer -= Time.deltaTime;
+
+            zlength = Mathf.SmoothDamp(zlength, 100f, ref refZlength, 0.6f);
+            m_Controller.setZLength(zlength);
         }
     }
 

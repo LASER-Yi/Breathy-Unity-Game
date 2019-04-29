@@ -37,8 +37,14 @@ public class UiCanvasController : MonoBehaviour
         m_Stack = new Stack<RectTransform>();
     }
 
+    public RectTransform directOverlay(RectTransform prefab){
+        var _obj = Instantiate(prefab);
+        _obj.SetParent(m_Canvas.transform, false);
+        return _obj;
+    }
+
     public RectTransform pushToStack(RectTransform prefab, bool isBase){
-        var rect = Instantiate(prefab) as RectTransform;
+        var rect = Instantiate(prefab);
         rect.SetParent(m_Canvas.transform, false);
         m_Stack.Push(rect);
 

@@ -37,6 +37,14 @@ namespace CarLevel
             float positionX = maxWidth + ((m_RoadWidth / 2.0f) * (2 * index + 1));
             return transform.position.x + positionX;
         }
+
+        void OnBecameVisible(){
+
+        }
+
+        void OnBecameInvisible(){
+            
+        }
     }
 
     [CustomEditor(typeof(RoadObject))]
