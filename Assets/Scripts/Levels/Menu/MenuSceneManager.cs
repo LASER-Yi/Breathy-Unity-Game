@@ -16,6 +16,7 @@ public class MenuSceneManager : SceneBaseController
     [SerializeField]
     private float m_RotateSpeed = 10f;
     private bool m_IsEnableMouse;
+    private bool m_IsBtnReady = false;
 
     void Awake(){
         var rect = m_UiController.pushToStack(m_Menu, true);
@@ -31,11 +32,16 @@ public class MenuSceneManager : SceneBaseController
     }
 
     public void startSelectGame(){
+        if(!m_IsBtnReady) return;
         StartCoroutine(IE_PlaySelectTransfer());
-        UiCanvasController.instance.pushToStack(m_Select, true);
+        GCanvasController.instance.pushToStack(m_Select, true);
     }
 
-    public void setupComfirmTransition(AsyncOperation op){
+    public void transToSubGame(GSceneController.ESceneIndex index){
+
+    }
+
+    private void setupComfirmTransition(AsyncOperation op){
         StartCoroutine(IE_ComfirmTransfer(op));
     }
 
@@ -60,6 +66,7 @@ public class MenuSceneManager : SceneBaseController
             timer += Time.deltaTime;
         }
         m_IsEnableMouse = true;
+        m_IsBtnReady = true;
     }
 
     IEnumerator IE_PlaySelectTransfer(){

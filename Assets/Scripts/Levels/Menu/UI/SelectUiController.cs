@@ -14,7 +14,7 @@ class SelectUiController : MonoBehaviour
         // public LineRenderer line;
         public Vector3 pointPosition;
         public Button bindBtn;
-        public SceneController.ESceneIndex bindScene;
+        public GSceneController.ESceneIndex bindScene;
     }
 
     private GameObject _lineContainer;
@@ -40,8 +40,16 @@ class SelectUiController : MonoBehaviour
     private Button m_BtnPrefab;
     [SerializeField]
     private LineRenderer m_LinePrefab;
+    [SerializeField]
+    private float m_AxisXOffset = 100f;
+    [SerializeField]
+    private float m_AxisYScale = 2f;
+    [SerializeField]
+    private Vector3 m_CenterPoint = Vector3.zero;
 
     List<SelectInfo> m_SceneInfo;
+
+    private Canvas m_Canvas;
 
     Vector3 generateWorldPositionInBox()
     {
@@ -57,13 +65,13 @@ class SelectUiController : MonoBehaviour
         if (m_BtnPrefab == null) return;
 
         m_SceneInfo = new List<SelectInfo>();
-        var sceneList = SceneController.instance.getSceneList();
+        var sceneList = GSceneController.instance.getSceneList();
         foreach (var item in sceneList)
         {
             var select = new SelectInfo();
             select.bindScene = item.Key;
 
-            var btn = UiCanvasController.instance.directOverlay(m_BtnPrefab.GetComponent<RectTransform>()).GetComponent<Button>();
+            var btn = GCanvasController.instance.putToCanvas(m_BtnPrefab.GetComponent<RectTransform>()).GetComponent<Button>();
             btn.transform.SetParent(transform);
             btn.transform.localPosition = Vector3.zero;
             btn.transform.localScale = Vector3.one;
@@ -90,6 +98,7 @@ class SelectUiController : MonoBehaviour
     void Awake()
     {
         initalSceneInfo();
+        m_Canvas = GetComponentInParent<Canvas>();
     }
 
     void updateSelectInfo()
@@ -97,22 +106,27 @@ class SelectUiController : MonoBehaviour
         var centerPoint = Vector2.zero;
         foreach (var item in m_SceneInfo)
         {
-            var screenPoint = Camera.main.WorldToScreenPoint(item.pointPosition);
+            var screenPoint = Camera.main.WorldToScreenPoint(item.pointPosition - m_CenterPoint);
             centerPoint.x += screenPoint.x;
             centerPoint.y += screenPoint.y;
         }
 
         centerPoint /= (float)m_SceneInfo.Count;
+        centerPoint = RectTransformUtility.PixelAdjustPoint(centerPoint, transform, m_Canvas);
 
         foreach (var item in m_SceneInfo)
         {
             var _point = Camera.main.WorldToScreenPoint(item.pointPosition);
             var screenPoint = new Vector2(_point.x, _point.y);
+            screenPoint = RectTransformUtility.PixelAdjustPoint(screenPoint, item.bindBtn.transform, m_Canvas);
+
             var depth = _point.z;
 
             var offset = screenPoint - centerPoint;
             offset *= m_ScaleRate;
             // 分层
+            offset.x += (offset.x < 0 ? -m_AxisXOffset : m_AxisXOffset);
+            offset.y *= m_AxisYScale;
 
             var current = item.bindBtn.GetComponent<RectTransform>();
             current.localPosition = Vector2.Lerp(current.localPosition, offset, 0.1f);

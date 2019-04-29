@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneController : MonoBehaviour
+public class GSceneController : MonoBehaviour
 {
     public enum ESceneIndex : int
     {
@@ -15,9 +15,9 @@ public class SceneController : MonoBehaviour
     }
     private Dictionary<ESceneIndex, string> m_SceneName;
     private static Object _lock = new Object();
-    private static SceneController _instance;
+    private static GSceneController _instance;
 
-    public static SceneController instance
+    public static GSceneController instance
     {
         get
         {
@@ -25,7 +25,7 @@ public class SceneController : MonoBehaviour
             {
                 if (_instance == null)
                 {
-                    var obj = FindObjectOfType<SceneController>();
+                    var obj = FindObjectOfType<GSceneController>();
                     if (obj != null)
                     {
                         _instance = obj;
@@ -38,14 +38,16 @@ public class SceneController : MonoBehaviour
 
     void initalSceneName(){
         m_SceneName = new Dictionary<ESceneIndex, string>();
-        m_SceneName.Add(ESceneIndex.Loader, "Loader");
-        m_SceneName.Add(ESceneIndex.Menu, "Menu");
         m_SceneName.Add(ESceneIndex.Road, "Road");
         m_SceneName.Add(ESceneIndex.Market, "Market");
         m_SceneName.Add(ESceneIndex.Heart, "Sleepy");
     }
     public string getSceneName(ESceneIndex index){
-        return m_SceneName[index];
+        if(m_SceneName.ContainsKey(index)){
+            return m_SceneName[index];
+        }else{
+            return null;
+        }
     }
 
     public Dictionary<ESceneIndex, string> getSceneList(){
@@ -113,7 +115,9 @@ public class SceneController : MonoBehaviour
         yield return new WaitUntil(delegate () { return operation.isDone; });
         var skybox = SceneBaseController.instance.getSceneSkybox();
         var name = getSceneName(index);
-        SceneBaseController.instance.setSceneName(name);
+        if(name != null){
+            SceneBaseController.instance.setSceneName(name);
+        }
         changeSceneSkybox(skybox);
         yield return null;
     }

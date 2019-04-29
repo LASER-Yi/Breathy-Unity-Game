@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UiCanvasController : MonoBehaviour
+public class GCanvasController : MonoBehaviour
 {
     private static Object _lock = new Object();
-    private static UiCanvasController _instance;
+    private static GCanvasController _instance;
 
-    public static UiCanvasController instance
+    public static GCanvasController instance
     {
         get
         {
@@ -16,7 +16,7 @@ public class UiCanvasController : MonoBehaviour
             {
                 if (_instance == null)
                 {
-                    var obj = FindObjectOfType<UiCanvasController>();
+                    var obj = FindObjectOfType<GCanvasController>();
                     if (obj != null)
                     {
                         _instance = obj;
@@ -26,6 +26,9 @@ public class UiCanvasController : MonoBehaviour
             return _instance;
         }
     }
+    [SerializeField]
+    private RectTransform m_LoadPrefab;
+
     private RectTransform m_MenuPrefab;
     private Canvas m_Canvas;
     private Stack<RectTransform> m_Stack;
@@ -37,10 +40,23 @@ public class UiCanvasController : MonoBehaviour
         m_Stack = new Stack<RectTransform>();
     }
 
-    public RectTransform directOverlay(RectTransform prefab){
+    public RectTransform putToCanvas(RectTransform prefab){
         var _obj = Instantiate(prefab);
         _obj.SetParent(m_Canvas.transform, false);
         return _obj;
+    }
+
+    void cleanupCanvas(){
+        m_StackBase = 0;
+        foreach (var item in m_Stack)
+        {
+            Destroy(item.gameObject);
+        }
+        m_Stack.Clear();
+    }
+
+    void setupLoadCanvas(){
+        cleanupCanvas();
     }
 
     public RectTransform pushToStack(RectTransform prefab, bool isBase){

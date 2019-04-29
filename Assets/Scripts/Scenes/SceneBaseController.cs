@@ -35,11 +35,11 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
-    protected UiCanvasController m_UiController
+    protected GCanvasController m_UiController
     {
         get
         {
-            return UiCanvasController.instance;
+            return GCanvasController.instance;
         }
     }
 
@@ -66,7 +66,7 @@ public abstract class SceneBaseController : MonoBehaviour
     }
 
     public void backToMenu(){
-        SceneController.instance.LoadSceneAsync(SceneController.ESceneIndex.Menu);
+        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu);
     }
 
     protected void Start()
@@ -79,7 +79,7 @@ public abstract class SceneBaseController : MonoBehaviour
 
     IEnumerator IE_ShowTitle()
     {
-        var title = UiCanvasController.instance.directOverlay(m_TitlePrefab);
+        var title = GCanvasController.instance.putToCanvas(m_TitlePrefab);
         var text = title.GetComponent<UnityEngine.UI.Text>();
         if (text != null) text.text = m_SceneName;
         yield return new WaitForSecondsRealtime(3.0f);

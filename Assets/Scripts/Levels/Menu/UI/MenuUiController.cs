@@ -12,10 +12,12 @@ public class MenuUiController : MonoBehaviour
     [SerializeField]
     private RectTransform m_BtnPrefab;
 
-    void Awake(){
+    void Awake()
+    {
         m_BtnContainer = GetComponentInChildren<HorizontalLayoutGroup>();
-        
-        if(m_BtnPrefab != null){
+
+        if (m_BtnPrefab != null)
+        {
             {
                 var _object = Instantiate(m_BtnPrefab);
                 var text = _object.GetComponentInChildren<Text>();
@@ -24,6 +26,7 @@ public class MenuUiController : MonoBehaviour
                 btn.onClick.AddListener(onStartPress);
                 _object.SetParent(m_BtnContainer.transform, false);
             }
+
             {
                 var _object = Instantiate(m_BtnPrefab);
                 var text = _object.GetComponentInChildren<Text>();
@@ -61,7 +64,7 @@ public class MenuUiController : MonoBehaviour
     public void onStartPress()
     {
         m_Manager.startSelectGame();
-        
+
     }
 
     public void onSettingPress()
