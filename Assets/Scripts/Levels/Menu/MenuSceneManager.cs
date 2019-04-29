@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MenuManager : SceneBaseController
+public class MenuSceneManager : SceneBaseController
 {
 
     [SerializeField]

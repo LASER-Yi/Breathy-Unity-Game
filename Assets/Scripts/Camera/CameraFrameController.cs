@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraFrameManager : MonoBehaviour
+public class CameraFrameController : MonoBehaviour
 {
     // 相机行为：
     // 使用摄像机窗格
@@ -23,13 +23,25 @@ public class CameraFrameManager : MonoBehaviour
     private float m_CameraCatchupDelay = 1f;
     [SerializeField, Range(0f, 100f)]
     private float m_CameraMaxFollowSpeed = 10f;
-    private CameraController m_Controller;
+    private CameraController m_Controller{
+        get{
+            return CameraController.instance;
+        }
+    }
     private Vector3 m_ControllerPosition{
         get{
             return m_Controller.getWorldPosition();
         }
     }
-    private IGamePawnBaseController m_Character;
+    private IGamePawnBaseController _chararcter;
+    private IGamePawnBaseController m_Character{
+        get{
+            if(_chararcter == null){
+                _chararcter = GameObject.FindGameObjectWithTag("Player").GetComponent<IGamePawnBaseController>();
+            }
+            return _chararcter;
+        }
+    }
     private float m_RefDeltaPercent = 0.0f;
     private float m_CatchupTimer = 0.0f;
 
@@ -48,15 +60,6 @@ public class CameraFrameManager : MonoBehaviour
     }
 
     private Vector3 m_TargetCameraPosition;
-
-    void Awake(){
-        initalManager();
-    }
-
-    void initalManager(){
-        m_Controller = CameraController.instance;
-        m_Character = GameObject.FindGameObjectWithTag("Player").GetComponent<IGamePawnBaseController>();
-    }
 
     // catchupdelay -> 玩家越过中线开始摄像机从下窗格追上并锁定玩家的时间
     // 最后使用smoothdamp进行位置的插值

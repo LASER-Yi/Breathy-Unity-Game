@@ -14,9 +14,9 @@ public class SceneController : MonoBehaviour
         Heart = 4
     }
     private static UnityEngine.Object _object;
-    private static SceneManager _instance;
+    private static SceneController _instance;
     // from: https://blog.csdn.net/yupu56/article/details/53668688
-    public static SceneManager Instance
+    public static SceneController instance
     {
         get
         {
@@ -26,7 +26,7 @@ public class SceneController : MonoBehaviour
                 {
                     if (_instance == null)
                     {
-                        _instance = new SceneManager();
+                        _instance = new SceneController();
                     }
                 }
             }

@@ -7,7 +7,6 @@ namespace CarLevel
 {
     [RequireComponent(typeof(Rigidbody))]
     // 控制车辆的接口, 实现移动的功能
-    // TODO: 将车辆行为改成物理基础
     public class CarObject : MonoBehaviour, IGamePawnBaseController
     {
         [SerializeField]

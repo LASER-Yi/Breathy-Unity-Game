@@ -61,6 +61,10 @@ public abstract class SceneBaseController : MonoBehaviour
         return m_SceneSkybox;
     }
 
+    public void backToMenu(){
+        SceneController.instance.LoadSceneAsync(SceneController.ESceneIndex.Menu);
+    }
+
     protected void Start()
     {
         if (m_IsShowAfterLoad && m_TitlePrefab != null)

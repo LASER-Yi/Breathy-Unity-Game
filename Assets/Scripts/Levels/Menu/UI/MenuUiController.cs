@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MenuUiController : MonoBehaviour
 {
 
-    private MenuManager m_Manager;
+    private MenuSceneManager m_Manager;
     private HorizontalLayoutGroup m_BtnContainer;
 
     [SerializeField]
@@ -54,7 +54,7 @@ public class MenuUiController : MonoBehaviour
 
     }
 
-    public void setManager(MenuManager instance)
+    public void setManager(MenuSceneManager instance)
     {
         m_Manager = instance;
     }
