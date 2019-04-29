@@ -61,6 +61,7 @@ public class MenuUiController : MonoBehaviour
     public void onStartPress()
     {
         m_Manager.startSelectGame();
+        
     }
 
     public void onSettingPress()

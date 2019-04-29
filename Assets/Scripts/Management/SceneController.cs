@@ -13,25 +13,47 @@ public class SceneController : MonoBehaviour
         Market = 3,
         Heart = 4
     }
-    private static UnityEngine.Object _object;
+    private Dictionary<ESceneIndex, string> m_SceneName;
+    private static Object _lock = new Object();
     private static SceneController _instance;
-    // from: https://blog.csdn.net/yupu56/article/details/53668688
+
     public static SceneController instance
     {
         get
         {
-            if (_instance == null)
+            lock (_lock)
             {
-                lock (_object)
+                if (_instance == null)
                 {
-                    if (_instance == null)
+                    var obj = FindObjectOfType<SceneController>();
+                    if (obj != null)
                     {
-                        _instance = new SceneController();
+                        _instance = obj;
                     }
                 }
             }
             return _instance;
         }
+    }
+
+    void initalSceneName(){
+        m_SceneName = new Dictionary<ESceneIndex, string>();
+        m_SceneName.Add(ESceneIndex.Loader, "Loader");
+        m_SceneName.Add(ESceneIndex.Menu, "Menu");
+        m_SceneName.Add(ESceneIndex.Road, "Road");
+        m_SceneName.Add(ESceneIndex.Market, "Market");
+        m_SceneName.Add(ESceneIndex.Heart, "Sleepy");
+    }
+    public string getSceneName(ESceneIndex index){
+        return m_SceneName[index];
+    }
+
+    public Dictionary<ESceneIndex, string> getSceneList(){
+        return m_SceneName;
+    }
+
+    void Awake(){
+        initalSceneName();
     }
 
     void Start()
@@ -54,7 +76,7 @@ public class SceneController : MonoBehaviour
         var operation = SceneManager.LoadSceneAsync((int)index, LoadSceneMode.Additive);
         operation.priority = 0;
         operation.allowSceneActivation = false;
-        StartCoroutine(IE_LoadScene(operation));
+        StartCoroutine(IE_LoadScene(operation, index));
     }
 
     private void changeSceneSkybox(Skybox box)
@@ -65,7 +87,7 @@ public class SceneController : MonoBehaviour
         }
     }
 
-    private IEnumerator IE_LoadScene(AsyncOperation operation)
+    private IEnumerator IE_LoadScene(AsyncOperation operation, ESceneIndex index)
     {
         Scene? currentScene = null;
         if (SceneManager.sceneCount == 3)
@@ -90,6 +112,8 @@ public class SceneController : MonoBehaviour
         operation.allowSceneActivation = true;
         yield return new WaitUntil(delegate () { return operation.isDone; });
         var skybox = SceneBaseController.instance.getSceneSkybox();
+        var name = getSceneName(index);
+        SceneBaseController.instance.setSceneName(name);
         changeSceneSkybox(skybox);
         yield return null;
     }

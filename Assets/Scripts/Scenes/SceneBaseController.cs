@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public abstract class SceneBaseController : MonoBehaviour
 {
@@ -44,13 +45,16 @@ public abstract class SceneBaseController : MonoBehaviour
 
     [SerializeField]
     private bool m_IsShowAfterLoad = false;
-    [SerializeField]
     private string m_SceneName;
     [SerializeField]
     private RectTransform m_TitlePrefab;
 
     [SerializeField]
     private Skybox m_SceneSkybox;
+
+    public void setSceneName(string s){
+        m_SceneName = s;
+    }
     public string getSceneName()
     {
         return m_SceneName;

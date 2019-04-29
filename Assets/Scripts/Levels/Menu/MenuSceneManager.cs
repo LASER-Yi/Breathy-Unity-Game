@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MenuSceneManager : SceneBaseController
 {
+    [SerializeField]
+    private RectTransform m_Select;
 
     [SerializeField]
     private RectTransform m_Menu;
@@ -30,6 +32,7 @@ public class MenuSceneManager : SceneBaseController
 
     public void startSelectGame(){
         StartCoroutine(IE_PlaySelectTransfer());
+        UiCanvasController.instance.pushToStack(m_Select, true);
     }
 
     public void setupComfirmTransition(AsyncOperation op){
