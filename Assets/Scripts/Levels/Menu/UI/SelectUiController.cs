@@ -43,7 +43,7 @@ class SelectUiController : MonoBehaviour, IStackableUi
     [SerializeField]
     private float m_AxisXOffset = 100f;
     [SerializeField]
-    private Vector2 m_BoxBound;
+    private float m_BoxSize;
     [SerializeField]
     private Vector3 m_CenterPoint = Vector3.zero;
 
@@ -107,15 +107,8 @@ class SelectUiController : MonoBehaviour, IStackableUi
 
     void updateSelectInfo()
     {
-        var centerPoint = Vector2.zero;
-        foreach (var item in m_SceneInfo)
-        {
-            var screenPoint = Camera.main.WorldToScreenPoint(item.pointPosition - m_CenterPoint);
-            centerPoint.x += screenPoint.x;
-            centerPoint.y += screenPoint.y;
-        }
-
-        centerPoint /= (float)m_SceneInfo.Count;
+        var c_point = Camera.main.WorldToScreenPoint(m_CenterPoint);
+        var centerPoint = new Vector2(c_point.x, c_point.y);
         centerPoint = RectTransformUtility.PixelAdjustPoint(centerPoint, transform, m_Canvas);
 
         foreach (var item in m_SceneInfo)
@@ -128,8 +121,8 @@ class SelectUiController : MonoBehaviour, IStackableUi
 
             var offset = screenPoint - centerPoint;
             offset = offset.normalized;
-            offset.x = Mathf.Lerp(-m_BoxBound.x, m_BoxBound.x, offset.x);
-            offset.y = Mathf.Lerp(-m_BoxBound.y, m_BoxBound.y, offset.y);
+            offset *= m_BoxSize;
+            // offset = Vector2.Lerp(-m_BoxSize, m_BoxSize, offset.x);
             // 分层
             offset.x += (offset.x < 0 ? -m_AxisXOffset : m_AxisXOffset);
 
