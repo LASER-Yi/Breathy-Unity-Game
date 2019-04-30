@@ -36,6 +36,12 @@ public class GSceneController : MonoBehaviour
         }
     }
 
+    private ESceneIndex m_ActiveScene;
+
+    public ESceneIndex getActiveScene(){
+        return m_ActiveScene;
+    }
+
     void initalSceneName()
     {
         m_SceneName = new Dictionary<ESceneIndex, string>();
@@ -70,6 +76,8 @@ public class GSceneController : MonoBehaviour
         if (SceneManager.sceneCount != 2)
         {
             LoadSceneAsync(ESceneIndex.Menu);
+        }else{
+            m_ActiveScene = (ESceneIndex)SceneManager.GetSceneAt(1).buildIndex;
         }
     }
 
@@ -86,7 +94,7 @@ public class GSceneController : MonoBehaviour
         StartCoroutine(IE_LoadScene(index));
     }
 
-    private void changeSceneSkybox(Skybox box)
+    public void setSkybox(Skybox box)
     {
         if (box != null)
         {
@@ -106,6 +114,7 @@ public class GSceneController : MonoBehaviour
             if (currentScene != null) yield return IE_UnloadScene(currentScene);
         }
 
+        m_ActiveScene = index;
         var operation = SceneManager.LoadSceneAsync((int)index, LoadSceneMode.Additive);
         operation.allowSceneActivation = false;
         // Load new scene
@@ -117,13 +126,6 @@ public class GSceneController : MonoBehaviour
         operation.allowSceneActivation = true;
         m_LoadProgress = 1.0f;
         yield return new WaitUntil(delegate { return operation.isDone; });
-        var skybox = SceneBaseController.instance.getSceneSkybox();
-        var name = getSceneName(index);
-        if (name != null)
-        {
-            SceneBaseController.instance.setSceneName(name);
-        }
-        changeSceneSkybox(skybox);
         GCanvasController.instance.removeFromCover(loadScreen);
         yield return null;
     }

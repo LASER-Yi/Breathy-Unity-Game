@@ -5,11 +5,11 @@ using UnityEngine;
 public interface IStackableUi
 {
     RectTransform getTransform();
-    void onPushToStack(bool animate);
+    void onDidPushToStack(bool animate);
     // UI 得到当前交互的顶层
-    void onBecomeTop();
+    void onDidBecomeTop();
     // UI 被其他元素覆盖
-    void onNotBecomeTop();
+    void onWillNotBecomeTop();
     // 返回进行动画的时间
-    float onRemoveFromStack(bool animate);
+    float onWillRemoveFromStack(bool animate);
 }

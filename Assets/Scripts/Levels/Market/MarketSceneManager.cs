@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class MarketSceneManager : SceneBaseController
 {
-    // Start is called before the first frame update
+    
+    void setupCamera(){
+        
+    }
+
     void Start()
     {
         base.Start();
+        setupCamera();
     }
 
 }

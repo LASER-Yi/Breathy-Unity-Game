@@ -56,27 +56,22 @@ public abstract class SceneBaseController : MonoBehaviour
     private RectTransform m_SceneUiPrefab;
     protected RectTransform m_SceneUi;
 
-    public void setSceneName(string s){
-        m_SceneName = s;
-    }
-    public string getSceneName()
+    public void backToMenu()
     {
-        return m_SceneName;
-    }
-
-    public Skybox getSceneSkybox()
-    {
-        return m_SceneSkybox;
-    }
-
-    public void backToMenu(){
         GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu);
+    }
+
+    private void initalSceneInfo(){
+        var index = GSceneController.instance.getActiveScene();
+        m_SceneName = GSceneController.instance.getSceneName(index);
+        GSceneController.instance.setSkybox(m_SceneSkybox);
     }
 
     protected void Start()
     {
+        initalSceneInfo();
         m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
-        if (m_IsShowAfterLoad && m_TitlePrefab != null)
+        if (m_IsShowAfterLoad)
         {
             StartCoroutine(IE_ShowTitle());
         }

@@ -44,67 +44,86 @@ public class GCanvasController : MonoBehaviour
 
     private escape escapeAction;
 
-    void defaultEscape(){
+    void defaultEscape()
+    {
         if (m_MenuPrefab != null)
         {
             pushToStack(m_MenuPrefab, false);
         }
     }
 
-    public void setEscapeAction(escape action){
+    public void setEscapeAction(escape action)
+    {
         escapeAction = action;
     }
 
-    public void setEscapeActionDefault(){
+    public void setEscapeActionDefault()
+    {
         escapeAction = defaultEscape;
     }
 
-    void Awake(){
+    void Awake()
+    {
         m_Canvas = GetComponent<Canvas>();
         m_Stack = new Stack<IStackableUi>();
         m_Cover = new List<ICoverableUi>();
         setEscapeActionDefault();
     }
 
-    public void cleanCanvas(){
+    public void cleanCanvas()
+    {
         m_StackBase = 0;
         cleanStack(true);
         cleanCover();
     }
 
-    public RectTransform setupLoadCanvas(){
+    public RectTransform setupLoadCanvas()
+    {
         cleanCanvas();
         return addToCover(m_LoadPrefab);
     }
     /* Cover */
-    public RectTransform addToCover(RectTransform prefab){
+    public RectTransform addToCover(RectTransform prefab)
+    {
+        if(prefab == null) return null;
+
         var rect = Instantiate(prefab);
         var script = rect.GetComponent<ICoverableUi>();
 
-        if(script != null){
+        if (script != null)
+        {
             rect.SetParent(m_CoverObject, false);
             m_Cover.Add(script);
 
             script.onAddToCanvas(true);
-        }else{
+        }
+        else
+        {
             Destroy(rect.gameObject);
         }
 
         return rect;
     }
 
-    public void removeFromCover(RectTransform instance){
+    public void removeFromCover(RectTransform instance)
+    {
+        if(instance == null) return;
+        
         var script = instance.GetComponent<ICoverableUi>();
-        if(script != null){
+        if (script != null)
+        {
             var timer = script.onRemoveFromCanvas(true);
-            if(m_Cover.Remove(script)){
+            if (m_Cover.Remove(script))
+            {
                 Destroy(instance.gameObject, timer);
             }
         }
     }
 
-    public void cleanCover(){
-        foreach(var item in m_Cover){
+    public void cleanCover()
+    {
+        foreach (var item in m_Cover)
+        {
             item.onRemoveFromCanvas(false);
             Destroy(item.getTransform().gameObject);
         }
@@ -114,41 +133,60 @@ public class GCanvasController : MonoBehaviour
     /* Stack */
     public RectTransform pushToStack(RectTransform prefab, bool isBase)
     {
+        if(prefab == null) return null;
+        
         var rect = Instantiate(prefab);
         var script = rect.GetComponent<IStackableUi>();
 
-        if (script != null){
+        if (script != null)
+        {
+            if(m_Stack.Count != 0){
+                var prev = m_Stack.Peek();
+                prev.onWillNotBecomeTop();
+            }
+
             rect.SetParent(m_StackObject, false);
             m_Stack.Push(script);
             if (isBase) m_StackBase = m_Stack.Count;
 
-            script.onPushToStack(true);
-            script.onBecomeTop();
-        }else{
+            script.onDidPushToStack(true);
+            script.onDidBecomeTop();
+        }
+        else
+        {
             Destroy(rect.gameObject);
         }
 
         return rect;
     }
 
-    public void cleanStack(bool ignoreBase){
+    public void cleanStack(bool ignoreBase)
+    {
         var count = 0;
-        if(!ignoreBase) count = m_StackBase;
+        if (!ignoreBase) count = m_StackBase;
 
-        while(m_Stack.Count != count){
+        while (m_Stack.Count != count)
+        {
             var script = m_Stack.Pop();
-            script.onRemoveFromStack(false);
+            script.onWillRemoveFromStack(false);
             Destroy(script.getTransform().gameObject);
         }
     }
 
-    public void popStack(){
-        if(m_Stack.Count != 0){
+    public void popStack()
+    {
+        if (m_Stack.Count != 0)
+        {
             if (m_StackBase != m_Stack.Count)
             {
                 var script = m_Stack.Pop();
-                var timer = script.onRemoveFromStack(true);
+                var timer = script.onWillRemoveFromStack(true);
                 Destroy(script.getTransform().gameObject, timer);
+
+                if(m_Stack.Count != 0){
+                    var next = m_Stack.Peek();
+                    next.onDidBecomeTop();
+                }
             }
             else
             {
@@ -157,21 +195,26 @@ public class GCanvasController : MonoBehaviour
         }
     }
 
-    public void setMenuPrefab(RectTransform prefab){
-        if(prefab.GetComponent<IStackableUi>() != null){
+    public void setMenuPrefab(RectTransform prefab)
+    {
+        if (prefab.GetComponent<IStackableUi>() != null)
+        {
             m_MenuPrefab = prefab;
         }
         setEscapeActionDefault();
     }
 
-    void handleEscapeEvent(){
+    void handleEscapeEvent()
+    {
         var isPress = Input.GetButtonUp("Cancel");
-        if(isPress){
+        if (isPress)
+        {
             popStack();
         }
     }
 
-    void update(){
+    void update()
+    {
         handleEscapeEvent();
     }
 }

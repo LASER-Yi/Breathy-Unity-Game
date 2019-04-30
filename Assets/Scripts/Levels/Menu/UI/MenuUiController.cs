@@ -93,16 +93,16 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     public RectTransform getTransform(){
         return transform as RectTransform;
     }
-    public void onPushToStack(bool animate){
+    public void onDidPushToStack(bool animate){
 
     }
-    public void onBecomeTop(){
-
+    public void onDidBecomeTop(){
+        gameObject.SetActive(true);
     }
-    public void onNotBecomeTop(){
-
+    public void onWillNotBecomeTop(){
+        gameObject.SetActive(false);
     }
-    public float onRemoveFromStack(bool animate){
+    public float onWillRemoveFromStack(bool animate){
         return 0f;
     }
 }

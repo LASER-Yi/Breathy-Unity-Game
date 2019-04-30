@@ -16,28 +16,33 @@ public class MenuSceneManager : SceneBaseController
     private bool m_IsEnableMouse;
     private bool m_IsBtnReady = false;
 
-    void Start(){
+    void Start()
+    {
         base.Start();
         var menuUi = m_SceneUi.GetComponent<MenuUiController>();
-        if(menuUi != null){
+        if (menuUi != null)
+        {
             menuUi.setManager(this);
         }
         StartCoroutine(IE_StartupTransfer());
     }
 
-    public void startSelectGame(){
-        if(!m_IsBtnReady) return;
+    public void startSelectGame()
+    {
+        if (!m_IsBtnReady) return;
         StartCoroutine(IE_PlaySelectTransfer());
         GCanvasController.instance.pushToStack(m_SelectPrefab, true).GetComponent<SelectUiController>().setupManager(this);
     }
 
-    public void transToSubGame(GSceneController.ESceneIndex index){
+    public void transToSubGame(GSceneController.ESceneIndex index)
+    {
         if (!m_IsBtnReady) return;
         GSceneController.instance.LoadSceneAsync(index);
         StopAllCoroutines();
     }
 
-    IEnumerator IE_StartupTransfer(){
+    IEnumerator IE_StartupTransfer()
+    {
         m_Controller.setFovOnCamera(30f);
         m_Controller.setTransform(Quaternion.identity);
 
@@ -61,7 +66,8 @@ public class MenuSceneManager : SceneBaseController
         m_IsBtnReady = true;
     }
 
-    IEnumerator IE_PlaySelectTransfer(){
+    IEnumerator IE_PlaySelectTransfer()
+    {
         m_IsEnableMouse = false;
 
         var fov = m_Controller.getAttachCamera().fieldOfView;
@@ -87,7 +93,8 @@ public class MenuSceneManager : SceneBaseController
         }
     }
 
-    Vector2 computeMousePercent(){
+    Vector2 computeMousePercent()
+    {
         if (Input.mousePresent)
         {
             var mousePos = Input.mousePosition;
@@ -95,12 +102,15 @@ public class MenuSceneManager : SceneBaseController
             percent.x = mousePos.x / Screen.width;
             percent.y = mousePos.y / Screen.height;
             return percent;
-        }else{
+        }
+        else
+        {
             return new Vector2(0.5f, 0.5f);
         }
     }
 
-    void handleMouseMove(){
+    void handleMouseMove()
+    {
         var percent = computeMousePercent();
         var target = Vector3.zero;
 
@@ -114,8 +124,9 @@ public class MenuSceneManager : SceneBaseController
         m_Controller.setTransform(current);
     }
 
-    void LateUpdate(){
-        if(m_IsEnableMouse) handleMouseMove();
+    void LateUpdate()
+    {
+        if (m_IsEnableMouse) handleMouseMove();
     }
 
 }
