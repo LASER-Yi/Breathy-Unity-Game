@@ -121,6 +121,17 @@ public class CameraFrameController : MonoBehaviour
         m_Controller.setTransform(m_TargetCameraPosition);
     }
 
+    void initalCamera(){
+        m_Controller.setTransform(Quaternion.Euler(90f, 0f, 0f));
+        m_Controller.setZLength(20f);
+        m_Controller.setTransform(m_Character.getWorldPosition());
+        m_Controller.setFovOnCamera(90f);
+    }
+
+    void Start(){
+        initalCamera();
+    }
+
     void LateUpdate(){
         float rate = computeCounterPosition();
         computeTargetPosition(rate);

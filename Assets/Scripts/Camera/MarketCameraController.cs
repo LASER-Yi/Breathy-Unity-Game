@@ -34,7 +34,7 @@ public class MarketCameraController : MonoBehaviour
 
     private Vector3 m_RefCameraSpeed;
 
-    void initalCameraPosition()
+    void initalCamera()
     {
         m_Controller.setFovOnCamera(m_CameraFov);
         m_Controller.setZLength(m_CameraHeight);
@@ -44,7 +44,7 @@ public class MarketCameraController : MonoBehaviour
 
     void Start()
     {
-        initalCameraPosition();
+        initalCamera();
     }
 
     void moveToCharacter()

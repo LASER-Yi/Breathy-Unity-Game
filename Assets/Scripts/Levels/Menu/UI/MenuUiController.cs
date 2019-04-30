@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MenuUiController : MonoBehaviour
+public class MenuUiController : MonoBehaviour, IStackableUi
 {
 
     private MenuSceneManager m_Manager;
@@ -63,8 +63,8 @@ public class MenuUiController : MonoBehaviour
     }
     public void onStartPress()
     {
+        
         m_Manager.startSelectGame();
-
     }
 
     public void onSettingPress()
@@ -88,5 +88,21 @@ public class MenuUiController : MonoBehaviour
     public void onBtnHover()
     {
 
+    }
+
+    public RectTransform getTransform(){
+        return transform as RectTransform;
+    }
+    public void onPushToStack(bool animate){
+
+    }
+    public void onBecomeTop(){
+
+    }
+    public void onNotBecomeTop(){
+
+    }
+    public float onRemoveFromStack(bool animate){
+        return 0f;
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 // TODO: 方块内随机
 // 左右分层
 // 线连接
-class SelectUiController : MonoBehaviour
+class SelectUiController : MonoBehaviour, IStackableUi
 {
     private struct SelectInfo
     {
@@ -16,6 +16,8 @@ class SelectUiController : MonoBehaviour
         public Button bindBtn;
         public GSceneController.ESceneIndex bindScene;
     }
+
+    private MenuSceneManager m_Manager;
 
     private GameObject _lineContainer;
     private GameObject m_LineContainer
@@ -51,6 +53,10 @@ class SelectUiController : MonoBehaviour
 
     private Canvas m_Canvas;
 
+    public void setupManager(MenuSceneManager instance){
+        m_Manager = instance;
+    }
+
     Vector3 generateWorldPositionInBox()
     {
         var position = Vector3.one;
@@ -71,14 +77,14 @@ class SelectUiController : MonoBehaviour
             var select = new SelectInfo();
             select.bindScene = item.Key;
 
-            var btn = GCanvasController.instance.putToCanvas(m_BtnPrefab.GetComponent<RectTransform>()).GetComponent<Button>();
+            var btn = Instantiate(m_BtnPrefab).GetComponent<Button>();
             btn.transform.SetParent(transform);
             btn.transform.localPosition = Vector3.zero;
             btn.transform.localScale = Vector3.one;
             select.bindBtn = btn;
             var btnText = btn.GetComponentInChildren<Text>();
             btnText.text = item.Value;
-            btn.onClick.AddListener(onBtnClick);
+            btn.onClick.AddListener(delegate { onBtnClick(select.bindScene); });
 
             select.pointPosition = generateWorldPositionInBox();
 
@@ -90,9 +96,9 @@ class SelectUiController : MonoBehaviour
         }
     }
 
-    void onBtnClick()
+    void onBtnClick(GSceneController.ESceneIndex index)
     {
-
+        m_Manager.transToSubGame(index);
     }
 
     void Awake()
@@ -142,6 +148,22 @@ class SelectUiController : MonoBehaviour
     void OnDestroy()
     {
         if (_lineContainer != null) Destroy(_lineContainer);
+    }
+
+    public RectTransform getTransform(){
+        return transform as RectTransform;
+    }
+    public void onPushToStack(bool animate){
+
+    }
+    public void onBecomeTop(){
+
+    }
+    public void onNotBecomeTop(){
+
+    }
+    public float onRemoveFromStack(bool animate){
+        return 0f;
     }
 
 }

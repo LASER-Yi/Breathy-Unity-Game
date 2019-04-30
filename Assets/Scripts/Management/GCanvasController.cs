@@ -28,85 +28,146 @@ public class GCanvasController : MonoBehaviour
     }
     [SerializeField]
     private RectTransform m_LoadPrefab;
-
     private RectTransform m_MenuPrefab;
     private Canvas m_Canvas;
-    private Stack<RectTransform> m_Stack;
-    // UI栈的底层，保证任何时候调用Pop都无法推出
+    [SerializeField]
+    private RectTransform m_StackObject;
+    [SerializeField]
+    private RectTransform m_CoverObject;
+    private Stack<IStackableUi> m_Stack;
+    // UI栈的底层，保证任何时候调用Pop都无法推出（除非清空UI）
     private int m_StackBase = 0;
+
+    private List<ICoverableUi> m_Cover;
+
+    public delegate void escape();
+
+    private escape escapeAction;
+
+    void defaultEscape(){
+        if (m_MenuPrefab != null)
+        {
+            pushToStack(m_MenuPrefab, false);
+        }
+    }
+
+    public void setEscapeAction(escape action){
+        escapeAction = action;
+    }
+
+    public void setEscapeActionDefault(){
+        escapeAction = defaultEscape;
+    }
 
     void Awake(){
         m_Canvas = GetComponent<Canvas>();
-        m_Stack = new Stack<RectTransform>();
+        m_Stack = new Stack<IStackableUi>();
+        m_Cover = new List<ICoverableUi>();
+        setEscapeActionDefault();
     }
 
-    public RectTransform putToCanvas(RectTransform prefab){
-        var _obj = Instantiate(prefab);
-        _obj.SetParent(m_Canvas.transform, false);
-        return _obj;
-    }
-
-    void cleanupCanvas(){
+    public void cleanCanvas(){
         m_StackBase = 0;
-        foreach (var item in m_Stack)
-        {
-            Destroy(item.gameObject);
-        }
-        m_Stack.Clear();
+        cleanStack(true);
+        cleanCover();
     }
 
-    void setupLoadCanvas(){
-        cleanupCanvas();
+    public RectTransform setupLoadCanvas(){
+        cleanCanvas();
+        return addToCover(m_LoadPrefab);
     }
-
-    public RectTransform pushToStack(RectTransform prefab, bool isBase){
+    /* Cover */
+    public RectTransform addToCover(RectTransform prefab){
         var rect = Instantiate(prefab);
-        rect.SetParent(m_Canvas.transform, false);
-        m_Stack.Push(rect);
+        var script = rect.GetComponent<ICoverableUi>();
 
-        if(isBase) m_StackBase = m_Stack.Count;
+        if(script != null){
+            rect.SetParent(m_CoverObject, false);
+            m_Cover.Add(script);
+
+            script.onAddToCanvas(true);
+        }else{
+            Destroy(rect.gameObject);
+        }
 
         return rect;
     }
 
-    // 推出UI栈直到发现这个prefab为止
-    public void popStack(RectTransform prefab){
-        while (m_Stack.Count != 0)
-        {
-            var peek = m_Stack.Peek();
-            if(peek == prefab){
-                break;
-            }else {
-                m_Stack.Pop();
+    public void removeFromCover(RectTransform instance){
+        var script = instance.GetComponent<ICoverableUi>();
+        if(script != null){
+            var timer = script.onRemoveFromCanvas(true);
+            if(m_Cover.Remove(script)){
+                Destroy(instance.gameObject, timer);
             }
         }
     }
 
-    public void popFromStack(){
+    public void cleanCover(){
+        foreach(var item in m_Cover){
+            item.onRemoveFromCanvas(false);
+            Destroy(item.getTransform().gameObject);
+        }
+        m_Cover.Clear();
+    }
+
+    /* Stack */
+    public RectTransform pushToStack(RectTransform prefab, bool isBase)
+    {
+        var rect = Instantiate(prefab);
+        var script = rect.GetComponent<IStackableUi>();
+
+        if (script != null){
+            rect.SetParent(m_StackObject, false);
+            m_Stack.Push(script);
+            if (isBase) m_StackBase = m_Stack.Count;
+
+            script.onPushToStack(true);
+            script.onBecomeTop();
+        }else{
+            Destroy(rect.gameObject);
+        }
+
+        return rect;
+    }
+
+    public void cleanStack(bool ignoreBase){
+        var count = 0;
+        if(!ignoreBase) count = m_StackBase;
+
+        while(m_Stack.Count != count){
+            var script = m_Stack.Pop();
+            script.onRemoveFromStack(false);
+            Destroy(script.getTransform().gameObject);
+        }
+    }
+
+    public void popStack(){
         if(m_Stack.Count != 0){
             if (m_StackBase != m_Stack.Count)
             {
-                var rect = m_Stack.Pop();
-                Destroy(rect);
+                var script = m_Stack.Pop();
+                var timer = script.onRemoveFromStack(true);
+                Destroy(script.getTransform().gameObject, timer);
             }
             else
             {
-                if (m_MenuPrefab != null)
-                {
-                    pushToStack(m_MenuPrefab, false);
-                }
+                escapeAction();
             }
         }
     }
 
     public void setMenuPrefab(RectTransform prefab){
-        m_MenuPrefab = prefab;
+        if(prefab.GetComponent<IStackableUi>() != null){
+            m_MenuPrefab = prefab;
+        }
+        setEscapeActionDefault();
     }
 
     void handleEscapeEvent(){
         var isPress = Input.GetButtonUp("Cancel");
         if(isPress){
-            popFromStack();
+            popStack();
         }
     }
 

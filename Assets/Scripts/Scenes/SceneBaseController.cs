@@ -45,12 +45,16 @@ public abstract class SceneBaseController : MonoBehaviour
 
     [SerializeField]
     private bool m_IsShowAfterLoad = false;
-    private string m_SceneName;
+    protected string m_SceneName;
     [SerializeField]
     private RectTransform m_TitlePrefab;
 
     [SerializeField]
     private Skybox m_SceneSkybox;
+
+    [SerializeField]
+    private RectTransform m_SceneUiPrefab;
+    protected RectTransform m_SceneUi;
 
     public void setSceneName(string s){
         m_SceneName = s;
@@ -71,6 +75,7 @@ public abstract class SceneBaseController : MonoBehaviour
 
     protected void Start()
     {
+        m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
         if (m_IsShowAfterLoad && m_TitlePrefab != null)
         {
             StartCoroutine(IE_ShowTitle());
@@ -79,10 +84,10 @@ public abstract class SceneBaseController : MonoBehaviour
 
     IEnumerator IE_ShowTitle()
     {
-        var title = GCanvasController.instance.putToCanvas(m_TitlePrefab);
+        var title = GCanvasController.instance.addToCover(m_TitlePrefab);
         var text = title.GetComponent<UnityEngine.UI.Text>();
         if (text != null) text.text = m_SceneName;
         yield return new WaitForSecondsRealtime(3.0f);
-        Destroy(title.gameObject);
+        GCanvasController.instance.removeFromCover(title);
     }
 }

@@ -5,10 +5,8 @@ using UnityEngine;
 public class MenuSceneManager : SceneBaseController
 {
     [SerializeField]
-    private RectTransform m_Select;
+    private RectTransform m_SelectPrefab;
 
-    [SerializeField]
-    private RectTransform m_Menu;
     [SerializeField]
     private float m_MouseDropDegree = 5f;
     [SerializeField, Range(0f, 1f)]
@@ -18,31 +16,25 @@ public class MenuSceneManager : SceneBaseController
     private bool m_IsEnableMouse;
     private bool m_IsBtnReady = false;
 
-    void Awake(){
-        var rect = m_UiController.pushToStack(m_Menu, true);
-        var menu = rect.GetComponent<MenuUiController>();
-        if(menu != null){
-            menu.setManager(this);
-        }
-    }
-
     void Start(){
         base.Start();
+        var menuUi = m_SceneUi.GetComponent<MenuUiController>();
+        if(menuUi != null){
+            menuUi.setManager(this);
+        }
         StartCoroutine(IE_StartupTransfer());
     }
 
     public void startSelectGame(){
         if(!m_IsBtnReady) return;
         StartCoroutine(IE_PlaySelectTransfer());
-        GCanvasController.instance.pushToStack(m_Select, true);
+        GCanvasController.instance.pushToStack(m_SelectPrefab, true).GetComponent<SelectUiController>().setupManager(this);
     }
 
     public void transToSubGame(GSceneController.ESceneIndex index){
-
-    }
-
-    private void setupComfirmTransition(AsyncOperation op){
-        StartCoroutine(IE_ComfirmTransfer(op));
+        if (!m_IsBtnReady) return;
+        GSceneController.instance.LoadSceneAsync(index);
+        StopAllCoroutines();
     }
 
     IEnumerator IE_StartupTransfer(){
@@ -74,8 +66,6 @@ public class MenuSceneManager : SceneBaseController
 
         var fov = m_Controller.getAttachCamera().fieldOfView;
         var refFov = 0f;
-        var zlength = m_Controller.getZLength();
-        var refZlength = 0f;
 
         Vector3 rotator;
         Quaternion current;
@@ -83,9 +73,6 @@ public class MenuSceneManager : SceneBaseController
         {
             fov = Mathf.SmoothDamp(fov, 50f, ref refFov, 0.2f);
             m_Controller.setFovOnCamera(fov);
-
-            // zlength = Mathf.SmoothDamp(zlength, 190f, ref refZlength, 0.6f);
-            // m_Controller.setZLength(zlength);
 
             current = m_Controller.getWorldRotation();
             rotator = current.eulerAngles;
@@ -97,39 +84,6 @@ public class MenuSceneManager : SceneBaseController
             current = Quaternion.Slerp(current, Quaternion.Euler(rotator), 0.3f);
             m_Controller.setTransform(current);
             yield return null;
-        }
-    }
-
-    IEnumerator IE_ComfirmTransfer(AsyncOperation op){
-        m_IsEnableMouse = false;
-
-        Vector3 rotator;
-        Quaternion current;
-        while (op.isDone)
-        {
-            current = m_Controller.getWorldRotation();
-            rotator = current.eulerAngles;
-
-            rotator.y -= Time.deltaTime * m_RotateSpeed;
-            rotator.x = 90f;
-            rotator.z = 0f;
-
-            current = Quaternion.Slerp(current, Quaternion.Euler(rotator), 0.3f);
-            m_Controller.setTransform(current);
-            yield return null;
-        }
-
-        var zlength = m_Controller.getZLength();
-        var refZlength = 0f;
-
-        var timer = 0.8f;
-
-        while (timer > 0f)
-        {
-            timer -= Time.deltaTime;
-
-            zlength = Mathf.SmoothDamp(zlength, 100f, ref refZlength, 0.6f);
-            m_Controller.setZLength(zlength);
         }
     }
 
@@ -163,4 +117,5 @@ public class MenuSceneManager : SceneBaseController
     void LateUpdate(){
         if(m_IsEnableMouse) handleMouseMove();
     }
+
 }
