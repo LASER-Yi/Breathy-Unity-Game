@@ -16,10 +16,13 @@ public class HeartSceneManager : SceneBaseController
 
     void setupCamera()
     {
-        CameraAttribute attr = CameraAttribute.getEmpty().
-        setPosition(Vector3.zero).setRotation(Quaternion.Euler(90f, 0f, 0f)).setZLength(20f).setFov(90f);
+        CameraAttribute attr = CameraAttribute.Empty;
+        attr.setPosition(Vector3.zero);
+        attr.setRotation(Quaternion.Euler(90f, 0f, 0f));
+        attr.setZLength(20f);
+        attr.setFov(90f);
 
-        m_Controller.setAttribute(attr);
+        m_CamController.setAttribute(attr);
     }
     new void Start()
     {

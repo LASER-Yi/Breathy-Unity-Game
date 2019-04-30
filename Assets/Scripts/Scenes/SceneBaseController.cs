@@ -27,7 +27,7 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
-    protected CameraController m_Controller
+    protected CameraController m_CamController
     {
         get
         {

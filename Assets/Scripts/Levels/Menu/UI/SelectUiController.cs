@@ -132,9 +132,17 @@ class SelectUiController : MonoBehaviour, IStackableUi
         }
     }
 
+    void updateCamera(){
+
+    }
+
     void Update()
     {
         updateSelectInfo();
+    }
+
+    void LateUpdate(){
+        updateCamera();
     }
 
     void OnDestroy()

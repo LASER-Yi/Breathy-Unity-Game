@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 // 摄像机窗格？
-public class MarketCameraController : MonoBehaviour
+public class FollowerCameraController : MonoBehaviour
 {
     private CameraController m_Controller
     {

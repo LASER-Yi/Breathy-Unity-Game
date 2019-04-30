@@ -8,13 +8,8 @@ public class MenuSceneManager : SceneBaseController
     private RectTransform m_SelectPrefab;
 
     private float m_RotateSpeed = 10f;
-    private bool m_IsMouseEnable;
     private bool m_IsBtnEnable = false;
 
-    public bool getMouseState()
-    {
-        return m_IsMouseEnable;
-    }
 
     public bool getButtonState()
     {
@@ -29,14 +24,13 @@ public class MenuSceneManager : SceneBaseController
         {
             menuController.setManager(this);
         }
-        StartCoroutine(IE_StartupTransfer());
+        StartCoroutine(ieTransferOnStartup());
     }
 
     public void gotoSelectGame()
     {
         if (!m_IsBtnEnable) return;
-        StartCoroutine(IE_PlaySelectTransfer());
-        GCanvasController.instance.pushToStack(m_SelectPrefab, true).GetComponent<SelectUiController>().setupManager(this);
+        m_UiController.pushToStack(m_SelectPrefab, true).GetComponent<SelectUiController>().setupManager(this);
     }
 
     public void loadSubGame(GSceneController.ESceneIndex index)
@@ -46,13 +40,21 @@ public class MenuSceneManager : SceneBaseController
         GSceneController.instance.LoadSceneAsync(index);
     }
 
-    IEnumerator IE_StartupTransfer()
+    IEnumerator ieTransferOnStartup()
     {
-        var attr = CameraAttribute.getEmpty().setPosition(Vector3.up * 50f).setRotation(Quaternion.identity).setZLength(210f).setFov(30f);
-        m_Controller.setAttribute(attr);
+        var attr = CameraAttribute.Empty;
+        attr.setPosition(Vector3.up * 50f);
+        attr.setRotation(Quaternion.identity);
+        attr.setZLength(210f);
+        attr.setFov(30f);
 
-        CameraAttribute target = CameraAttribute.getEmpty().setPosition(Vector3.up * 35f).setZLength(200f);
-        yield return m_Controller.ieTransCameraCoro(target, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
+        m_CamController.setAttribute(attr);
+
+        CameraAttribute target = CameraAttribute.Empty;
+        target.setPosition(Vector3.up * 35f);
+        target.setZLength(200f);
+
+        yield return m_CamController.ieTransCameraCoro(target, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
 
         m_IsMouseEnable = true;
         m_IsBtnEnable = true;
@@ -62,7 +64,7 @@ public class MenuSceneManager : SceneBaseController
     {
         m_IsMouseEnable = false;
 
-        var fov = m_Controller.getFov();
+        var fov = m_CamController.getFov();
         var refFov = 0f;
 
         Vector3 rotator;
@@ -70,9 +72,9 @@ public class MenuSceneManager : SceneBaseController
         while (true)
         {
             fov = Mathf.SmoothDamp(fov, 50f, ref refFov, 0.2f);
-            m_Controller.setFov(fov);
+            m_CamController.setFov(fov);
 
-            current = m_Controller.getWorldRotation();
+            current = m_CamController.getWorldRotation();
             rotator = current.eulerAngles;
 
             rotator.y -= Time.deltaTime * m_RotateSpeed;
@@ -80,7 +82,7 @@ public class MenuSceneManager : SceneBaseController
             rotator.z = 0f;
 
             current = Quaternion.Slerp(current, Quaternion.Euler(rotator), 0.3f);
-            m_Controller.setRotation(current);
+            m_CamController.setRotation(current);
             yield return null;
         }
     }

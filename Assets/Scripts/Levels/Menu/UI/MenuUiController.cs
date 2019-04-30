@@ -15,7 +15,6 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     private float m_MouseDropDegree = 5f;
     [SerializeField, Range(0f, 1f)]
     private float m_UpDownDropPrecent = 0.5f;
-    [SerializeField]
     private bool m_IsStackTop = false;
 
     void Awake()
@@ -147,7 +146,7 @@ public class MenuUiController : MonoBehaviour, IStackableUi
 
     void LateUpdate()
     {
-        if (m_Manager.getMouseState()) handleMouseMove();
+        handleMouseMove();
     }
 
 }
