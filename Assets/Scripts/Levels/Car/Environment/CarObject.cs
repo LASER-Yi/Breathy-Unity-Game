@@ -7,7 +7,7 @@ namespace CarLevel
 {
     [RequireComponent(typeof(Rigidbody))]
     // 控制车辆的接口, 实现移动的功能
-    public class CarObject : MonoBehaviour, IGamePawnBaseController
+    public class CarObject : MonoBehaviour, IPawnController
     {
         [SerializeField]
         private float m_WheelToCenter;

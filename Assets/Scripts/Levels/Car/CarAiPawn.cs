@@ -9,7 +9,7 @@ namespace CarLevel
 {
     public class CarAiPawn : MonoBehaviour
     {
-        private IGamePawnBaseController m_Controller;
+        private IPawnController m_Controller;
 
         [SerializeField]
         private float m_ReactionTime;
@@ -21,7 +21,7 @@ namespace CarLevel
         private float m_MaxSpeed;
         void Awake()
         {
-            m_Controller = GetComponent<IGamePawnBaseController>();
+            m_Controller = GetComponent<IPawnController>();
         }
 
         // Update is called once per frame

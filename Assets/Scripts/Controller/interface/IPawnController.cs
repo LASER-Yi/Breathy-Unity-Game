@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 玩家和各种AI的接口
-public interface IGamePawnBaseController
+public interface IPawnController
 {
     // +z -> forward
     // -1 ~ 1

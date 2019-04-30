@@ -35,11 +35,11 @@ public class CameraFrameController : MonoBehaviour
             return m_Controller.getWorldPosition();
         }
     }
-    private IGamePawnBaseController _chararcter;
-    private IGamePawnBaseController m_Character{
+    private IPawnController _chararcter;
+    private IPawnController m_Character{
         get{
             if(_chararcter == null){
-                _chararcter = GameObject.FindGameObjectWithTag("Player").GetComponent<IGamePawnBaseController>();
+                _chararcter = GameObject.FindGameObjectWithTag("Player").GetComponent<IPawnController>();
             }
             return _chararcter;
         }
@@ -120,14 +120,14 @@ public class CameraFrameController : MonoBehaviour
     }
 
     void setCameraPosition(){
-        m_Controller.setTransform(m_TargetCameraPosition);
+        m_Controller.setPosition(m_TargetCameraPosition);
     }
 
     void setupCamera(){
-        m_Controller.setTransform(Quaternion.Euler(90f, 0f, 0f));
+        m_Controller.setRotation(Quaternion.Euler(90f, 0f, 0f));
         m_Controller.setZLength(20f);
-        m_Controller.setTransform(m_Character.getWorldPosition());
-        m_Controller.setFovOnCamera(90f);
+        m_Controller.setPosition(m_Character.getWorldPosition());
+        m_Controller.setFov(90f);
     }
 
     void Start(){

@@ -17,7 +17,7 @@ public class HeartSceneManager : SceneBaseController
     void setupCamera(){
         m_Controller.setTransform(Vector3.zero, Quaternion.Euler(90f, 0f, 0f));
         m_Controller.setZLength(20f);
-        m_Controller.setFovOnCamera(90f);
+        m_Controller.setFov(90f);
     }
     void Start()
     {

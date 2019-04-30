@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class MarketPlayerPawn : MonoBehaviour
 {
-    private IGamePawnBaseController m_Controller;
+    private IPawnController m_Controller;
     void Awake(){
-        m_Controller = GetComponent<IGamePawnBaseController>();
+        m_Controller = GetComponent<IPawnController>();
     }
 
     void handleUserInput(){

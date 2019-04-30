@@ -5,12 +5,18 @@ using UnityEngine.UI;
 
 public class MenuUiController : MonoBehaviour, IStackableUi
 {
-
     private MenuSceneManager m_Manager;
     private HorizontalLayoutGroup m_BtnContainer;
 
     [SerializeField]
     private RectTransform m_BtnPrefab;
+
+    [SerializeField]
+    private float m_MouseDropDegree = 5f;
+    [SerializeField, Range(0f, 1f)]
+    private float m_UpDownDropPrecent = 0.5f;
+    [SerializeField]
+    private bool m_IsStackTop = false;
 
     void Awake()
     {
@@ -64,7 +70,7 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     public void onStartPress()
     {
         
-        m_Manager.startSelectGame();
+        m_Manager.gotoSelectGame();
     }
 
     public void onSettingPress()
@@ -98,11 +104,50 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     }
     public void onDidBecomeTop(){
         gameObject.SetActive(true);
+        m_IsStackTop = true;
     }
     public void onWillNotBecomeTop(){
+        m_IsStackTop = false;
         gameObject.SetActive(false);
     }
     public float onWillRemoveFromStack(bool animate){
         return 0f;
     }
+
+    Vector2 computeMousePercent()
+    {
+        if (Input.mousePresent)
+        {
+            var mousePos = Input.mousePosition;
+            Vector2 percent = Vector2.zero;
+            percent.x = mousePos.x / Screen.width;
+            percent.y = mousePos.y / Screen.height;
+            return percent;
+        }
+        else
+        {
+            return new Vector2(0.5f, 0.5f);
+        }
+    }
+
+    void handleMouseMove()
+    {
+        var percent = computeMousePercent();
+        var target = Vector3.zero;
+
+        var horiDegree = m_MouseDropDegree;
+        var vertDegree = horiDegree * m_UpDownDropPrecent;
+        target.x = Mathf.Lerp(vertDegree, -vertDegree, percent.y);
+        target.y = Mathf.Lerp(-horiDegree, horiDegree, percent.x);
+
+        var current = CameraController.instance.getWorldRotation();
+        current = Quaternion.Slerp(current, Quaternion.Euler(target), 0.3f);
+        CameraController.instance.setRotation(current);
+    }
+
+    void LateUpdate()
+    {
+        if (m_Manager.getMouseState()) handleMouseMove();
+    }
+
 }

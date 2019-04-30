@@ -96,7 +96,7 @@ class SelectUiController : MonoBehaviour, IStackableUi
 
     void onBtnClick(GSceneController.ESceneIndex index)
     {
-        m_Manager.transToSubGame(index);
+        m_Manager.loadSubGame(index);
     }
 
     void Awake()

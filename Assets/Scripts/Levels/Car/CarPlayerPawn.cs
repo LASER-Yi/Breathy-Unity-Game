@@ -11,11 +11,11 @@ namespace CarLevel
 
     public class CarPlayerPawn : MonoBehaviour
     {
-        private IGamePawnBaseController m_Controller;
+        private IPawnController m_Controller;
 
         void Awake()
         {
-            m_Controller = GetComponent<IGamePawnBaseController>();
+            m_Controller = GetComponent<IPawnController>();
         }
 
         void Update()

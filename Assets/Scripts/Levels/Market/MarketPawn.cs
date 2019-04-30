@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class MarketPawn : MonoBehaviour, IGamePawnBaseController
+public class MarketPawn : MonoBehaviour, IPawnController
 {
     private Rigidbody m_Rigidbody;
     [SerializeField]
