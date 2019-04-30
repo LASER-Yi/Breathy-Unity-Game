@@ -21,7 +21,7 @@ public class MenuSceneManager : SceneBaseController
         return m_IsBtnEnable;
     }
 
-    void Start()
+    new void Start()
     {
         base.Start();
         var menuController = m_SceneUi.GetComponent<MenuUiController>();
@@ -48,14 +48,11 @@ public class MenuSceneManager : SceneBaseController
 
     IEnumerator IE_StartupTransfer()
     {
-        m_Controller.setFov(30f);
-        m_Controller.setRotation(Quaternion.identity);
-        m_Controller.setPosition(Vector3.up * 50f);
-        m_Controller.setZLength(210f);
+        var attr = CameraAttribute.getEmpty().setPosition(Vector3.up * 50f).setRotation(Quaternion.identity).setZLength(210f).setFov(30f);
+        m_Controller.setAttribute(attr);
 
-        CameraAction trans = CameraAction.getEmpty().setPosition(Vector3.up * 35f).setZLength(200f);
-
-        yield return m_Controller.ieTransCameraCoro(trans, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
+        CameraAttribute target = CameraAttribute.getEmpty().setPosition(Vector3.up * 35f).setZLength(200f);
+        yield return m_Controller.ieTransCameraCoro(target, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
 
         m_IsMouseEnable = true;
         m_IsBtnEnable = true;

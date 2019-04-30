@@ -2,36 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct CameraAction
+public struct CameraAttribute
 {
-    public Vector3? ptarget;
-    public Quaternion? rtarget;
+    public Vector3? position;
+    public Quaternion? rotation;
     public float? zlength;
     public float? fov;
 
-    public static CameraAction getEmpty(){
-        return new CameraAction();
+    public static CameraAttribute getEmpty(){
+        return new CameraAttribute();
     }
 
-    public CameraAction setPosition(Vector3 val)
+    public CameraAttribute setPosition(Vector3 val)
     {
-        ptarget = val;
+        position = val;
         return this;
     }
 
-    public CameraAction setRotation(Quaternion val)
+    public CameraAttribute setRotation(Quaternion val)
     {
-        rtarget = val;
+        rotation = val;
         return this;
     }
 
-    public CameraAction setZLength(float val)
+    public CameraAttribute setZLength(float val)
     {
         zlength = val;
         return this;
     }
 
-    public CameraAction setFov(float val)
+    public CameraAttribute setFov(float val)
     {
         fov = val;
         return this;
@@ -166,9 +166,15 @@ public class CameraController : MonoBehaviour
         return Mathf.SmoothStep(0f, 1f, t);
     }
 
+    public void moveCamera(CameraAttribute? from, CameraAttribute to, float time, interpolation func){
+        if(from.HasValue) setAttribute(from.Value);
+
+        StartCoroutine(ieTransCameraCoro(to, time, func));
+    }
+
     private UnityEngine.Object intp_lock = new Object();
 
-    public IEnumerator ieTransCameraCoro(CameraAction action, float time, interpolation func)
+    public IEnumerator ieTransCameraCoro(CameraAttribute attr, float time, interpolation func)
     {
         lock (intp_lock)
         {
@@ -189,15 +195,15 @@ public class CameraController : MonoBehaviour
 
                 float intp = func(progress);
 
-                if (action.ptarget.HasValue) m_WorldPosition = Vector3.Lerp(currPosition, action.ptarget.Value, intp);
-                if (action.rtarget.HasValue) m_WorldRotation = Quaternion.Slerp(currRotation, action.rtarget.Value, intp);
-                if (action.zlength.HasValue) m_CurrentZLength = Mathf.Lerp(currLength, action.zlength.Value, intp);
-                if (action.fov.HasValue) m_CurrentFov = Mathf.Lerp(currFov, action.fov.Value, intp);
+                if (attr.position.HasValue) m_WorldPosition = Vector3.Lerp(currPosition, attr.position.Value, intp);
+                if (attr.rotation.HasValue) m_WorldRotation = Quaternion.Slerp(currRotation, attr.rotation.Value, intp);
+                if (attr.zlength.HasValue) m_CurrentZLength = Mathf.Lerp(currLength, attr.zlength.Value, intp);
+                if (attr.fov.HasValue) m_CurrentFov = Mathf.Lerp(currFov, attr.fov.Value, intp);
             }
-            if (action.ptarget.HasValue) m_WorldPosition = action.ptarget.Value;
-            if (action.rtarget.HasValue) m_WorldRotation = action.rtarget.Value;
-            if (action.zlength.HasValue) m_CurrentZLength = action.zlength.Value;
-            if (action.fov.HasValue) m_CurrentFov = action.fov.Value;
+            if (attr.position.HasValue) m_WorldPosition = attr.position.Value;
+            if (attr.rotation.HasValue) m_WorldRotation = attr.rotation.Value;
+            if (attr.zlength.HasValue) m_CurrentZLength = attr.zlength.Value;
+            if (attr.fov.HasValue) m_CurrentFov = attr.fov.Value;
             yield return null;
         }
     }
@@ -247,10 +253,12 @@ public class CameraController : MonoBehaviour
         m_CurrentFov = value;
     }
 
-    public void setTransform(Vector3 worldPosition, Quaternion worldRotation)
+    public void setAttribute(CameraAttribute attr)
     {
-        m_WorldPosition = worldPosition;
-        m_WorldRotation = worldRotation;
+        if (attr.position.HasValue) m_WorldPosition = attr.position.Value;
+        if (attr.rotation.HasValue) m_WorldRotation = attr.rotation.Value;
+        if (attr.zlength.HasValue) m_CurrentZLength = attr.zlength.Value;
+        if (attr.fov.HasValue) m_CurrentFov = attr.fov.Value;
     }
 
     public void setPosition(Vector3 worldPosition)

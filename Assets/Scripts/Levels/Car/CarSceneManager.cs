@@ -5,7 +5,7 @@ using UnityEngine;
 public class CarSceneManager : SceneBaseController
 {
     
-    void Start()
+    new void Start()
     {
         base.Start();
     }

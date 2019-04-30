@@ -14,22 +14,26 @@ public class HeartSceneManager : SceneBaseController
     private float m_CurrentBreathPosition;
     private float m_CurrentBreathCursor;
 
-    void setupCamera(){
-        m_Controller.setTransform(Vector3.zero, Quaternion.Euler(90f, 0f, 0f));
-        m_Controller.setZLength(20f);
-        m_Controller.setFov(90f);
+    void setupCamera()
+    {
+        CameraAttribute attr = CameraAttribute.getEmpty().
+        setPosition(Vector3.zero).setRotation(Quaternion.Euler(90f, 0f, 0f)).setZLength(20f).setFov(90f);
+
+        m_Controller.setAttribute(attr);
     }
-    void Start()
+    new void Start()
     {
         base.Start();
         setupCamera();
     }
 
-    void updateHeartState(){
+    void updateHeartState()
+    {
 
     }
 
-    void updateBreathState(){
+    void updateBreathState()
+    {
 
     }
 }

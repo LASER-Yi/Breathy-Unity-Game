@@ -6,7 +6,7 @@ using UnityEngine;
 public class MarketSceneManager : SceneBaseController
 {
 
-    void Start()
+    new void Start()
     {
         base.Start();
     }
