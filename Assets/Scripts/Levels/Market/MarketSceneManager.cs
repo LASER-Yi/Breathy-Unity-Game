@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class MarketSceneManager : SceneBaseController
 {
-    
-    void setupCamera(){
-        
-    }
 
     void Start()
     {
         base.Start();
-        setupCamera();
     }
 
 }

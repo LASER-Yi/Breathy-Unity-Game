@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// TODO: 优化行进轨迹
 public class CameraFrameController : MonoBehaviour
 {
     // 相机行为：
@@ -121,7 +123,7 @@ public class CameraFrameController : MonoBehaviour
         m_Controller.setTransform(m_TargetCameraPosition);
     }
 
-    void initalCamera(){
+    void setupCamera(){
         m_Controller.setTransform(Quaternion.Euler(90f, 0f, 0f));
         m_Controller.setZLength(20f);
         m_Controller.setTransform(m_Character.getWorldPosition());
@@ -129,7 +131,7 @@ public class CameraFrameController : MonoBehaviour
     }
 
     void Start(){
-        initalCamera();
+        setupCamera();
     }
 
     void LateUpdate(){

@@ -35,8 +35,6 @@ class SelectUiController : MonoBehaviour, IStackableUi
         }
     }
 
-    [SerializeField]
-    private float m_ScaleRate = 4f;
 
     [SerializeField]
     private Button m_BtnPrefab;
@@ -45,7 +43,7 @@ class SelectUiController : MonoBehaviour, IStackableUi
     [SerializeField]
     private float m_AxisXOffset = 100f;
     [SerializeField]
-    private float m_AxisYScale = 2f;
+    private Vector2 m_BoxBound;
     [SerializeField]
     private Vector3 m_CenterPoint = Vector3.zero;
 
@@ -129,10 +127,11 @@ class SelectUiController : MonoBehaviour, IStackableUi
             var depth = _point.z;
 
             var offset = screenPoint - centerPoint;
-            offset *= m_ScaleRate;
+            offset = offset.normalized;
+            offset.x = Mathf.Lerp(-m_BoxBound.x, m_BoxBound.x, offset.x);
+            offset.y = Mathf.Lerp(-m_BoxBound.y, m_BoxBound.y, offset.y);
             // 分层
             offset.x += (offset.x < 0 ? -m_AxisXOffset : m_AxisXOffset);
-            offset.y *= m_AxisYScale;
 
             var current = item.bindBtn.GetComponent<RectTransform>();
             current.localPosition = Vector2.Lerp(current.localPosition, offset, 0.1f);
