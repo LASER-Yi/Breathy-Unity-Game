@@ -51,7 +51,9 @@ class SelectUiController : MonoBehaviour, IStackableUi
 
     private Canvas m_Canvas;
 
-    public void setupManager(MenuSceneManager instance){
+
+    public void setupManager(MenuSceneManager instance)
+    {
         m_Manager = instance;
     }
 
@@ -131,9 +133,38 @@ class SelectUiController : MonoBehaviour, IStackableUi
 
         }
     }
+    [Space, SerializeField]
+    private float m_RotateSpeed;
 
-    void updateCamera(){
+    private float m_MaxTime = 0.6f;
+    private float m_StartFov = 90f;
+    private float m_TargetFov = 50f;
+    private float m_Timer = 0f;
 
+    void updateCamera()
+    {
+        var camInstance = CameraController.instance;
+
+        if (m_Timer == 0f)
+        {
+            m_StartFov = camInstance.getFov();
+        }
+        if (m_Timer < m_MaxTime)
+        {
+            var progress = m_Timer / m_MaxTime;
+            var current = Mathf.SmoothStep(m_StartFov, m_TargetFov, progress);
+            camInstance.setFov(current);
+            m_Timer += Time.deltaTime;
+        }
+        var quaRotator = camInstance.getWorldRotation();
+        var rotator = quaRotator.eulerAngles;
+
+        rotator.y -= Time.deltaTime * m_RotateSpeed;
+        rotator.x = 0f;
+        rotator.z = 0f;
+
+        quaRotator = Quaternion.Slerp(quaRotator, Quaternion.Euler(rotator), 0.1f);
+        camInstance.setRotation(quaRotator);
     }
 
     void Update()
@@ -141,7 +172,8 @@ class SelectUiController : MonoBehaviour, IStackableUi
         updateSelectInfo();
     }
 
-    void LateUpdate(){
+    void LateUpdate()
+    {
         updateCamera();
     }
 
@@ -150,19 +182,24 @@ class SelectUiController : MonoBehaviour, IStackableUi
         if (_lineContainer != null) Destroy(_lineContainer);
     }
 
-    public RectTransform getTransform(){
+    public RectTransform getTransform()
+    {
         return transform as RectTransform;
     }
-    public void onDidPushToStack(bool animate){
+    public void onDidPushToStack(bool animate)
+    {
 
     }
-    public void onDidBecomeTop(){
+    public void onDidBecomeTop()
+    {
 
     }
-    public void onWillNotBecomeTop(){
+    public void onWillNotBecomeTop()
+    {
 
     }
-    public float onWillRemoveFromStack(bool animate){
+    public float onWillRemoveFromStack(bool animate)
+    {
         return 0f;
     }
 
