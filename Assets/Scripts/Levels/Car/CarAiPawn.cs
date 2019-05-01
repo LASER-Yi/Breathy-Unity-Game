@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace CarLevel
 {
+    [RequireComponent(typeof(CarObject))]
     public class CarAiPawn : MonoBehaviour
     {
         enum EAiType

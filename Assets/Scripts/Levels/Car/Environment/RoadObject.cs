@@ -43,6 +43,7 @@ namespace CarLevel
         void Start(){
             ++count;
             gameObject.name = "Road_" + count;
+            m_AboveAiCars = new HashSet<CarAiPawn>();
             m_IsVisible = true;
             StartCoroutine(ieCheckRoadState());
         }
