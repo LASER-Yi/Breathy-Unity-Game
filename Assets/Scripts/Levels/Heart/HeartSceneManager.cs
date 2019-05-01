@@ -23,7 +23,7 @@ public class HeartSceneManager : SceneBaseController
         attr.setZLength(20f);
         attr.setFov(90f);
 
-        m_CamController.setAttribute(attr);
+        LCameraSystem.CameraController.instance.setAttribute(attr);
     }
     new void Start()
     {

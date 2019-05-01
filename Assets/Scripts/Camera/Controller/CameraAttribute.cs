@@ -4,13 +4,13 @@ using UnityEngine;
 
 public struct CameraAttributeNotNull
 {
-    public Vector3? position;
-    public Quaternion? rotation;
-    public float? zlength;
-    public float? fov;
+    public Vector3 position;
+    public Quaternion rotation;
+    public float zlength;
+    public float fov;
 }
 
-public struct CameraAttribute
+public class CameraAttribute
 {
     public Vector3? position;
     public Quaternion? rotation;
@@ -42,48 +42,6 @@ public struct CameraAttribute
     public void setFov(float val)
     {
         fov = val;
-
-    }
-}
-
-public struct CameraDeltaAction
-{
-    public Vector3? position;
-    public Quaternion? rotation;
-    public float? zlength;
-    public float? fov;
-    public CameraAttribute? atoi;
-
-    public static CameraDeltaAction Empty
-    {
-        get
-        {
-            return new CameraDeltaAction();
-        }
-    }
-    public void setDeltaPosition(Vector3 val)
-    {
-        position = val;
-    }
-    public void setDeltaRotation(Quaternion val)
-    {
-        rotation = val;
-
-    }
-    public void setDeltaZLength(float val)
-    {
-        zlength = val;
-
-    }
-    public void setDeltaFov(float val)
-    {
-        fov = val;
-
-    }
-
-    public void setAttribute(CameraAttribute attr)
-    {
-        atoi = attr;
 
     }
 }

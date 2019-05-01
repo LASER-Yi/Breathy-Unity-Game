@@ -135,45 +135,27 @@ class SelectUiController : MonoBehaviour, IStackableUi
     }
     [Space, SerializeField]
     private float m_RotateSpeed;
-    private float m_MaxTime = 0.6f;
-    private float m_StartFov = 90f;
-    private float m_TargetFov = 50f;
-    private float m_Timer = 0f;
 
-    void updateCamera()
+    void setAnimation()
     {
-        var camInstance = CameraController.instance;
+        var animator = LCameraSystem.CameraAnimator.instance;
+        animator.stopAllAnimation();
 
-        if (m_Timer == 0f)
-        {
-            m_StartFov = camInstance.getFov();
-        }
-        if (m_Timer < m_MaxTime)
-        {
-            var progress = m_Timer / m_MaxTime;
-            var current = Mathf.SmoothStep(m_StartFov, m_TargetFov, progress);
-            camInstance.setFov(current);
-            m_Timer += Time.deltaTime;
-        }
-        var quaRotator = camInstance.getWorldRotation();
-        var rotator = quaRotator.eulerAngles;
+        var keyframe = CameraAttribute.Empty;
+        keyframe.setFov(50f);
 
-        rotator.y -= Time.deltaTime * m_RotateSpeed;
-        rotator.x = 0f;
-        rotator.z = 0f;
+        var delta = CameraAttribute.Empty;
+        delta.setRotation(Quaternion.Euler(0f, -m_RotateSpeed, 0f));
 
-        quaRotator = Quaternion.Slerp(quaRotator, Quaternion.Euler(rotator), 0.1f);
-        camInstance.setRotation(quaRotator);
+        animator.startKeyframeAnimation(null, keyframe, 0.6f,
+            t => Mathf.SmoothStep(0f, 1f, t)
+        );
+        animator.startLoopAnimation(delta);
     }
 
     void Update()
     {
         updateSelectInfo();
-    }
-
-    void LateUpdate()
-    {
-        updateCamera();
     }
 
     void OnDestroy()
@@ -191,11 +173,11 @@ class SelectUiController : MonoBehaviour, IStackableUi
     }
     public void onDidBecomeTop()
     {
-
+        setAnimation();
     }
     public void onWillNotBecomeTop()
     {
-
+        LCameraSystem.CameraAnimator.instance.stopAllAnimation();
     }
     public float onWillRemoveFromStack(bool animate)
     {

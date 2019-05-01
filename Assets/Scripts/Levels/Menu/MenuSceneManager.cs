@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LCameraSystem;
 
 public class MenuSceneManager : SceneBaseController
 {
@@ -47,13 +48,13 @@ public class MenuSceneManager : SceneBaseController
         attr.setZLength(210f);
         attr.setFov(30f);
 
-        m_CamController.setAttribute(attr);
+        CameraController.instance.setAttribute(attr);
 
         CameraAttribute target = CameraAttribute.Empty;
         target.setPosition(Vector3.up * 35f);
         target.setZLength(200f);
 
-        yield return m_CamController.ieTransCameraCoro(target, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
+        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
 
         m_IsBtnEnable = true;
     }

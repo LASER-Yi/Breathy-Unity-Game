@@ -27,14 +27,6 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
-    protected CameraController m_CamController
-    {
-        get
-        {
-            return CameraController.instance;
-        }
-    }
-
     protected GCanvasController m_UiController
     {
         get
