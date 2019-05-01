@@ -25,11 +25,17 @@ public class HeartSceneManager : SceneBaseController
 
         LCameraSystem.CameraController.instance.setAttribute(attr);
     }
+
+    void setupGameLoop(){
+        checkMainState = delegate { return true; };
+        updateMainLoop = updateHeartLoop;
+    }
     new void Start()
     {
         base.Start();
         setupCamera();
-        StartCoroutine(ieSceneLoop());
+        setupGameLoop();
+        startGameLoop();
     }
 
     float computeAffect(float position, float cursor, bool isDown)
@@ -88,42 +94,16 @@ public class HeartSceneManager : SceneBaseController
         m_CurrentHeartPosition = Mathf.Clamp01(m_CurrentHeartPosition);
     }
 
+    void updateVisualEffect()
+    {
+
+    }
+
     void updateHeartLoop()
     {
         updateUserInput();
         updateHeartState();
         updateHeartPosition();
         updateVisualEffect();
-    }
-
-    void updateVisualEffect()
-    {
-
-    }
-
-    IEnumerator ieSceneLoop()
-    {
-        yield return iePreGame();
-        yield return ieMainGame();
-        yield return ieEndGame();
-    }
-
-    IEnumerator iePreGame()
-    {
-        yield return null;
-    }
-
-    IEnumerator ieMainGame()
-    {
-        // TODO: How game end
-        while (true)
-        {
-            updateHeartLoop();
-        }
-    }
-
-    IEnumerator ieEndGame()
-    {
-        yield return null;
     }
 }
