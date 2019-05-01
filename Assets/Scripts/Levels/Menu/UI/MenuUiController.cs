@@ -61,6 +61,7 @@ public class MenuUiController : MonoBehaviour, IStackableUi
 
     }
 
+    // TODO: 修改为MVC模式
     public void setManager(MenuSceneManager instance)
     {
         m_Manager = instance;
@@ -88,10 +89,6 @@ public class MenuUiController : MonoBehaviour, IStackableUi
 #else
         Application.Quit();
 #endif
-    }
-    public void onBtnHover()
-    {
-
     }
 
     public RectTransform getTransform(){

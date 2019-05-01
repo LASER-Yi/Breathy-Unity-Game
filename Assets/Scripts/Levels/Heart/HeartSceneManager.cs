@@ -6,20 +6,14 @@ public class HeartSceneManager : SceneBaseController
 {
 
     private float m_CurrentHeartBpm;
-    private float m_CurrentBreathBpm;
 
     /* Control variable, Range(0 ~ 1) */
     private bool m_IsHeartDown;
     private float m_CurrentHeartPosition;
     private float m_CurrentHeartCursor;
 
-    private bool m_IsBreathDown;
-    private float m_CurrentBreathPosition;
-    private float m_CurrentBreathCursor;
-
     /* Target */
     private float m_TargetHeartBpm;
-    private float m_TargetBreathBpm;
 
     void setupCamera()
     {
@@ -38,57 +32,98 @@ public class HeartSceneManager : SceneBaseController
         StartCoroutine(ieSceneLoop());
     }
 
-    float computeAffect(float position, float cursor, bool isDown){
+    float computeAffect(float position, float cursor, bool isDown)
+    {
         float affect = 1.0f;
         float dist = position - cursor;
-        if(isDown){
+        if (isDown)
+        {
             affect *= dist;
-        }else {
+        }
+        else
+        {
             affect *= -dist;
         }
         return affect;
     }
 
-    void updateHeartState()
+    float computeDeltaFromBpm(float bpm)
     {
-        var affect = computeAffect(m_CurrentHeartPosition, m_CurrentBreathCursor, m_IsHeartDown);
-        m_CurrentHeartBpm += affect;
-    }
-
-    void updateBreathState()
-    {
-        var affect = computeAffect(m_CurrentBreathPosition, m_CurrentBreathCursor, m_IsBreathDown);
-        m_CurrentBreathBpm += affect;
-    }
-
-    float computeDeltaFromBpm(float bpm){
         var perSecond = bpm / 60f;
         return perSecond * Time.deltaTime;
     }
 
-    void updateBothPosition(){
-        // m_CurrentHeartPosition 
+    void updateUserInput(){
+        var isPress = Input.GetButton("Jump");
+        if(isPress){
+            m_CurrentHeartCursor += Time.deltaTime;
+        }else{
+            m_CurrentHeartCursor -= Time.deltaTime;
+        }
+        m_CurrentHeartCursor = Mathf.Clamp01(m_CurrentHeartCursor);
     }
 
-    void updateVisualEffect(){
+    void updateHeartState()
+    {
+        var affect = computeAffect(m_CurrentHeartPosition, m_CurrentHeartCursor, m_IsHeartDown);
+        m_CurrentHeartBpm += affect;
+    }
+
+    void updateHeartPosition()
+    {
+        var delta = computeDeltaFromBpm(m_CurrentHeartBpm);
+        if (m_IsHeartDown)
+        {
+            m_CurrentHeartPosition -= delta;
+        }
+        else
+        {
+            m_CurrentHeartPosition += delta;
+        }
+        if(m_CurrentHeartPosition < 0f){
+            m_IsHeartDown = false;
+        }else if(m_CurrentHeartPosition > 1f){
+            m_IsHeartDown = true;
+        }
+        m_CurrentHeartPosition = Mathf.Clamp01(m_CurrentHeartPosition);
+    }
+
+    void updateHeartLoop()
+    {
+        updateUserInput();
+        updateHeartState();
+        updateHeartPosition();
+        updateVisualEffect();
+    }
+
+    void updateVisualEffect()
+    {
 
     }
 
-    IEnumerator ieSceneLoop(){
+    IEnumerator ieSceneLoop()
+    {
         yield return iePreGame();
         yield return ieMainGame();
         yield return ieEndGame();
     }
 
-    IEnumerator iePreGame(){
+    IEnumerator iePreGame()
+    {
         yield return null;
     }
 
-    IEnumerator ieMainGame(){
-        yield return null;
+    IEnumerator ieMainGame()
+    {
+        // TODO: How game end
+        while (true)
+        {
+            updateHeartLoop();
+        }
     }
 
-    IEnumerator ieEndGame(){
+    IEnumerator ieEndGame()
+    {
         yield return null;
     }
 }
