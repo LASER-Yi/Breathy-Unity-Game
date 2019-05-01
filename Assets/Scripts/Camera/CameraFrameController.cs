@@ -127,8 +127,8 @@ public class CameraFrameController : MonoBehaviour
         CameraAttribute attr = CameraAttribute.Empty;
         attr.setPosition(m_Character.getWorldPosition());
         attr.setRotation(Quaternion.Euler(90f, 0f, 0f));
-        attr.setFov(90f);
-        attr.setZLength(20f);
+        attr.setFov(60f);
+        attr.setZLength(30f);
         m_Controller.setAttribute(attr);
     }
 
@@ -138,7 +138,7 @@ public class CameraFrameController : MonoBehaviour
 
     void LateUpdate(){
         float rate = computeCounterPosition();
-        computeTargetPosition(rate);
+        computeTargetPosition(0.1f);
         setCameraPosition();
     }
 }

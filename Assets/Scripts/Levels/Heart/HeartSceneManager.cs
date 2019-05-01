@@ -17,7 +17,7 @@ public class HeartSceneManager : SceneBaseController
 
     void setupCamera()
     {
-        CameraAttribute attr = CameraAttribute.Empty;
+        var attr = LCameraSystem.CameraAttribute.Empty;
         attr.setPosition(Vector3.zero);
         attr.setRotation(Quaternion.Euler(90f, 0f, 0f));
         attr.setZLength(20f);

@@ -37,10 +37,12 @@ public class FollowerCameraController : MonoBehaviour
 
     void initalCamera()
     {
-        m_Controller.setFov(m_CameraFov);
-        m_Controller.setZLength(m_CameraHeight);
-        m_Controller.setPosition(m_Character.getWorldPosition());
-        m_Controller.setRotation(Quaternion.Euler(m_CameraPitch, 0f, 0f));
+        var attr = new CameraAttributeNotNull();
+        attr.fov = m_CameraFov;
+        attr.zlength = m_CameraHeight;
+        attr.position = m_Character.getWorldPosition();
+        attr.rotation = Quaternion.Euler(m_CameraPitch, 0f, 0f);
+        CameraController.instance.setAttribute(attr);
     }
 
     void Start()

@@ -9,24 +9,39 @@ namespace CarLevel
 {
     public class CarAiPawn : MonoBehaviour
     {
+        enum EAiType
+        {
+            Radical,        // 激进型Ai
+            Conservative,   // 保守型Ai
+        }
         private IPawnController m_Controller;
 
         [SerializeField]
         private float m_ReactionTime;
         [SerializeField]
-        private float m_SafeDistance;
-        [SerializeField]
         private float m_SteerSpeed;
         [SerializeField]
         private float m_MaxSpeed;
+
+        private RoadObject m_AttachRoad;
+
+        // Ai Parameters
+
+        // 探测范围: danger -> closer -> safe
+        [SerializeField]
+        private float m_SafeDistance;
+        [SerializeField]
+        private float m_CloserDistance;
+
         void Awake()
         {
             m_Controller = GetComponent<IPawnController>();
         }
 
-        // Update is called once per frame
-        void Update()
-        {
+
+
+        void Update(){
+
         }
     }
 }
