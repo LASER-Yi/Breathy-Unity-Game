@@ -40,18 +40,22 @@ namespace CarLevel
             return m_RoadLength;
         }
 
-        void Start(){
+        void Start()
+        {
             ++count;
             gameObject.name = "Road_" + count;
             m_AboveAiCars = new HashSet<CarAiPawn>();
             m_IsVisible = true;
-            StartCoroutine(ieCheckRoadState());
         }
 
-        protected void setBackInstance(RoadObject script){
-            if(m_BackRoad == null){
+        protected void setBackInstance(RoadObject script)
+        {
+            if (m_BackRoad == null)
+            {
                 m_BackRoad = script;
-            }else{
+            }
+            else
+            {
                 Debug.LogAssertion("重复绑定BackRoad!!");
             }
         }
@@ -70,15 +74,43 @@ namespace CarLevel
             return transform.position.x + positionX;
         }
 
-        public void addAiToRoad(CarAiPawn ai){
+        // 根据给定位置计算路索引
+        // 给定位置为世界坐标
+        public int computeRoadNumberWorld(float offset)
+        {
+
+            return 0;
+        }
+
+        public Vector3 getForwardDirection()
+        {
+            return transform.TransformDirection(Vector3.forward);
+        }
+
+        // 根据车辆世界正方向得到道路水平方向的投影
+        public float getHorizonalProject(Vector3 forward)
+        {
+            var right = transform.TransformDirection(Vector3.right);
+            return Vector3.Dot(right, forward);
+        }
+
+        public void addAiToRoad(CarAiPawn ai)
+        {
             m_AboveAiCars.Add(ai);
+            generateRoadFront();
         }
 
-        public void removeAiFromRoad(CarAiPawn ai){
+        public void removeAiFromRoad(CarAiPawn ai)
+        {
             m_AboveAiCars.Remove(ai);
+            if (!checkRoadAvaliablity())
+            {
+                Destroy(gameObject);
+            }
         }
 
-        void generateRoadFront(){
+        void generateRoadFront()
+        {
             if (m_FrontRoad == null)
             {
                 var nextPosition = transform.position;
@@ -99,7 +131,8 @@ namespace CarLevel
             }
         }
 
-        bool checkRoadAvaliablity(){
+        bool checkRoadAvaliablity()
+        {
             var isBackRoadAvaliable = (m_BackRoad != null);
             var isVisiable = m_IsVisible;
             var isAiExist = (m_AboveAiCars.Count != 0);
@@ -115,18 +148,17 @@ namespace CarLevel
         void OnBecameInvisible()
         {
             m_IsVisible = false;
-        }
-
-        void Update(){
-            if(!checkRoadAvaliablity()){
+            if (!checkRoadAvaliablity())
+            {
                 Destroy(gameObject);
             }
         }
 
-        IEnumerator ieCheckRoadState(){
-            while (true)
+        void Update()
+        {
+            if (m_BackRoad == null && !checkRoadAvaliablity())
             {
-                yield return new WaitForSeconds(1f);
+                Destroy(gameObject);
             }
         }
     }
@@ -140,17 +172,21 @@ namespace CarLevel
         {
             if (script.getRoadNum() == 0) return;
 
+            var original = script.transform.position;
+
             float maxWidth = (script.getRoadNum() / 2.0f) * script.getRoadWidth();
 
             float drawLineLength = 20f;
             float heightOffset = 0.2f;
-            Gizmos.DrawLine(script.transform.TransformPoint(new Vector3(-maxWidth, heightOffset, -drawLineLength / 2.0f)),
-            script.transform.TransformPoint(new Vector3(-maxWidth, heightOffset, drawLineLength / 2.0f)));
+
+            Gizmos.DrawLine(original + new Vector3(-maxWidth, heightOffset, -drawLineLength / 2.0f),
+            original + new Vector3(-maxWidth, heightOffset, drawLineLength / 2.0f));
 
             float maxOffset = maxWidth;
             for (int count = 0; count < script.getRoadNum(); ++count)
             {
-                Gizmos.DrawLine(script.transform.TransformPoint(new Vector3(maxOffset, heightOffset, -drawLineLength / 2.0f)), script.transform.TransformPoint(new Vector3(maxOffset, heightOffset, drawLineLength / 2.0f)));
+                Gizmos.DrawLine(original + new Vector3(maxOffset, heightOffset, -drawLineLength / 2.0f),
+                 original + new Vector3(maxOffset, heightOffset, drawLineLength / 2.0f));
 
                 maxOffset -= script.getRoadWidth();
             }
@@ -162,7 +198,7 @@ namespace CarLevel
 
             Vector3 frontLeft = new Vector3(-maxWidth, heightOffset, script.getRoadLength() / 2f);
             Vector3 frontRight = new Vector3(maxWidth, heightOffset, script.getRoadLength() / 2f);
-            Gizmos.DrawLine(frontLeft, frontRight);
+            Gizmos.DrawLine(original + frontLeft, original + frontRight);
         }
     }
 

@@ -18,9 +18,9 @@ namespace CarLevel
         [SerializeField, Range(1f, 100f)]
         private float m_MaxSpeed = 10f;                 // 对应不同车辆的极速
         [SerializeField, Range(0f, 10f)]
-        private float m_MaxPercentPerSec = 5f;          // 对应不同引擎每秒最大变化率
-        [SerializeField, Range(0f, 10f)]
-        private float m_MaxSteerPerSec = 5f;            // 对应方向盘重量，每秒最大转向角度
+        private float m_MaxPowerPerSec = 5f;          // 对应不同引擎每秒最大变化率
+        [SerializeField, Range(0f, 30f)]
+        private float m_MaxSteerPerSec = 10f;            // 对应方向盘重量，每秒最大转向角度
 
         [SerializeField]
         private AnimationCurve m_SpeedCurve;            // 对应不同发动机功率能达到的极速
@@ -66,13 +66,13 @@ namespace CarLevel
             return transform.position;
         }
 
-        float computeDeltaShift(float deltaV)
+        float computeShift(float deltaV)
         {
             float shift = Mathf.Sin(m_CurrentSteerRadius) * deltaV;
             return shift;
         }
 
-        float computeDeltaForward(float deltaV)
+        float computeForward(float deltaV)
         {
             float forward = Mathf.Cos(m_CurrentSteerRadius) * deltaV;
             return forward;
@@ -91,14 +91,14 @@ namespace CarLevel
             return current;
         }
 
-        // X轴为左右转向的目标，根据现有目标插值 (-90 ~ 90)
+        // X轴为左右转向的目标，根据现有目标插值 (-1 ~ 1)
         // Z轴为前进的目标，依照发动机功率和响应延迟设定 ( -1 ~ 1)
         // Y轴正向为是否刹车
         public void updateUserInput(Vector3 input)
         {
-            m_TargetSteerAngle = Mathf.Clamp(input.x, -m_WheelMaxRotation, m_WheelMaxRotation);
+            m_TargetSteerAngle = input.x * m_WheelMaxRotation;
             m_TargetEnginePercent = Mathf.Clamp(input.z, 0f, 1f);
-            m_IsBrake = (input.y == 1);
+            m_IsBrake = (input.y > 0.5);
         }
 
         // 根据Target进行Current的移动
@@ -120,32 +120,33 @@ namespace CarLevel
             var powerDist = m_TargetEnginePercent - m_CurrentEnginePercent;
             if (powerDist > 0)
             {
-                m_CurrentEnginePercent += m_MaxPercentPerSec * Time.deltaTime;
+                m_CurrentEnginePercent += m_MaxPowerPerSec * Time.deltaTime;
             }
             else
             {
-                m_CurrentEnginePercent -= m_MaxPercentPerSec * Time.deltaTime;
+                m_CurrentEnginePercent -= m_MaxPowerPerSec * Time.deltaTime;
             }
             m_CurrentEnginePercent = Mathf.Clamp(m_CurrentEnginePercent, 0f, m_TargetEnginePercent);
         }
 
         void updatePosition()
         {
-            m_Velocity = computeCurrentSpeed() * Time.deltaTime;
+            m_Velocity = computeCurrentSpeed();
 
-            float deltaForward = computeDeltaForward(m_Velocity);
-            float deltaShift = computeDeltaShift(m_Velocity);
-            float rotateAngle = computeObjectRotateAngle(deltaShift);
+            float fwd = computeForward(m_Velocity);
+            float shift = computeShift(m_Velocity);
+            float deltaAngle = computeObjectRotateAngle(shift) * Time.deltaTime;
 
             Vector3 currentRotator = transform.rotation.eulerAngles;
             Vector3 currentPosition = transform.position;
 
-            Vector3 deltaPosition = Vector3.forward * deltaForward +
-            Vector3.right * deltaShift;
+            Vector3 deltaPosition = Vector3.forward * fwd + Vector3.right * shift;
+            if (deltaPosition.magnitude > m_Rigibody.velocity.magnitude)
+            {
+                m_Rigibody.velocity = transform.TransformDirection(deltaPosition);
+            }
 
-            m_Rigibody.MovePosition(currentPosition + transform.TransformDirection(deltaPosition));
-
-            currentRotator.y += rotateAngle;
+            currentRotator.y += deltaAngle;
             m_Rigibody.MoveRotation(Quaternion.Euler(currentRotator));
         }
 
@@ -153,6 +154,16 @@ namespace CarLevel
         {
             updataCurrentState();
             updatePosition();
+        }
+
+        void OnDrawGizmos()
+        {
+            var origin = transform.position;
+            var power = m_CurrentEnginePercent;
+            var turn = m_CurrentSteerAngle;
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.forward) * power);
+            Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.right) * (turn / m_MaxSteerPerSec));
         }
 
     }
