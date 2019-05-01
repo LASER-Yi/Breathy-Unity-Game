@@ -135,7 +135,6 @@ class SelectUiController : MonoBehaviour, IStackableUi
     }
     [Space, SerializeField]
     private float m_RotateSpeed;
-
     private float m_MaxTime = 0.6f;
     private float m_StartFov = 90f;
     private float m_TargetFov = 50f;

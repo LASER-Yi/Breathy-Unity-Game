@@ -112,11 +112,10 @@ public class CameraFrameController : MonoBehaviour
         Vector3 virtualScreenChar = camera.ScreenToWorldPoint(charPoint);
         Vector3 virtualCameraPoint = camera.ScreenToWorldPoint(worldPoint);
 
-        var delta = virtualScreenChar - virtualCameraPoint;
+        var offset = virtualCameraPoint - virtualScreenChar;
 
-        Vector3 characterPosition = m_Character.getWorldPosition();
-        characterPosition += delta;
-        m_TargetCameraPosition = characterPosition;
+        Vector3 original = m_Character.getWorldPosition();
+        m_TargetCameraPosition = (original + offset);
     }
 
     void setCameraPosition(){
@@ -124,10 +123,12 @@ public class CameraFrameController : MonoBehaviour
     }
 
     void setupCamera(){
-        m_Controller.setRotation(Quaternion.Euler(90f, 0f, 0f));
-        m_Controller.setZLength(20f);
-        m_Controller.setPosition(m_Character.getWorldPosition());
-        m_Controller.setFov(90f);
+        CameraAttribute attr = CameraAttribute.Empty;
+        attr.setPosition(m_Character.getWorldPosition());
+        attr.setRotation(Quaternion.Euler(90f, 0f, 0f));
+        attr.setFov(90f);
+        attr.setZLength(20f);
+        m_Controller.setAttribute(attr);
     }
 
     void Start(){

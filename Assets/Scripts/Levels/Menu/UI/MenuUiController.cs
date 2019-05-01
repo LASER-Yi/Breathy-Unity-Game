@@ -15,7 +15,6 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     private float m_MouseDropDegree = 5f;
     [SerializeField, Range(0f, 1f)]
     private float m_UpDownDropPrecent = 0.5f;
-    private bool m_IsStackTop = false;
 
     void Awake()
     {
@@ -103,10 +102,8 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     }
     public void onDidBecomeTop(){
         gameObject.SetActive(true);
-        m_IsStackTop = true;
     }
     public void onWillNotBecomeTop(){
-        m_IsStackTop = false;
         gameObject.SetActive(false);
     }
     public float onWillRemoveFromStack(bool animate){
