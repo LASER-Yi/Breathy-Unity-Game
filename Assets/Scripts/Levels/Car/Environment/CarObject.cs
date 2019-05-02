@@ -40,8 +40,6 @@ public class CarObject : MonoBehaviour, IPawnController
     // RANGE 0 ~ 1
     private float m_CurrentEnginePercent;
     private float m_TargetEnginePercent;
-    private float m_RefDeltaSpeed = 0f;
-    private float m_Velocity;
     private bool m_IsBrake;
 
     private void setupAttribute()
@@ -62,7 +60,7 @@ public class CarObject : MonoBehaviour, IPawnController
 
     public float getVelocity()
     {
-        return m_Velocity;
+        return m_Rigibody.velocity.magnitude;
     }
 
     public Vector3 getWorldPosition()
@@ -135,7 +133,8 @@ public class CarObject : MonoBehaviour, IPawnController
         else
         {
             m_CurrentEnginePercent -= Time.deltaTime / 100f;
-            if(m_TargetEnginePercent < 0f){
+            if (m_TargetEnginePercent < 0f)
+            {
                 m_CurrentEnginePercent -= (Time.deltaTime * m_CurrentEnginePercent / 2f);
             }
         }
@@ -150,10 +149,10 @@ public class CarObject : MonoBehaviour, IPawnController
 
     void updateRigidbody()
     {
-        m_Velocity = computeCurrentSpeed();
+        var velocity = computeCurrentSpeed();
 
-        float fwd = computeForward(m_Velocity);
-        float shift = computeShift(m_Velocity);
+        float fwd = computeForward(velocity);
+        float shift = computeShift(velocity);
         float deltaAngle = computeObjectRotateAngle(shift) * Time.deltaTime;
 
         Vector3 deltaPosition = Vector3.forward * fwd + Vector3.right * shift;

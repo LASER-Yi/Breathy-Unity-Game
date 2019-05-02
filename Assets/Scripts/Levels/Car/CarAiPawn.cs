@@ -125,7 +125,8 @@ public class CarAiPawn : MonoBehaviour
     private Collider[] collResults = new Collider[20];
     private int collCount = 0;
 
-    private void updateColliders(){
+    private void updateColliders()
+    {
         var center = transform.position;
         var halfExt = Vector3.zero;
         halfExt.y = 0.2f;

@@ -138,7 +138,7 @@ public class CameraFrameController : MonoBehaviour
 
     void LateUpdate(){
         float rate = computeCounterPosition();
-        computeTargetPosition(0.1f);
+        computeTargetPosition(m_ButtonFramePercent);
         setCameraPosition();
     }
 }

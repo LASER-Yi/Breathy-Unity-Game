@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using CarAiAttribute;
 
+// 三种状态 -> 直行、变道、刹车
 public class CarConservativeAi
 {
 
     // 车辆在跟随前车时使用的计时器
-    private float m_FollowThreshold = 5f;
+    private float m_FollowThreshold = 10f;
     private float m_FollowTimer;
-
-    // 车辆在被停止时使用的计时器
-    private float m_StopThreshold = 10f;
-    private float m_StopTimer;
 
     // State Machine
     // Follow -> Override
@@ -84,11 +81,15 @@ public class CarConservativeAi
 
                 bool isFrontUnsafe = env.frontDistance.HasValue && env.frontDistance.Value < m_AiSafeDistance;
                 bool isSideUnsafe = false;
-                if(prev.targetRoadNumber < env.currentRoadNumber){
-                    if(env.leftDistance.HasValue && Mathf.Abs(env.leftDistance.Value) < m_AiWarnDistance){
+                if (prev.targetRoadNumber < env.currentRoadNumber)
+                {
+                    if (env.leftDistance.HasValue && Mathf.Abs(env.leftDistance.Value) < m_AiWarnDistance)
+                    {
                         isSideUnsafe = true;
                     }
-                }else if(prev.targetRoadNumber > env.currentRoadNumber){
+                }
+                else if (prev.targetRoadNumber > env.currentRoadNumber)
+                {
                     if (env.rightDistance.HasValue && Mathf.Abs(env.rightDistance.Value) < m_AiWarnDistance)
                     {
                         isSideUnsafe = true;
@@ -112,7 +113,6 @@ public class CarConservativeAi
             if (isDetectDanger(in env))
             {
                 stra = generateStopAction(in env);
-                m_StopTimer += Time.deltaTime;
             }
             else
             {
@@ -131,7 +131,8 @@ public class CarConservativeAi
         {
             var fwd = env.frontDistance.Value;
             var percent = (fwd - m_AiWarnDistance) / (m_AiSafeDistance - m_AiWarnDistance);
-            stra.power = Mathf.Lerp(0f, 0.8f, percent);
+            var minPercent = prev.power;
+            stra.power = Mathf.Lerp(minPercent, 0.8f, percent);
         }
         else
         {
