@@ -106,6 +106,13 @@ public class RoadObject : MonoBehaviour
         return Vector3.Dot(direction, right);
     }
 
+    public bool isRoadAvaliable(int roadNum)
+    {
+        int maxRange = m_RoadNum;
+        // 与路面通信检查状况
+        return roadNum >= 0 && roadNum < maxRange;
+    }
+
     public void addAiToRoad(CarAiPawn ai)
     {
         m_AboveAiCars.Add(ai);

@@ -2,9 +2,39 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using CarAiAttribute;
 
 // 自动往道路前方移动
 // 根据AI的不同特性，自动插队和自动补上前方空位
+
+namespace CarAiAttribute{
+    public struct Strategic
+    {
+        public float power;        // 0 ~ 1
+        public bool brake;         // override power
+        public int targetRoadNumber;
+
+        public static Strategic Default
+        {
+            get
+            {
+                var stra = new Strategic();
+                stra.power = 1f;
+                stra.brake = false;
+                stra.targetRoadNumber = 1;
+                return stra;
+            }
+        }
+    }
+
+    public struct Environment
+    {
+        public float? frontDistance;        // 前方物体的距离
+        public float? leftDistance;   // 左侧物体最近距离 前(+) -> 0 -> 后(-)
+        public float? rightDistance;  // 右侧物体最近距离 前(+) -> 0 -> 后(-)
+        public int currentRoadNumber;      // 当前
+    }
+}
 
 [RequireComponent(typeof(CarObject)), RequireComponent(typeof(BoxCollider))]
 public class CarAiPawn : MonoBehaviour
@@ -18,30 +48,7 @@ public class CarAiPawn : MonoBehaviour
     [SerializeField]
     private EAiType m_AiType = EAiType.Conservative;
 
-    protected struct Environment
-    {
-        public float? frontDistance;        // 前方物体的距离
-        public float? leftClosetDistance;   // 左侧物体最近距离 前(+) -> 0 -> 后(-)
-        public float? rightClosetDistance;  // 右侧物体最近距离 前(+) -> 0 -> 后(-)
-        public int currentRoadNumber;      // 当前
-    }
 
-    protected struct Strategic
-    {
-        public float power;        // 0 ~ 1
-        public bool brake;         // override power
-        public int targetRoadNumber;
-
-        public static Strategic Default{
-            get{
-                var stra = new Strategic();
-                stra.power = 1f;
-                stra.brake = false;
-                stra.targetRoadNumber = 1;
-                return stra;
-            }
-        }
-    }
     protected IPawnController m_Controller;
     private BoxCollider m_Collider;
 
@@ -175,33 +182,61 @@ public class CarAiPawn : MonoBehaviour
         return env;
     }
 
+    // 等待前方车辆的计时器，如果等待时间过长尝试超车
+    private float m_ConserForwardTimer = 0f;
+
     // 保守型Ai
-    Strategic computeConservativeAi(in Environment env)
+    Strategic computeConservativeAi(in Strategic prev, in Environment env)
     {
         var stra = Strategic.Default;
-        if(env.frontDistance.HasValue){
+        if (env.frontDistance.HasValue)
+        {
             var fwdDistance = env.frontDistance.Value;
-            if(fwdDistance < m_CloserDistance / 2f){
+            if (fwdDistance < m_CloserDistance / 2f)
+            {
                 // 紧急刹车
                 stra.brake = true;
                 stra.power = 0f;
-            }else if (fwdDistance < m_SafeDistance){
+            }
+            else if (fwdDistance < m_SafeDistance)
+            {
                 // 保持车距
                 var percent = (fwdDistance - m_CloserDistance) / (m_SafeDistance - m_CloserDistance);
                 stra.power = Mathf.Lerp(0f, 1f, percent);
+                
+
+                if(m_ConserForwardTimer < 3f){
+                    m_ConserForwardTimer += Time.deltaTime;
+                }else{
+                    if(env.leftDistance.HasValue){
+                        var leftDist = env.leftDistance.Value;
+                        var distance = Mathf.Abs(leftDist);
+                        var threshold = m_CloserDistance + (m_SafeDistance - m_CloserDistance) / 2f;
+
+                        bool leftCarBehind = leftDist < 0;
+                        bool fillfulDistance = distance > threshold;
+                        bool roadAvaliable = m_AttachRoad.isRoadAvaliable(env.currentRoadNumber - 1);
+                        if (leftCarBehind && fillfulDistance && roadAvaliable)
+                        {
+
+                        }
+                    }else if(env.rightDistance.HasValue){
+
+                    }
+                }
             }
         }
         return stra;
     }
 
     // 激进型Ai
-    Strategic computeRaidcalAi(in Environment env)
+    Strategic computeRaidcalAi(in Strategic prev, in Environment env)
     {
         var stra = Strategic.Default;
         return stra;
     }
 
-    private Collider[] m_WarnColl = new Collider[5];
+    private Strategic prevStraitegic = Strategic.Default;
 
     // 根据当前环境情况设置决策（加减速, 车道数）
     Strategic computeStrategic(Environment env)
@@ -210,13 +245,14 @@ public class CarAiPawn : MonoBehaviour
         switch (m_AiType)
         {
             case EAiType.Conservative:
-                stra = computeConservativeAi(in env);
+                stra = computeConservativeAi(in prevStraitegic, in env);
                 break;
             case EAiType.Radical:
-                stra = computeRaidcalAi(in env);
+                stra = computeRaidcalAi(in prevStraitegic, in env);
                 break;
         }
 
+        prevStraitegic = stra;
         return stra;
     }
 
@@ -291,8 +327,10 @@ public class CarAiPawn : MonoBehaviour
         return current;
     }
 
-    void OnCollisionEnter(Collision info){
-        if(((1 << info.gameObject.layer) & m_ObstructLayer.value) != 0){
+    void OnCollisionEnter(Collision info)
+    {
+        if (((1 << info.gameObject.layer) & m_ObstructLayer.value) != 0)
+        {
 
         }
     }

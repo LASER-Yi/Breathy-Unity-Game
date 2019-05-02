@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CarAiAttribute;
 
 public class ManualAiPawn : CarAiPawn
 {
@@ -14,7 +15,7 @@ public class ManualAiPawn : CarAiPawn
         checkRoadState();
         if (m_AttachRoad != null)
         {
-            var stra = CarAiPawn.Strategic.Default;
+            var stra = Strategic.Default;
             stra.brake = m_IsBrake;
             stra.power = m_ForwardSpeed;
             stra.targetRoadNumber = m_TargetRoadNumber;
