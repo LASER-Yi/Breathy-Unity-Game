@@ -44,7 +44,8 @@ public class CarObject : MonoBehaviour, IPawnController
     private float m_Velocity;
     private bool m_IsBrake;
 
-    private void setupAttribute(){
+    private void setupAttribute()
+    {
         gameObject.layer = LayerMask.NameToLayer("Car");
     }
 
@@ -108,8 +109,8 @@ public class CarObject : MonoBehaviour, IPawnController
     public void updateUserInput(Vector3 input)
     {
         m_TargetSteerAngle = input.x * computeTrueSteerAngle();
-        m_TargetEnginePercent = Mathf.Clamp(input.z, 0f, 1f);
-        m_IsBrake = (input.y > 0.5);
+        m_TargetEnginePercent = Mathf.Clamp(input.z, -1f, 1f);
+        m_IsBrake = (input.y == 1f);
     }
 
     // 根据Target进行Current的移动
@@ -133,13 +134,17 @@ public class CarObject : MonoBehaviour, IPawnController
         }
         else
         {
-            m_CurrentEnginePercent -= Time.deltaTime / 10f;
+            m_CurrentEnginePercent -= Time.deltaTime / 100f;
+            if(m_TargetEnginePercent < 0f){
+                m_CurrentEnginePercent -= (Time.deltaTime * m_CurrentEnginePercent / 2f);
+            }
         }
 
-        if(m_IsBrake){
+        if (m_IsBrake)
+        {
             m_CurrentEnginePercent -= Time.deltaTime / 2f;
         }
-        
+
         m_CurrentEnginePercent = Mathf.Clamp(m_CurrentEnginePercent, 0f, 1f);
     }
 

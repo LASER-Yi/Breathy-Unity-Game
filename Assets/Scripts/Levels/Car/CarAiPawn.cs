@@ -125,6 +125,15 @@ public class CarAiPawn : MonoBehaviour
     private Collider[] collResults = new Collider[20];
     private int collCount = 0;
 
+    private void updateColliders(){
+        var center = transform.position;
+        var halfExt = Vector3.zero;
+        halfExt.y = 0.2f;
+        halfExt.x = m_AttachRoad.getRoadWidth() * 1.5f;
+        halfExt.z = m_SafeDistance;
+        collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
+    }
+
     bool isDetectFront(Vector3 direction)
     {
         var fwd = transform.TransformDirection(Vector3.forward);
@@ -137,12 +146,7 @@ public class CarAiPawn : MonoBehaviour
         env.currentRoadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
         env.roadNumberCount = m_AttachRoad.getRoadNum();
 
-        var center = transform.position;
-        var halfExt = Vector3.zero;
-        halfExt.y = 0.2f;
-        halfExt.x = m_AttachRoad.getRoadWidth() * 1.5f;
-        halfExt.z = m_SafeDistance;
-        collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
+        updateColliders();
         for (int i = 0; i < collCount; ++i)
         {
             var col = collResults[i];

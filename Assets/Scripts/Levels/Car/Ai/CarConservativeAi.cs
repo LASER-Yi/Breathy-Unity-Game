@@ -74,14 +74,28 @@ public class CarConservativeAi
         {
             if (prev.targetRoadNumber == env.currentRoadNumber)
             {
-                // 超车完成
+                // 变道完成
                 moveToFollowState();
                 m_FollowTimer = 0f;
             }
             else
             {
-                // 正在超车
-                if (env.frontDistance.HasValue && env.frontDistance.Value < m_AiSafeDistance)
+                // 正在变道
+
+                bool isFrontUnsafe = env.frontDistance.HasValue && env.frontDistance.Value < m_AiSafeDistance;
+                bool isSideUnsafe = false;
+                if(prev.targetRoadNumber < env.currentRoadNumber){
+                    if(env.leftDistance.HasValue && Mathf.Abs(env.leftDistance.Value) < m_AiWarnDistance){
+                        isSideUnsafe = true;
+                    }
+                }else if(prev.targetRoadNumber > env.currentRoadNumber){
+                    if (env.rightDistance.HasValue && Mathf.Abs(env.rightDistance.Value) < m_AiWarnDistance)
+                    {
+                        isSideUnsafe = true;
+                    }
+                }
+
+                if (isFrontUnsafe && isSideUnsafe)
                 {
                     moveToFollowState();
                 }
@@ -132,7 +146,7 @@ public class CarConservativeAi
         stra.brake = false;
         stra.power = 1.0f;
         stra.targetRoadNumber = env.currentRoadNumber;
-        // 尝试超车
+        // 尝试变道
         if (env.leftDistance.HasValue)
         {
             var leftDist = env.leftDistance.Value;

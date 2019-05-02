@@ -5,7 +5,7 @@ using CarAiAttribute;
 
 public class ManualAiPawn : CarAiPawn
 {
-    [SerializeField, Range(0f,1f)]
+    [SerializeField, Range(-1f,1f)]
     private float m_ForwardSpeed = 1f;
     [SerializeField, Range(0, 2)]
     private int m_TargetRoadNumber = 1;
