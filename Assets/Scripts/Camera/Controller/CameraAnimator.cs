@@ -56,15 +56,15 @@ namespace LCameraSystem
             StopAllCoroutines();
         }
 
-        public void startKeyframeAnimation(CameraAttribute from, CameraAttribute to, float time){
-            if (from != null) m_CamController.setAttribute(from);
+        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time){
+            if (from != null) m_CamController.setAttribute(from.Value);
 
             StartCoroutine(ieStartCameraNextKeyframe(to, time, vLerp));
         }
 
-        public void startKeyframeAnimation(CameraAttribute from, CameraAttribute to, float time, interpolation func)
+        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time, interpolation func)
         {
-            if (from != null) m_CamController.setAttribute(from);
+            if (from != null) m_CamController.setAttribute(from.Value);
 
             StartCoroutine(ieStartCameraNextKeyframe(to, time, func));
         }

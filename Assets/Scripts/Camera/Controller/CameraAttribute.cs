@@ -11,7 +11,7 @@ namespace LCameraSystem{
         public float fov;
     }
 
-    public class CameraAttribute
+    public struct CameraAttribute
     {
         public Vector3? position;
         public Quaternion? rotation;

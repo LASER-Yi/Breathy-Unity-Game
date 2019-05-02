@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 // 自动往道路前方移动
 // 根据AI的不同特性，自动插队和自动补上前方空位
@@ -13,6 +14,9 @@ public class CarAiPawn : MonoBehaviour
         Radical,        // 激进型Ai
         Conservative,   // 保守型Ai
     }
+
+    [SerializeField]
+    private EAiType m_AiType = EAiType.Conservative;
 
     struct Environment
     {
@@ -31,6 +35,7 @@ public class CarAiPawn : MonoBehaviour
     private IPawnController m_Controller;
 
     private LayerMask m_RoadLayer;
+    private LayerMask m_ObstructLayer;
 
     [SerializeField]
     private float m_ReactionTime;
@@ -44,21 +49,16 @@ public class CarAiPawn : MonoBehaviour
     [SerializeField]
     private float m_CloserDistance;
 
-    /* State */
-    private int m_CurrentRoadNumber
+    public float getSafeDistance()
     {
-        get
-        {
-            if (m_AttachRoad != null)
-            {
-                return m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
-            }
-            else
-            {
-                return -1;
-            }
-        }
+        return m_SafeDistance;
     }
+    public float getCloserDistance()
+    {
+        return m_CloserDistance;
+    }
+
+    /* State */
     private float m_CurrentHorizonal
     {
         get
@@ -72,6 +72,7 @@ public class CarAiPawn : MonoBehaviour
     {
         m_Controller = GetComponent<IPawnController>();
         m_RoadLayer = 1 << LayerMask.NameToLayer("Road");
+        m_ObstructLayer = 1 << LayerMask.NameToLayer("Car");
     }
 
     void checkRoadState()
@@ -100,27 +101,102 @@ public class CarAiPawn : MonoBehaviour
         }
     }
 
-    void updateStateFromRoad()
+    private Collider[] collResults = new Collider[20];
+    private int collCount = 0;
+
+    bool isDetectFront(Vector3 direction)
     {
-        if (m_AttachRoad != null)
-        {
-            // m_CurrentRoadNumber = 
-        }
+        var fwd = transform.TransformDirection(Vector3.forward);
+        return Vector3.Dot(fwd, direction) > 0 ? true : false;
     }
 
     Environment detectEnvironment()
     {
-        return new Environment();
+        var env = new Environment();
+        env.currentRoadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
+
+        var center = transform.position;
+        var frontDetect = center + Vector3.forward * m_SafeDistance;
+        var backDetect = center + Vector3.back * m_SafeDistance;
+        var radius = m_AttachRoad.getRoadWidth() * 3f;
+        collCount = Physics.OverlapCapsuleNonAlloc(frontDetect, backDetect, radius, collResults, m_ObstructLayer);
+        for (int i = 0; i < collCount; ++i)
+        {
+            var col = collResults[i];
+            if (col.transform == transform) continue;
+
+            var direction = col.transform.position - transform.position;
+            var isFront = isDetectFront(direction);
+            var distance = Vector3.Distance(transform.position, col.transform.position);
+            var projection = m_AttachRoad.getHorizonalProject(direction);
+
+            if (Mathf.Abs(projection) < 0.5f)
+            {
+                // Current
+                if (isFront)
+                {
+                    if (env.frontDistance.HasValue)
+                    {
+                        if (env.frontDistance.Value < distance)
+                        {
+                            env.frontDistance = distance;
+                        }
+                    }
+                    else
+                    {
+                        env.frontDistance = distance;
+                    }
+                }
+            }
+            else if (Mathf.Abs(projection) < 1.5f)
+            {
+                if (projection < 0)
+                {
+                    // Left
+                }
+                else
+                {
+                    // Right
+                }
+            }
+        }
+        return env;
+    }
+
+    Strategic computeConservativeAi(in Environment env)
+    {
+        var stra = new Strategic();
+        stra.brake = false;
+        stra.power = 1f;
+        stra.targetRoadNumber = 1;
+        return stra;
+    }
+
+    Strategic computeRaidcalAi(in Environment env)
+    {
+        var stra = new Strategic();
+        stra.brake = false;
+        stra.power = 1f;
+        stra.targetRoadNumber = 1;
+        return stra;
     }
 
     // 根据当前环境情况设置决策（加减速, 车道数）
     Strategic computeStrategic(Environment env)
     {
-        var stra = new Strategic();
-        stra.power = 1f;
-        stra.targetRoadNumber = 1;
-        stra.brake = false;
-        return stra;
+        switch (m_AiType)
+        {
+            case EAiType.Conservative:
+                return computeConservativeAi(in env);
+            case EAiType.Radical:
+                return computeRaidcalAi(in env);
+            default:
+                var stra = new Strategic();
+                stra.power = 1f;
+                stra.targetRoadNumber = 1;
+                stra.brake = false;
+                return stra;
+        }
     }
 
     // 根据决策函数的输入行动
@@ -133,10 +209,7 @@ public class CarAiPawn : MonoBehaviour
         var targetHorizonal = m_AttachRoad.computeRoadCenterWorld(stra.targetRoadNumber);
         var targetOffset = targetHorizonal - m_CurrentHorizonal;
 
-        var target = computeTargetProjection(targetOffset);
-        var current = computeCurrentTurnProject();   // -1 ~ 0 ~ 1
-
-        action += Vector3.right * computeTurnPercent(target, current);
+        action += Vector3.right * computeTurnPercent(targetOffset);
 
         return action;
     }
@@ -168,8 +241,11 @@ public class CarAiPawn : MonoBehaviour
     private float m_DebugTurnPercent = 0f;
 
     // 传入在水平轴上的投影，得到目标转向角度
-    float computeTurnPercent(float target, float current)
+    float computeTurnPercent(float offset)
     {
+        var target = computeTargetProjection(offset);
+        var current = computeCurrentTurnProject();   // -1 ~ 0 ~ 1
+
         var turnPercent = target - current;
         // 加快回正速度
         if (turnPercent * current < 0f)
@@ -190,7 +266,7 @@ public class CarAiPawn : MonoBehaviour
     float computeCurrentTurnProject()
     {
         var selfDirection = transform.TransformDirection(Vector3.forward);
-        var current = m_AttachRoad.getHorizonalProject(selfDirection);
+        var current = m_AttachRoad.getDegreeProjection(selfDirection);
         return current;
     }
 
@@ -200,5 +276,31 @@ public class CarAiPawn : MonoBehaviour
         var target = origin + Vector3.right * m_DebugTurnPercent;
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(origin, target);
+
+        Gizmos.color = Color.green;
+        for (int i = 0; i < collCount; ++i)
+        {
+            var position = collResults[i].transform.position;
+            Gizmos.DrawLine(origin, position);
+        }
+    }
+}
+
+[CustomEditor(typeof(CarAiPawn))]
+public class CarAiPawnEditor : Editor
+{
+    [DrawGizmo(GizmoType.Selected | GizmoType.InSelectionHierarchy)]
+    static void DrawGizmosSelected(CarAiPawn script, GizmoType type)
+    {
+
+        var center = script.transform.position;
+        // Draw Detect Circle
+        var safe = script.getSafeDistance();
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(center, safe);
+
+        var closer = script.getCloserDistance();
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(center, closer);
     }
 }

@@ -38,6 +38,10 @@ public class RoadObject : MonoBehaviour
         return m_RoadLength;
     }
 
+    void Awake(){
+        gameObject.layer = LayerMask.NameToLayer("Road");
+    }
+
     void Start()
     {
         ++count;
@@ -85,11 +89,21 @@ public class RoadObject : MonoBehaviour
         return transform.TransformDirection(Vector3.forward);
     }
 
-    // 根据车辆世界正方向得到道路水平方向的投影
-    public float getHorizonalProject(Vector3 forward)
+    // 位置在路面上的百分比投影
+    // -1 - 0  - 1
+    // LR - CR - RR
+    public float getHorizonalProject(Vector3 direction)
     {
         var right = transform.TransformDirection(Vector3.right);
-        return Vector3.Dot(right, forward);
+        return Vector3.Project(direction, right).x / m_RoadWidth;
+    }
+
+    // 方向在路面上的左右投影
+    // -1 - 0 - 1
+    // L - M - R
+    public float getDegreeProjection(Vector3 direction){
+        var right = transform.TransformDirection(Vector3.right);
+        return Vector3.Dot(direction, right);
     }
 
     public void addAiToRoad(CarAiPawn ai)

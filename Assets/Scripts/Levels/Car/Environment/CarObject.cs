@@ -44,13 +44,18 @@ public class CarObject : MonoBehaviour, IPawnController
     private float m_Velocity;
     private bool m_IsBrake;
 
+    private void setupAttribute(){
+        gameObject.layer = LayerMask.NameToLayer("Car");
+    }
+
     private void setupRigibody()
     {
         m_Rigibody = GetComponent<Rigidbody>();
         m_Rigibody.isKinematic = false;
     }
-    void Start()
+    void Awake()
     {
+        setupAttribute();
         setupRigibody();
     }
 
@@ -110,12 +115,11 @@ public class CarObject : MonoBehaviour, IPawnController
     // 根据Target进行Current的移动
     void updataCurrentState()
     {
-        var steerDist = m_TargetSteerAngle - m_CurrentSteerAngle;
-        if (steerDist > 0)
+        if (m_TargetSteerAngle > m_CurrentSteerAngle)
         {
             m_CurrentSteerAngle += (m_MaxSteerPerSec * Time.deltaTime);
         }
-        else if (steerDist < 0)
+        else
         {
             m_CurrentSteerAngle -= (m_MaxSteerPerSec * Time.deltaTime);
         }
@@ -123,19 +127,18 @@ public class CarObject : MonoBehaviour, IPawnController
         m_CurrentSteerAngle = Mathf.Clamp(m_CurrentSteerAngle, -abs, abs);
 
         // 计算引擎现在功率百分比
-        var powerDist = m_TargetEnginePercent - m_CurrentEnginePercent;
-        if (powerDist > 0)
+        if (m_TargetEnginePercent > m_CurrentEnginePercent)
         {
-            m_CurrentEnginePercent += m_MaxPowerPerSec * Time.deltaTime;
+            m_CurrentEnginePercent += (m_MaxPowerPerSec * Time.deltaTime);
         }
         else
         {
-            m_CurrentEnginePercent -= Time.deltaTime / 5f;
+            m_CurrentEnginePercent -= Time.deltaTime / 10f;
         }
-        m_CurrentEnginePercent = Mathf.Clamp(m_CurrentEnginePercent, 0f, m_TargetEnginePercent);
+        m_CurrentEnginePercent = Mathf.Clamp(m_CurrentEnginePercent, 0f, 1f);
     }
 
-    void updateVelocity()
+    void updateRigidbody()
     {
         m_Velocity = computeCurrentSpeed();
 
@@ -143,23 +146,34 @@ public class CarObject : MonoBehaviour, IPawnController
         float shift = computeShift(m_Velocity);
         float deltaAngle = computeObjectRotateAngle(shift) * Time.deltaTime;
 
-        Vector3 currentRotator = transform.rotation.eulerAngles;
-        Vector3 currentPosition = transform.position;
-
         Vector3 deltaPosition = Vector3.forward * fwd + Vector3.right * shift;
-        if (deltaPosition.magnitude > m_Rigibody.velocity.magnitude)
+        // 将速度映射到刚体上
+        if (m_IsBrake)
+        {
+            var slowPercent = 0.6f;
+            var slowVector = m_Rigibody.velocity - (m_Rigibody.velocity * slowPercent * Time.deltaTime);
+            m_Rigibody.velocity = slowVector;
+        }
+        else if (deltaPosition.magnitude > m_Rigibody.velocity.magnitude)
         {
             m_Rigibody.velocity = transform.TransformDirection(deltaPosition);
         }
+        else
+        {
+            var slowPercent = 0.001f;
+            var slowVector = m_Rigibody.velocity - (m_Rigibody.velocity * slowPercent * Time.deltaTime);
+            m_Rigibody.velocity = slowVector;
+        }
 
-        currentRotator.y += deltaAngle;
-        m_Rigibody.MoveRotation(Quaternion.Euler(currentRotator));
+        var currentRotator = transform.rotation;
+        var deltaRototor = Quaternion.Euler(0f, deltaAngle, 0f);
+        m_Rigibody.MoveRotation(currentRotator * deltaRototor);
     }
 
     void Update()
     {
         updataCurrentState();
-        updateVelocity();
+        updateRigidbody();
     }
 
     void OnDrawGizmos()
