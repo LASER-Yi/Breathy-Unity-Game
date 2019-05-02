@@ -7,7 +7,8 @@ using CarAiAttribute;
 // 自动往道路前方移动
 // 根据AI的不同特性，自动插队和自动补上前方空位
 
-namespace CarAiAttribute{
+namespace CarAiAttribute
+{
     public struct Strategic
     {
         public float power;        // 0 ~ 1
@@ -30,9 +31,10 @@ namespace CarAiAttribute{
     public struct Environment
     {
         public float? frontDistance;        // 前方物体的距离
-        public float? leftDistance;   // 左侧物体最近距离 前(+) -> 0 -> 后(-)
-        public float? rightDistance;  // 右侧物体最近距离 前(+) -> 0 -> 后(-)
-        public int currentRoadNumber;      // 当前
+        public float? leftDistance;         // 左侧物体最近距离 前(+) -> 0 -> 后(-)
+        public float? rightDistance;        // 右侧物体最近距离 前(+) -> 0 -> 后(-)
+        public int currentRoadNumber;
+        public int roadNumberCount;
     }
 }
 
@@ -48,6 +50,7 @@ public class CarAiPawn : MonoBehaviour
     [SerializeField]
     private EAiType m_AiType = EAiType.Conservative;
 
+    private CarConservativeAi m_ConservativeAi = new CarConservativeAi();
 
     protected IPawnController m_Controller;
     private BoxCollider m_Collider;
@@ -65,18 +68,17 @@ public class CarAiPawn : MonoBehaviour
     [SerializeField]
     private float m_SafeDistance;
     [SerializeField]
-    private float m_CloserDistance;
+    private float m_WarnDistance;
 
     public float getSafeDistance()
     {
         return m_SafeDistance;
     }
-    public float getCloserDistance()
+    public float getWarnDistance()
     {
-        return m_CloserDistance;
+        return m_WarnDistance;
     }
 
-    /* State */
     private float m_CurrentHorizonal
     {
         get
@@ -133,12 +135,14 @@ public class CarAiPawn : MonoBehaviour
     {
         var env = new Environment();
         env.currentRoadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
+        env.roadNumberCount = m_AttachRoad.getRoadNum();
 
         var center = transform.position;
-        var frontDetect = center + Vector3.forward * m_SafeDistance;
-        var backDetect = center + Vector3.back * m_SafeDistance;
-        var radius = m_AttachRoad.getRoadWidth() * 3f;
-        collCount = Physics.OverlapCapsuleNonAlloc(frontDetect, backDetect, radius, collResults, m_ObstructLayer);
+        var halfExt = Vector3.zero;
+        halfExt.y = 0.2f;
+        halfExt.x = m_AttachRoad.getRoadWidth() * 1.5f;
+        halfExt.z = m_SafeDistance;
+        collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
         for (int i = 0; i < collCount; ++i)
         {
             var col = collResults[i];
@@ -172,61 +176,46 @@ public class CarAiPawn : MonoBehaviour
                 if (projection < 0)
                 {
                     // Left
+                    var assignment = distance;
+                    if (!isFront)
+                    {
+                        assignment = -distance;
+                    }
+                    if (env.leftDistance.HasValue)
+                    {
+                        if (distance < Mathf.Abs(env.leftDistance.Value))
+                        {
+                            env.leftDistance = assignment;
+                        }
+                    }
+                    else
+                    {
+                        env.leftDistance = assignment;
+                    }
                 }
                 else
                 {
                     // Right
-                }
-            }
-        }
-        return env;
-    }
-
-    // 等待前方车辆的计时器，如果等待时间过长尝试超车
-    private float m_ConserForwardTimer = 0f;
-
-    // 保守型Ai
-    Strategic computeConservativeAi(in Strategic prev, in Environment env)
-    {
-        var stra = Strategic.Default;
-        if (env.frontDistance.HasValue)
-        {
-            var fwdDistance = env.frontDistance.Value;
-            if (fwdDistance < m_CloserDistance / 2f)
-            {
-                // 紧急刹车
-                stra.brake = true;
-                stra.power = 0f;
-            }
-            else if (fwdDistance < m_SafeDistance)
-            {
-                // 保持车距
-                var percent = (fwdDistance - m_CloserDistance) / (m_SafeDistance - m_CloserDistance);
-                stra.power = Mathf.Lerp(0f, 1f, percent);
-                
-
-                if(m_ConserForwardTimer < 3f){
-                    m_ConserForwardTimer += Time.deltaTime;
-                }else{
-                    if(env.leftDistance.HasValue){
-                        var leftDist = env.leftDistance.Value;
-                        var distance = Mathf.Abs(leftDist);
-                        var threshold = m_CloserDistance + (m_SafeDistance - m_CloserDistance) / 2f;
-
-                        bool leftCarBehind = leftDist < 0;
-                        bool fillfulDistance = distance > threshold;
-                        bool roadAvaliable = m_AttachRoad.isRoadAvaliable(env.currentRoadNumber - 1);
-                        if (leftCarBehind && fillfulDistance && roadAvaliable)
+                    var assignment = distance;
+                    if (!isFront)
+                    {
+                        assignment = -distance;
+                    }
+                    if (env.rightDistance.HasValue)
+                    {
+                        if (distance < Mathf.Abs(env.rightDistance.Value))
                         {
-
+                            env.rightDistance = assignment;
                         }
-                    }else if(env.rightDistance.HasValue){
-
+                    }
+                    else
+                    {
+                        env.rightDistance = assignment;
                     }
                 }
             }
         }
-        return stra;
+        return env;
     }
 
     // 激进型Ai
@@ -242,13 +231,15 @@ public class CarAiPawn : MonoBehaviour
     Strategic computeStrategic(Environment env)
     {
         var stra = Strategic.Default;
+        stra.targetRoadNumber = env.currentRoadNumber;
         switch (m_AiType)
         {
             case EAiType.Conservative:
-                stra = computeConservativeAi(in prevStraitegic, in env);
+                m_ConservativeAi.updateThreshold(m_WarnDistance, m_SafeDistance);
+                stra = m_ConservativeAi.compute(in prevStraitegic, in env);
                 break;
             case EAiType.Radical:
-                stra = computeRaidcalAi(in prevStraitegic, in env);
+                // stra = computeRaidcalAi(in prevStraitegic, in env);
                 break;
         }
 
@@ -307,11 +298,11 @@ public class CarAiPawn : MonoBehaviour
         // 加快回正速度
         if (turnPercent * current < 0f)
         {
-            turnPercent *= 2f;
+            turnPercent *= 4f;
         }
         else
         {
-            turnPercent /= 5f;
+            turnPercent /= 10f;
         }
         turnPercent = Mathf.Clamp(turnPercent, -1f, 1f);
 
@@ -354,18 +345,23 @@ public class CarAiPawn : MonoBehaviour
 [CustomEditor(typeof(CarAiPawn))]
 public class CarAiPawnEditor : Editor
 {
-    [DrawGizmo(GizmoType.Selected | GizmoType.InSelectionHierarchy)]
+    [DrawGizmo(GizmoType.Selected)]
     static void DrawGizmosSelected(CarAiPawn script, GizmoType type)
     {
 
         var center = script.transform.position;
-        // Draw Detect Circle
+        // Draw Safe Circle
         var safe = script.getSafeDistance();
+        var radius = 3f;
+        var halfExt = Vector3.zero;
+        halfExt.y = 0.2f;
+        halfExt.x = radius * 3f;
+        halfExt.z = safe * 2f;
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(center, safe);
+        Gizmos.DrawWireCube(center, halfExt);
 
-        var closer = script.getCloserDistance();
+        var warn = script.getWarnDistance();
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(center, closer);
+        Gizmos.DrawWireSphere(center, warn);
     }
 }

@@ -38,7 +38,8 @@ public class RoadObject : MonoBehaviour
         return m_RoadLength;
     }
 
-    void Awake(){
+    void Awake()
+    {
         gameObject.layer = LayerMask.NameToLayer("Road");
     }
 
@@ -78,10 +79,20 @@ public class RoadObject : MonoBehaviour
 
     // 根据给定位置计算路索引
     // 给定位置为世界坐标
-    public int computeRoadNumberWorld(float offset)
+    public int computeRoadNumberWorld(float worldPosition)
     {
+        float offset = worldPosition - transform.position.x;
+        offset += (m_RoadNum * m_RoadWidth) / 2f;
 
-        return 0;
+        int number = Mathf.FloorToInt(offset / m_RoadWidth);
+        if (number < m_RoadNum && number >= 0)
+        {
+            return number;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     public Vector3 getForwardDirection()
@@ -101,7 +112,8 @@ public class RoadObject : MonoBehaviour
     // 方向在路面上的左右投影
     // -1 - 0 - 1
     // L - M - R
-    public float getDegreeProjection(Vector3 direction){
+    public float getDegreeProjection(Vector3 direction)
+    {
         var right = transform.TransformDirection(Vector3.right);
         return Vector3.Dot(direction, right);
     }
