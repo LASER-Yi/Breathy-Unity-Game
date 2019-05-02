@@ -135,6 +135,11 @@ public class CarObject : MonoBehaviour, IPawnController
         {
             m_CurrentEnginePercent -= Time.deltaTime / 10f;
         }
+
+        if(m_IsBrake){
+            m_CurrentEnginePercent -= Time.deltaTime / 2f;
+        }
+        
         m_CurrentEnginePercent = Mathf.Clamp(m_CurrentEnginePercent, 0f, 1f);
     }
 

@@ -6,7 +6,7 @@ using UnityEditor;
 // 自动往道路前方移动
 // 根据AI的不同特性，自动插队和自动补上前方空位
 
-[RequireComponent(typeof(CarObject))]
+[RequireComponent(typeof(CarObject)), RequireComponent(typeof(BoxCollider))]
 public class CarAiPawn : MonoBehaviour
 {
     enum EAiType
@@ -18,7 +18,7 @@ public class CarAiPawn : MonoBehaviour
     [SerializeField]
     private EAiType m_AiType = EAiType.Conservative;
 
-    struct Environment
+    protected struct Environment
     {
         public float? frontDistance;        // 前方物体的距离
         public float? leftClosetDistance;   // 左侧物体最近距离 前(+) -> 0 -> 后(-)
@@ -26,20 +26,31 @@ public class CarAiPawn : MonoBehaviour
         public int currentRoadNumber;      // 当前
     }
 
-    struct Strategic
+    protected struct Strategic
     {
         public float power;        // 0 ~ 1
         public bool brake;         // override power
         public int targetRoadNumber;
+
+        public static Strategic Default{
+            get{
+                var stra = new Strategic();
+                stra.power = 1f;
+                stra.brake = false;
+                stra.targetRoadNumber = 1;
+                return stra;
+            }
+        }
     }
-    private IPawnController m_Controller;
+    protected IPawnController m_Controller;
+    private BoxCollider m_Collider;
 
     private LayerMask m_RoadLayer;
     private LayerMask m_ObstructLayer;
 
     [SerializeField]
     private float m_ReactionTime;
-    private RoadObject m_AttachRoad;
+    protected RoadObject m_AttachRoad;
 
     // Ai Parameters
 
@@ -71,11 +82,12 @@ public class CarAiPawn : MonoBehaviour
     void Awake()
     {
         m_Controller = GetComponent<IPawnController>();
+        m_Collider = GetComponent<BoxCollider>();
         m_RoadLayer = 1 << LayerMask.NameToLayer("Road");
         m_ObstructLayer = 1 << LayerMask.NameToLayer("Car");
     }
 
-    void checkRoadState()
+    protected void checkRoadState()
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, m_RoadLayer))
@@ -137,7 +149,7 @@ public class CarAiPawn : MonoBehaviour
                 {
                     if (env.frontDistance.HasValue)
                     {
-                        if (env.frontDistance.Value < distance)
+                        if (distance < env.frontDistance.Value)
                         {
                             env.frontDistance = distance;
                         }
@@ -163,44 +175,53 @@ public class CarAiPawn : MonoBehaviour
         return env;
     }
 
+    // 保守型Ai
     Strategic computeConservativeAi(in Environment env)
     {
-        var stra = new Strategic();
-        stra.brake = false;
-        stra.power = 1f;
-        stra.targetRoadNumber = 1;
+        var stra = Strategic.Default;
+        if(env.frontDistance.HasValue){
+            var fwdDistance = env.frontDistance.Value;
+            if(fwdDistance < m_CloserDistance / 2f){
+                // 紧急刹车
+                stra.brake = true;
+                stra.power = 0f;
+            }else if (fwdDistance < m_SafeDistance){
+                // 保持车距
+                var percent = (fwdDistance - m_CloserDistance) / (m_SafeDistance - m_CloserDistance);
+                stra.power = Mathf.Lerp(0f, 1f, percent);
+            }
+        }
         return stra;
     }
 
+    // 激进型Ai
     Strategic computeRaidcalAi(in Environment env)
     {
-        var stra = new Strategic();
-        stra.brake = false;
-        stra.power = 1f;
-        stra.targetRoadNumber = 1;
+        var stra = Strategic.Default;
         return stra;
     }
+
+    private Collider[] m_WarnColl = new Collider[5];
 
     // 根据当前环境情况设置决策（加减速, 车道数）
     Strategic computeStrategic(Environment env)
     {
+        var stra = Strategic.Default;
         switch (m_AiType)
         {
             case EAiType.Conservative:
-                return computeConservativeAi(in env);
+                stra = computeConservativeAi(in env);
+                break;
             case EAiType.Radical:
-                return computeRaidcalAi(in env);
-            default:
-                var stra = new Strategic();
-                stra.power = 1f;
-                stra.targetRoadNumber = 1;
-                stra.brake = false;
-                return stra;
+                stra = computeRaidcalAi(in env);
+                break;
         }
+
+        return stra;
     }
 
     // 根据决策函数的输入行动
-    Vector3 generateAction(Strategic stra)
+    protected Vector3 generateAction(Strategic stra)
     {
         var action = Vector3.zero;
         action += Vector3.forward * stra.power;
@@ -250,7 +271,7 @@ public class CarAiPawn : MonoBehaviour
         // 加快回正速度
         if (turnPercent * current < 0f)
         {
-            turnPercent *= 5f;
+            turnPercent *= 2f;
         }
         else
         {
@@ -268,6 +289,12 @@ public class CarAiPawn : MonoBehaviour
         var selfDirection = transform.TransformDirection(Vector3.forward);
         var current = m_AttachRoad.getDegreeProjection(selfDirection);
         return current;
+    }
+
+    void OnCollisionEnter(Collision info){
+        if(((1 << info.gameObject.layer) & m_ObstructLayer.value) != 0){
+
+        }
     }
 
     void OnDrawGizmos()
