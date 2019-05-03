@@ -23,7 +23,7 @@ public class CarConservativeAi
     }
 
     // 车辆在跟随前车时使用的计时器
-    private float m_FollowThreshold = 4f;
+    private float m_FollowThreshold = 10f;
     private float m_FollowTimer;
 
     // State Machine
@@ -35,6 +35,8 @@ public class CarConservativeAi
 
     private float m_AiWarnDistance;
     private float m_AiSafeDistance;
+
+    private EDirection m_LastOverrideDirection = EDirection.right;
 
     private Strategic m_PrevStrategic = Strategic.Default;
     private Environment m_PrevEnvironment;
@@ -61,9 +63,12 @@ public class CarConservativeAi
                 {
                     stra.brake = false;
                     stra.power = computeFollowOutput(in env);
+                    stra.targetRoadNumber = env.roadNumber;
                     m_IsComputedRoad = false;
 
-                    if (stra.power < 0.8f)
+                    var relativeSpeed = Mathf.Abs(computeRelativeSpeed(in env, EDirection.front));
+
+                    if (stra.power < 0.8f && relativeSpeed < 1f)
                     {
                         m_FollowTimer += Time.deltaTime;
                     }
@@ -81,13 +86,16 @@ public class CarConservativeAi
 
             case EAiState.Change:
                 {
-                    if (m_IsComputedRoad)
+                    if (!m_IsComputedRoad)
                     {
                         stra.targetRoadNumber = computeNewRoadNumber(in env);
+                        m_IsComputedRoad = true;
                     }
+
                     if (stra.targetRoadNumber == env.roadNumber)
                     {
                         m_State = EAiState.Follow;
+                        m_FollowTimer = 0f;
                     }
                     break;
                 }
@@ -117,7 +125,8 @@ public class CarConservativeAi
 
     float computeRelativeSpeed(in Environment curr, EDirection dir)
     {
-        var relativeSpeed = 0f;
+        var relativeSpeed = 100f;
+
         switch (dir)
         {
             case EDirection.front:
@@ -192,7 +201,7 @@ public class CarConservativeAi
                 }
             }
 
-            // 计算偏移量
+            // 调整与前车间距
             var fwd = env.frontDistance.Value;
             var current = (fwd - m_AiWarnDistance) / (m_AiSafeDistance - m_AiWarnDistance);
             current = Mathf.Clamp01(current);
@@ -223,11 +232,6 @@ public class CarConservativeAi
                 deltaOutput -= Mathf.Lerp(0f, 0.1f, offsetPercent);
             }
 
-            if (relativeSpeed < 0 && env.frontDistance.Value < m_AiWarnDistance)
-            {
-                m_State = EAiState.Stop;
-            }
-
             output += deltaOutput * Time.deltaTime;
         }
         else
@@ -240,24 +244,20 @@ public class CarConservativeAi
         return output;
     }
 
-    int computeNewRoadNumber(in Environment env)
+    bool checkLeftRoad(in Environment env)
     {
-        var number = env.roadNumber;
-        // 尝试变道
         if (env.leftDistance.HasValue)
         {
             var leftDist = env.leftDistance.Value;
             var distance = Mathf.Abs(leftDist);
-            var threshold = m_AiSafeDistance;
+            var threshold = m_AiWarnDistance;
 
-            bool leftCarBehind = leftDist < 0;
             bool fillfulDistance = distance > threshold;
             bool roadAvaliable = isRoadAvaliable(env.roadNumber - 1, m_TotalRoadNum);
 
-            if (leftCarBehind && fillfulDistance && roadAvaliable)
+            if (fillfulDistance && roadAvaliable)
             {
-                number = env.roadNumber - 1;
-                return number;
+                return true;
             }
         }
         else
@@ -265,25 +265,26 @@ public class CarConservativeAi
             bool roadAvaliable = isRoadAvaliable(env.roadNumber - 1, m_TotalRoadNum);
             if (roadAvaliable)
             {
-                number = env.roadNumber - 1;
-                return number;
+                return true;
             }
         }
+        return false;
+    }
 
+    bool checkRightRoad(in Environment env)
+    {
         if (env.rightDistance.HasValue)
         {
             var rightDist = env.rightDistance.Value;
             var distance = Mathf.Abs(rightDist);
-            var threshold = m_AiWarnDistance + (m_AiSafeDistance - m_AiWarnDistance) / 2f;
+            var threshold = m_AiWarnDistance;
 
-            bool rightCarBehind = rightDist < 0;
             bool fillfulDistance = distance > threshold;
             bool roadAvaliable = isRoadAvaliable(env.roadNumber + 1, m_TotalRoadNum);
 
-            if (rightCarBehind && fillfulDistance && roadAvaliable)
+            if (fillfulDistance && roadAvaliable)
             {
-                number = env.roadNumber + 1;
-                return number;
+                return true;
             }
         }
         else
@@ -291,8 +292,38 @@ public class CarConservativeAi
             bool roadAvaliable = isRoadAvaliable(env.roadNumber + 1, m_TotalRoadNum);
             if (roadAvaliable)
             {
-                number = env.roadNumber + 1;
-                return number;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int computeNewRoadNumber(in Environment env)
+    {
+        var number = env.roadNumber;
+        // 尝试变道
+        if (m_LastOverrideDirection == EDirection.right)
+        {
+            if (checkLeftRoad(in env))
+            {
+                return number - 1;
+            }
+            m_LastOverrideDirection = EDirection.left;
+            if (checkRightRoad(in env))
+            {
+                return number + 1;
+            }
+        }
+        else if (m_LastOverrideDirection == EDirection.left)
+        {
+            if (checkRightRoad(in env))
+            {
+                return number + 1;
+            }
+            m_LastOverrideDirection = EDirection.right;
+            if (checkLeftRoad(in env))
+            {
+                return number - 1;
             }
         }
 
