@@ -7,19 +7,38 @@ using CarAiAttribute;
 public class CarConservativeAi
 {
 
+    enum EAiState
+    {
+        Follow,
+        Change,
+        Stop,
+    }
+
+    enum EDirection
+    {
+        front,
+        back,
+        left,
+        right,
+    }
+
     // 车辆在跟随前车时使用的计时器
-    private float m_FollowThreshold = 10f;
+    private float m_FollowThreshold = 4f;
     private float m_FollowTimer;
 
     // State Machine
     // Follow -> Override
     // Override -> Follow
-    private bool m_OverrideState = true;
-    private bool m_FollowState = false;
-    private bool m_StopState = false;
+    private EAiState m_State = EAiState.Follow;
+
+    private bool m_IsComputedRoad = false;
 
     private float m_AiWarnDistance;
     private float m_AiSafeDistance;
+
+    private Strategic m_PrevStrategic = Strategic.Default;
+    private Environment m_PrevEnvironment;
+    private int m_TotalRoadNum = 0;
 
     public void updateThreshold(float warn, float safe)
     {
@@ -27,126 +46,203 @@ public class CarConservativeAi
         m_AiSafeDistance = safe;
     }
 
-    private void moveToStopState()
+    public void updateRoadState(int totalRoad)
     {
-        m_FollowState = false;
-        m_StopState = true;
-        m_OverrideState = false;
+        m_TotalRoadNum = totalRoad;
     }
 
-    private void moveToFollowState()
+    public Strategic tick(in Environment env)
     {
-        m_FollowState = true;
-        m_StopState = false;
-        m_OverrideState = false;
-    }
-    private void moveToOverrideState()
-    {
-        m_FollowState = false;
-        m_StopState = false;
-        m_OverrideState = true;
-    }
-    public Strategic compute(in Strategic prev, in Environment env)
-    {
-        var stra = prev;
+        var stra = m_PrevStrategic;
 
-        if (m_FollowState)
+        switch (m_State)
         {
-            if (isRemainFollow(in prev, in env))
-            {
-                stra = generateFollowAction(in prev, in env);
-            }
-            else
-            {
-                moveToOverrideState();
-                stra = generateOverrideAction(in prev, in env);
-            }
-
-            if (isDetectDanger(in env))
-            {
-                moveToStopState();
-            }
-        }
-        else if (m_OverrideState)
-        {
-            if (prev.targetRoadNumber == env.currentRoadNumber)
-            {
-                // 变道完成
-                moveToFollowState();
-                m_FollowTimer = 0f;
-            }
-            else
-            {
-                // 正在变道
-
-                bool isFrontUnsafe = env.frontDistance.HasValue && env.frontDistance.Value < m_AiSafeDistance;
-                bool isSideUnsafe = false;
-                if (prev.targetRoadNumber < env.currentRoadNumber)
+            case EAiState.Follow:
                 {
-                    if (env.leftDistance.HasValue && Mathf.Abs(env.leftDistance.Value) < m_AiWarnDistance)
+                    stra.brake = false;
+                    stra.power = computeFollowOutput(in env);
+                    m_IsComputedRoad = false;
+
+                    if (stra.power < 0.8f)
                     {
-                        isSideUnsafe = true;
+                        m_FollowTimer += Time.deltaTime;
                     }
-                }
-                else if (prev.targetRoadNumber > env.currentRoadNumber)
-                {
-                    if (env.rightDistance.HasValue && Mathf.Abs(env.rightDistance.Value) < m_AiWarnDistance)
+                    else
                     {
-                        isSideUnsafe = true;
+                        m_FollowTimer = 0f;
                     }
+
+                    if (m_FollowTimer > m_FollowThreshold)
+                    {
+                        m_State = EAiState.Change;
+                    }
+                    break;
                 }
 
-                if (isFrontUnsafe && isSideUnsafe)
+            case EAiState.Change:
                 {
-                    moveToFollowState();
+                    if (m_IsComputedRoad)
+                    {
+                        stra.targetRoadNumber = computeNewRoadNumber(in env);
+                    }
+                    if (stra.targetRoadNumber == env.roadNumber)
+                    {
+                        m_State = EAiState.Follow;
+                    }
+                    break;
                 }
-                stra = generateOverrideAction(in prev, in env);
-            }
 
-            if (isDetectDanger(in env))
-            {
-                moveToStopState();
-            }
-        }
-        else if (m_StopState)
-        {
-            if (isDetectDanger(in env))
-            {
-                stra = generateStopAction(in env);
-            }
-            else
-            {
-                moveToFollowState();
-            }
+            case EAiState.Stop:
+                {
+                    stra.brake = true;
+                    stra.targetRoadNumber = env.roadNumber;
+                    stra.power = -1f;
+
+                    if (env.frontDistance.HasValue && env.frontDistance.Value > m_AiWarnDistance)
+                    {
+                        m_State = EAiState.Follow;
+                    }
+                    else if (!env.frontDistance.HasValue)
+                    {
+                        m_State = EAiState.Follow;
+                    }
+                    break;
+                }
         }
 
+        m_PrevStrategic = stra;
+        m_PrevEnvironment = env;
         return stra;
     }
 
-    Strategic generateFollowAction(in Strategic prev, in Environment env)
+    float computeRelativeSpeed(in Environment curr, EDirection dir)
     {
-        var stra = prev;
-        stra.brake = false;
+        var relativeSpeed = 0f;
+        switch (dir)
+        {
+            case EDirection.front:
+                {
+                    if (curr.frontDistance.HasValue)
+                    {
+                        if (m_PrevEnvironment.frontDistance.HasValue)
+                        {
+                            relativeSpeed = (curr.frontDistance.Value - m_PrevEnvironment.frontDistance.Value);
+                        }
+                        else
+                        {
+                            relativeSpeed = (curr.frontDistance.Value - m_AiSafeDistance);
+                        }
+                    }
+                }
+                break;
+            case EDirection.back:
+                {
+                    {
+                        if (curr.backDistance.HasValue)
+                        {
+                            if (m_PrevEnvironment.backDistance.HasValue)
+                            {
+                                relativeSpeed = (curr.backDistance.Value - m_PrevEnvironment.backDistance.Value);
+                            }
+                            else
+                            {
+                                relativeSpeed = (curr.backDistance.Value - m_AiSafeDistance);
+                            }
+                        }
+                        break;
+                    }
+                }
+        }
+
+        var deltaTime = curr.timestamp - m_PrevEnvironment.timestamp;
+
+        relativeSpeed /= deltaTime;
+
+        return relativeSpeed;
+    }
+
+    // 目标：保持现有前后距离
+    //      让物体尽量接近目标位置
+    float computeFollowOutput(in Environment env)
+    {
+        var output = m_PrevStrategic.power;
+
+        if (output < 0f && env.speed == 0)
+        {
+            output = 0f;
+        }
+
         if (env.frontDistance.HasValue)
         {
+            var deltaOutput = 0f;
+
+            var relativeSpeed = computeRelativeSpeed(in env, EDirection.front);
+            var relativePercent = Mathf.Abs(relativeSpeed / (env.speed != 0 ? env.speed : 10f));
+
+            if (relativeSpeed != 0)
+            {
+                // 稳定速度
+                if (relativeSpeed > 0)
+                {
+                    deltaOutput += Mathf.Lerp(0f, 4f, relativePercent);
+                }
+                else
+                {
+                    deltaOutput -= Mathf.Lerp(0f, 4f, relativePercent);
+                }
+            }
+
+            // 计算偏移量
             var fwd = env.frontDistance.Value;
-            var percent = (fwd - m_AiWarnDistance) / (m_AiSafeDistance - m_AiWarnDistance);
-            var minPercent = prev.power;
-            stra.power = Mathf.Lerp(minPercent, 0.8f, percent);
+            var current = (fwd - m_AiWarnDistance) / (m_AiSafeDistance - m_AiWarnDistance);
+            current = Mathf.Clamp01(current);
+            // 计算目标位置
+            var target = Mathf.Lerp(0.1f, 0.9f, env.speed / 10f);
+
+            var offsetPercent = Mathf.Abs(current - target);
+
+            // 目标远于预期
+            if (target < current)
+            {
+                // 目标正在远离
+                if (relativeSpeed > 0)
+                {
+                    deltaOutput += Mathf.Lerp(0f, 0.1f, relativePercent);
+                }
+                deltaOutput += Mathf.Lerp(0f, 0.1f, offsetPercent);
+            }
+            // 目标近于预期
+            else if (target > current)
+            {
+                // 目标正在接近
+                if (relativeSpeed < 0)
+                {
+                    deltaOutput -= Mathf.Lerp(0f, 0.1f, relativePercent);
+
+                }
+                deltaOutput -= Mathf.Lerp(0f, 0.1f, offsetPercent);
+            }
+
+            if (relativeSpeed < 0 && env.frontDistance.Value < m_AiWarnDistance)
+            {
+                m_State = EAiState.Stop;
+            }
+
+            output += deltaOutput * Time.deltaTime;
         }
         else
         {
-            stra.power = 0.8f;
+            // 巡航速度
+            output += Time.deltaTime;
         }
-        return stra;
+
+        output = Mathf.Clamp(output, -1f, 0.8f);
+        return output;
     }
 
-    Strategic generateOverrideAction(in Strategic prev, in Environment env)
+    int computeNewRoadNumber(in Environment env)
     {
-        var stra = prev;
-        stra.brake = false;
-        stra.power = 1.0f;
-        stra.targetRoadNumber = env.currentRoadNumber;
+        var number = env.roadNumber;
         // 尝试变道
         if (env.leftDistance.HasValue)
         {
@@ -156,21 +252,21 @@ public class CarConservativeAi
 
             bool leftCarBehind = leftDist < 0;
             bool fillfulDistance = distance > threshold;
-            bool roadAvaliable = isRoadAvaliable(env.currentRoadNumber - 1, env.roadNumberCount);
+            bool roadAvaliable = isRoadAvaliable(env.roadNumber - 1, m_TotalRoadNum);
 
             if (leftCarBehind && fillfulDistance && roadAvaliable)
             {
-                stra.targetRoadNumber = env.currentRoadNumber - 1;
-                return stra;
+                number = env.roadNumber - 1;
+                return number;
             }
         }
         else
         {
-            bool roadAvaliable = isRoadAvaliable(env.currentRoadNumber - 1, env.roadNumberCount);
+            bool roadAvaliable = isRoadAvaliable(env.roadNumber - 1, m_TotalRoadNum);
             if (roadAvaliable)
             {
-                stra.targetRoadNumber = env.currentRoadNumber - 1;
-                return stra;
+                number = env.roadNumber - 1;
+                return number;
             }
         }
 
@@ -182,43 +278,33 @@ public class CarConservativeAi
 
             bool rightCarBehind = rightDist < 0;
             bool fillfulDistance = distance > threshold;
-            bool roadAvaliable = isRoadAvaliable(env.currentRoadNumber + 1, env.roadNumberCount);
+            bool roadAvaliable = isRoadAvaliable(env.roadNumber + 1, m_TotalRoadNum);
 
             if (rightCarBehind && fillfulDistance && roadAvaliable)
             {
-                stra.targetRoadNumber = env.currentRoadNumber + 1;
-                return stra;
+                number = env.roadNumber + 1;
+                return number;
             }
         }
         else
         {
-            bool roadAvaliable = isRoadAvaliable(env.currentRoadNumber + 1, env.roadNumberCount);
+            bool roadAvaliable = isRoadAvaliable(env.roadNumber + 1, m_TotalRoadNum);
             if (roadAvaliable)
             {
-                stra.targetRoadNumber = env.currentRoadNumber + 1;
-                return stra;
+                number = env.roadNumber + 1;
+                return number;
             }
         }
 
-        return stra;
-    }
-
-    Strategic generateStopAction(in Environment env)
-    {
-        var stra = Strategic.Default;
-        stra.brake = true;
-        stra.power = 0f;
-        stra.targetRoadNumber = env.currentRoadNumber;
-        return stra;
+        return number;
     }
 
     bool isRemainFollow(in Strategic prev, in Environment env)
     {
-
         if (env.frontDistance.HasValue)
         {
             bool isReachThreshold = env.frontDistance.Value < m_AiSafeDistance;
-            bool isRemainSameRoad = prev.targetRoadNumber == env.currentRoadNumber;
+            bool isRemainSameRoad = prev.targetRoadNumber == env.roadNumber;
             if (isReachThreshold && isRemainSameRoad)
             {
                 m_FollowTimer += Time.deltaTime;
@@ -243,7 +329,7 @@ public class CarConservativeAi
         }
     }
 
-    bool isDetectDanger(in Environment env)
+    bool isDanger(in Environment env)
     {
         if (env.frontDistance.HasValue)
         {

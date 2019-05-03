@@ -31,10 +31,12 @@ namespace CarAiAttribute
     public struct Environment
     {
         public float? frontDistance;        // 前方物体的距离
-        public float? leftDistance;         // 左侧物体最近距离 前(+) -> 0 -> 后(-)
-        public float? rightDistance;        // 右侧物体最近距离 前(+) -> 0 -> 后(-)
-        public int currentRoadNumber;
-        public int roadNumberCount;
+        public float? leftDistance;         // 左侧物体最近距离
+        public float? rightDistance;        // 右侧物体最近距离
+        public float? backDistance;         // 后侧物体最近距离
+        public float speed;
+        public int roadNumber;
+        public float timestamp;
     }
 }
 
@@ -69,6 +71,15 @@ public class CarAiPawn : MonoBehaviour
     private float m_SafeDistance;
     [SerializeField]
     private float m_WarnDistance;
+
+    private float m_DynamicSafeDistance
+    {
+        get
+        {
+            var percent = Mathf.Clamp01(m_Controller.getVelocity() / 10f);
+            return Mathf.SmoothStep(m_SafeDistance, 1.5f * m_SafeDistance, percent);
+        }
+    }
 
     public float getSafeDistance()
     {
@@ -108,15 +119,18 @@ public class CarAiPawn : MonoBehaviour
                 {
                     if (m_AttachRoad != road)
                     {
+                        // 更新路
                         m_AttachRoad.removeAiFromRoad(this);
                         road.addAiToRoad(this);
                         m_AttachRoad = road;
+                        m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
                     }
                 }
                 else
                 {
                     road.addAiToRoad(this);
                     m_AttachRoad = road;
+                    m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
                 }
             }
         }
@@ -129,9 +143,9 @@ public class CarAiPawn : MonoBehaviour
     {
         var center = transform.position;
         var halfExt = Vector3.zero;
-        halfExt.y = 0.2f;
+        halfExt.y = 0.1f;
         halfExt.x = m_AttachRoad.getRoadWidth() * 1.5f;
-        halfExt.z = m_SafeDistance;
+        halfExt.z = m_DynamicSafeDistance;
         collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
     }
 
@@ -141,11 +155,12 @@ public class CarAiPawn : MonoBehaviour
         return Vector3.Dot(fwd, direction) > 0 ? true : false;
     }
 
-    Environment detectEnvironment()
+    Environment computeEnvironment()
     {
         var env = new Environment();
-        env.currentRoadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
-        env.roadNumberCount = m_AttachRoad.getRoadNum();
+        env.roadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
+        env.speed = m_Controller.getVelocity();
+        env.timestamp = Time.time;
 
         updateColliders();
         for (int i = 0; i < collCount; ++i)
@@ -154,25 +169,40 @@ public class CarAiPawn : MonoBehaviour
             if (col.transform == transform) continue;
 
             var direction = col.transform.position - transform.position;
-            var isFront = isDetectFront(direction);
-            var distance = Vector3.Distance(transform.position, col.transform.position);
             var projection = m_AttachRoad.getHorizonalProject(direction);
+            var distance = Vector3.Distance(transform.position, col.transform.position);
+
+            var ray = new Ray(transform.position, direction);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, distance, m_ObstructLayer))
+            {
+                distance = hit.distance;
+            }
+
 
             if (Mathf.Abs(projection) < 0.5f)
             {
                 // Current
-                if (isFront)
+                if (isDetectFront(direction))
                 {
                     if (env.frontDistance.HasValue)
                     {
-                        if (distance < env.frontDistance.Value)
-                        {
-                            env.frontDistance = distance;
-                        }
+                        env.frontDistance = Mathf.Min(distance, env.frontDistance.Value);
                     }
                     else
                     {
                         env.frontDistance = distance;
+                    }
+                }
+                else
+                {
+                    if (env.backDistance.HasValue)
+                    {
+                        env.backDistance = Mathf.Min(distance, env.backDistance.Value);
+                    }
+                    else
+                    {
+                        env.backDistance = distance;
                     }
                 }
             }
@@ -181,41 +211,26 @@ public class CarAiPawn : MonoBehaviour
                 if (projection < 0)
                 {
                     // Left
-                    var assignment = distance;
-                    if (!isFront)
-                    {
-                        assignment = -distance;
-                    }
                     if (env.leftDistance.HasValue)
                     {
-                        if (distance < Mathf.Abs(env.leftDistance.Value))
-                        {
-                            env.leftDistance = assignment;
-                        }
+                        env.leftDistance = Mathf.Min(distance, env.leftDistance.Value);
                     }
                     else
                     {
-                        env.leftDistance = assignment;
+                        env.leftDistance = distance;
                     }
                 }
                 else
                 {
                     // Right
                     var assignment = distance;
-                    if (!isFront)
-                    {
-                        assignment = -distance;
-                    }
                     if (env.rightDistance.HasValue)
                     {
-                        if (distance < Mathf.Abs(env.rightDistance.Value))
-                        {
-                            env.rightDistance = assignment;
-                        }
+                        env.rightDistance = Mathf.Min(distance, env.rightDistance.Value);
                     }
                     else
                     {
-                        env.rightDistance = assignment;
+                        env.rightDistance = distance;
                     }
                 }
             }
@@ -230,29 +245,24 @@ public class CarAiPawn : MonoBehaviour
         return stra;
     }
 
-    private Strategic prevStraitegic = Strategic.Default;
-
-    // 根据当前环境情况设置决策（加减速, 车道数）
     Strategic computeStrategic(Environment env)
     {
         var stra = Strategic.Default;
-        stra.targetRoadNumber = env.currentRoadNumber;
+        stra.targetRoadNumber = env.roadNumber;
         switch (m_AiType)
         {
             case EAiType.Conservative:
-                m_ConservativeAi.updateThreshold(m_WarnDistance, m_SafeDistance);
-                stra = m_ConservativeAi.compute(in prevStraitegic, in env);
+                m_ConservativeAi.updateThreshold(m_WarnDistance, m_DynamicSafeDistance);
+                stra = m_ConservativeAi.tick(in env);
                 break;
             case EAiType.Radical:
                 // stra = computeRaidcalAi(in prevStraitegic, in env);
                 break;
         }
 
-        prevStraitegic = stra;
         return stra;
     }
 
-    // 根据决策函数的输入行动
     protected Vector3 generateAction(Strategic stra)
     {
         var action = Vector3.zero;
@@ -273,7 +283,7 @@ public class CarAiPawn : MonoBehaviour
         checkRoadState();
         if (m_AttachRoad != null)
         {
-            var env = detectEnvironment();
+            var env = computeEnvironment();
             var stra = computeStrategic(env);
             var action = generateAction(stra);
             m_Controller.updateUserInput(action);
@@ -282,7 +292,6 @@ public class CarAiPawn : MonoBehaviour
 
     // 根据当前所在位置和目标位置的百分比
     // 生成此时的目标转向在水平轴上的投影数值
-    // -1
     float computeTargetProjection(float offset)
     {
         var width = m_AttachRoad.getRoadWidth();
@@ -291,31 +300,28 @@ public class CarAiPawn : MonoBehaviour
         return percent;
     }
 
-    private float m_DebugTurnPercent = 0f;
-
     // 传入在水平轴上的投影，得到目标转向角度
     float computeTurnPercent(float offset)
     {
         var target = computeTargetProjection(offset);
         var current = computeCurrentTurnProject();   // -1 ~ 0 ~ 1
 
-        var turnPercent = target - current;
+        var percent = target - current;
         // 加快回正速度
-        if (turnPercent * current < 0f)
+        if (percent * current < 0f)
         {
-            turnPercent *= 4f;
+            percent *= 4f;
         }
         else
         {
-            turnPercent /= 10f;
+            percent /= 4f;
         }
-        turnPercent = Mathf.Clamp(turnPercent, -1f, 1f);
+        percent = Mathf.Clamp(percent, -1f, 1f);
 
-        m_DebugTurnPercent = turnPercent;
-
-        return turnPercent;
+        return percent;
     }
 
+    // 计算当前转向角度在水平轴上的投影
     float computeCurrentTurnProject()
     {
         var selfDirection = transform.TransformDirection(Vector3.forward);
@@ -327,16 +333,12 @@ public class CarAiPawn : MonoBehaviour
     {
         if (((1 << info.gameObject.layer) & m_ObstructLayer.value) != 0)
         {
-
         }
     }
 
     void OnDrawGizmos()
     {
         var origin = transform.position;
-        var target = origin + Vector3.right * m_DebugTurnPercent;
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(origin, target);
 
         Gizmos.color = Color.green;
         for (int i = 0; i < collCount; ++i)
