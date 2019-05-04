@@ -244,9 +244,7 @@ public class CarConservativeAi
             deltaOutput -= Mathf.Lerp(0f, 0.1f, offsetPercent);
         }
 
-        output = 0.8f;
-
-        // output += deltaOutput * Time.deltaTime;
+        output += deltaOutput * Time.deltaTime;
 
         output = Mathf.Clamp(output, -1f, 0.8f);
         return output;
