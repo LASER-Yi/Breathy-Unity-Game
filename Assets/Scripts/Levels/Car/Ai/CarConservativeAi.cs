@@ -79,21 +79,21 @@ public class CarConservativeAi
                     stra.targetRoadNumber = env.roadNumber;
                     m_IsComputedRoad = false;
 
-                    // var relativeSpeed = Mathf.Abs(computeRelativeSpeed(in env, EDirection.front));
+                    var relativeSpeed = Mathf.Abs(computeRelativeSpeed(in env, EDirection.front));
 
-                    // if (stra.power < 0.8f && relativeSpeed < 1f && env.frontDistance > m_AiWarnDistance)
-                    // {
-                    //     m_FollowTimer += Time.deltaTime;
-                    // }
-                    // else
-                    // {
-                    //     m_FollowTimer = 0f;
-                    // }
+                    if (stra.power < 0.75f && relativeSpeed < 2f && env.frontDistance > m_AiWarnDistance)
+                    {
+                        m_FollowTimer += Time.deltaTime;
+                    }
+                    else
+                    {
+                        m_FollowTimer = 0f;
+                    }
 
-                    // if (m_FollowTimer > m_FollowThreshold)
-                    // {
-                    //     changeAiState(EAiState.Change);
-                    // }
+                    if (m_FollowTimer > m_FollowThreshold)
+                    {
+                        changeAiState(EAiState.Change);
+                    }
                     break;
                 }
 
@@ -178,14 +178,9 @@ public class CarConservativeAi
         var deltaTime = curr.timestamp - m_PrevEnvironment.timestamp;
         relativeSpeed /= deltaTime;
 
-        // 帧时间和精度问题导致输入的数据抖动
+        // TODO: 消除帧时间和精度问题导致输入的数据抖动
 
-        relativeSpeed = m_PrevRelSpeed * 0.9f + relativeSpeed * 0.1f;
-
-        Debug.Log("Prev: " + m_PrevEnvironment.frontDistance + " Curr: "
-        + curr.frontDistance + " DT: " + deltaTime + " Res: " + relativeSpeed);
-
-        m_PrevRelSpeed = relativeSpeed;
+        // relativeSpeed = m_PrevRelSpeed * 0.9f + relativeSpeed * 0.1f;
         return relativeSpeed;
     }
 
