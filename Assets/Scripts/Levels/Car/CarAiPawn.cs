@@ -30,10 +30,10 @@ namespace CarAiAttribute
 
     public struct Environment
     {
-        public float? frontDistance;        // 前方物体的距离
-        public float? leftDistance;         // 左侧物体最近距离
-        public float? rightDistance;        // 右侧物体最近距离
-        public float? backDistance;         // 后侧物体最近距离
+        public float frontDistance;        // 前方物体的距离
+        public float leftDistance;         // 左侧物体最近距离
+        public float rightDistance;        // 右侧物体最近距离
+        public float backDistance;         // 后侧物体最近距离
         public float speed;
         public int roadNumber;
         public float timestamp;
@@ -149,20 +149,8 @@ public class CarAiPawn : MonoBehaviour
         collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
     }
 
-    bool isDetectFront(Vector3 direction)
+    private void computeFromColliders(ref Environment env)
     {
-        var fwd = transform.TransformDirection(Vector3.forward);
-        return Vector3.Dot(fwd, direction) > 0 ? true : false;
-    }
-
-    Environment computeEnvironment()
-    {
-        var env = new Environment();
-        env.roadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
-        env.speed = m_Controller.getVelocity();
-        env.timestamp = Time.time;
-
-        updateColliders();
         for (int i = 0; i < collCount; ++i)
         {
             var col = collResults[i];
@@ -185,65 +173,52 @@ public class CarAiPawn : MonoBehaviour
                 // Current
                 if (isDetectFront(direction))
                 {
-                    if (env.frontDistance.HasValue)
-                    {
-                        env.frontDistance = Mathf.Min(distance, env.frontDistance.Value);
-                    }
-                    else
-                    {
-                        env.frontDistance = distance;
-                    }
+                    env.frontDistance = Mathf.Min(distance, env.frontDistance);
                 }
                 else
                 {
-                    if (env.backDistance.HasValue)
-                    {
-                        env.backDistance = Mathf.Min(distance, env.backDistance.Value);
-                    }
-                    else
-                    {
-                        env.backDistance = distance;
-                    }
+                    env.backDistance = Mathf.Min(distance, env.backDistance);
                 }
             }
             else if (Mathf.Abs(projection) < 1.5f)
             {
                 if (projection < 0)
                 {
-                    // Left
-                    if (env.leftDistance.HasValue)
-                    {
-                        env.leftDistance = Mathf.Min(distance, env.leftDistance.Value);
-                    }
-                    else
-                    {
-                        env.leftDistance = distance;
-                    }
+                    env.leftDistance = Mathf.Min(distance, env.leftDistance);
                 }
                 else
                 {
-                    // Right
-                    var assignment = distance;
-                    if (env.rightDistance.HasValue)
-                    {
-                        env.rightDistance = Mathf.Min(distance, env.rightDistance.Value);
-                    }
-                    else
-                    {
-                        env.rightDistance = distance;
-                    }
+                    env.rightDistance = Mathf.Min(distance, env.rightDistance);
                 }
             }
         }
+    }
+
+    bool isDetectFront(Vector3 direction)
+    {
+        var fwd = transform.TransformDirection(Vector3.forward);
+        return Vector3.Dot(fwd, direction) > 0 ? true : false;
+    }
+
+    Environment computeEnvironment()
+    {
+        var env = new Environment();
+        env.frontDistance = m_DynamicSafeDistance;
+        env.leftDistance = m_DynamicSafeDistance;
+        env.rightDistance = m_DynamicSafeDistance;
+        env.backDistance = m_DynamicSafeDistance;
+
+        updateColliders();
+        computeFromColliders(ref env);
+
+        // 重点进行车前方区域探测
+        env.speed = m_Controller.getVelocity();
+        env.timestamp = Time.time + Time.deltaTime;
+        env.roadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
         return env;
     }
 
     // 激进型Ai
-    Strategic computeRaidcalAi(in Strategic prev, in Environment env)
-    {
-        var stra = Strategic.Default;
-        return stra;
-    }
 
     Strategic computeStrategic(Environment env)
     {

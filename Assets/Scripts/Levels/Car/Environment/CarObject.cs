@@ -130,7 +130,8 @@ public class CarObject : MonoBehaviour, IPawnController
         float shift = computeShift(velocity);
 
         Vector3 deltaPosition = Vector3.forward * fwd + Vector3.right * shift;
-        m_Rigibody.velocity = transform.TransformDirection(deltaPosition);
+
+        m_Rigibody.MovePosition(transform.position + transform.TransformDirection(deltaPosition * Time.deltaTime));
 
         float deltaAngle = computeObjectRotateAngle(shift) * Time.deltaTime;
         var currentRotator = transform.rotation;

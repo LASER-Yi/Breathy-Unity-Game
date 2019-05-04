@@ -56,13 +56,15 @@ public abstract class SceneBaseController : MonoBehaviour
     private void initalSceneInfo(){
         var index = GSceneController.instance.getActiveScene();
         m_SceneName = GSceneController.instance.getSceneName(index);
-        GSceneController.instance.setSkybox(m_SceneSkybox);
     }
 
     protected void Start()
     {
         initalSceneInfo();
         m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
+        if(m_SceneSkybox != null){
+            RenderSettings.skybox = m_SceneSkybox.material;
+        }
         if (m_IsShowAfterLoad)
         {
             StartCoroutine(ieShowTitle());

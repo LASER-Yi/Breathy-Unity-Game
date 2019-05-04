@@ -94,14 +94,6 @@ public class GSceneController : MonoBehaviour
         StartCoroutine(IE_LoadScene(index));
     }
 
-    public void setSkybox(Skybox box)
-    {
-        if (box != null)
-        {
-            RenderSettings.skybox = box.material;
-        }
-    }
-
     private IEnumerator IE_LoadScene(ESceneIndex index)
     {
         var loadScreen = GCanvasController.instance.setupLoadCanvas();

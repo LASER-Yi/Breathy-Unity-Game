@@ -43,18 +43,19 @@ public class MenuSceneManager : SceneBaseController
     IEnumerator ieTransferOnStartup()
     {
         var attr = CameraAttribute.Empty;
-        attr.setPosition(Vector3.up * 50f);
-        attr.setRotation(Quaternion.identity);
+        attr.setPosition(Vector3.up * 35f);
+        attr.setRotation(Quaternion.Euler(0f, 90f, 0f));
         attr.setZLength(210f);
-        attr.setFov(30f);
+        attr.setFov(90f);
 
         CameraController.instance.setAttribute(attr);
 
         CameraAttribute target = CameraAttribute.Empty;
-        target.setPosition(Vector3.up * 35f);
+        target.setPosition(Vector3.up * 80f);
+        target.setRotation(Quaternion.identity);
         target.setZLength(200f);
 
-        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 0.6f, t => Mathf.SmoothStep(0f, 1f, t));
+        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 1.4f, t => Mathf.SmoothStep(0f, 1f, t));
 
         m_IsBtnEnable = true;
     }
