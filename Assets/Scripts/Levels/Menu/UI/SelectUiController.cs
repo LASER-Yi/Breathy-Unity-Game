@@ -136,14 +136,15 @@ class SelectUiController : MonoBehaviour, IStackableUi
     [Space, SerializeField]
     private float m_RotateSpeed;
 
-    void setAnimation()
+    void setCameraAnimation()
     {
 
         var animator = LCameraSystem.CameraAnimator.instance;
         animator.stopAllAnimation();
 
         var keyframe = LCameraSystem.CameraAttribute.Empty;
-        keyframe.setFov(50f);
+        keyframe.setZLength(500f);
+        keyframe.setPosition(Vector3.up * 40f);
 
         var delta = LCameraSystem.CameraAttribute.Empty;
         delta.setRotation(Quaternion.Euler(0f, -m_RotateSpeed, 0f));
@@ -162,6 +163,7 @@ class SelectUiController : MonoBehaviour, IStackableUi
     void OnDestroy()
     {
         if (_lineContainer != null) Destroy(_lineContainer);
+        LCameraSystem.CameraAnimator.instance.stopAllAnimation();
     }
 
     public RectTransform getTransform()
@@ -174,7 +176,7 @@ class SelectUiController : MonoBehaviour, IStackableUi
     }
     public void onDidBecomeTop()
     {
-        setAnimation();
+        setCameraAnimation();
     }
     public void onWillNotBecomeTop()
     {
