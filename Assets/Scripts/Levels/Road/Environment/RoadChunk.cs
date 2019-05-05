@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 
-// 负责与车辆AI进行通信
+// 与车辆AI进行通信
 public class RoadChunk : MonoBehaviour
 {
 
@@ -15,10 +15,6 @@ public class RoadChunk : MonoBehaviour
     private int m_AboveCarCount = 0;
     private RoadComponentNode m_Component = null;
 
-    public int getRoadNum()
-    {
-        return m_RoadNum;
-    }
     public float getRoadWidth()
     {
         return m_RoadWidth;
@@ -27,6 +23,7 @@ public class RoadChunk : MonoBehaviour
     void Awake()
     {
         gameObject.layer = LayerMask.NameToLayer("Road");
+        m_Component = GetComponent<RoadComponentNode>();
     }
 
     /* Component 通信 */
@@ -36,22 +33,13 @@ public class RoadChunk : MonoBehaviour
         return m_AboveCarCount;
     }
 
-    public void tieComponent(RoadComponentNode comp)
-    {
-        m_Component = comp;
-    }
-
-    public void OnRoadVisible()
-    {
-        m_Component.updateRoadVisible(this, true);
-    }
-
-    public void OnRoadInvisible()
-    {
-        m_Component.updateRoadVisible(this, false);
-    }
 
     /* Ai 通信 */
+
+    public int getRoadNum()
+    {
+        return m_RoadNum;
+    }
 
     // 根据给定索引计算路中央
     // 索引为路本地坐标+x方向增加
@@ -116,7 +104,6 @@ public class RoadChunk : MonoBehaviour
     public void addCarToRoad()
     {
         ++m_AboveCarCount;
-        m_Component.generateBothRoad();
     }
 
     public void removeCarFromRoad()

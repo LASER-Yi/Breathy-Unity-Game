@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 
 [RequireComponent(typeof(Rigidbody))]
@@ -10,7 +11,7 @@ using UnityEngine;
 public class CarController : MonoBehaviour, IPawnController
 {
     [SerializeField]
-    private float m_WheelToCenter;                  // 对应不同车辆的前后轮距离
+    private float m_WheelPosition;                  // 对应不同车辆的前后轮距离
     [SerializeField, Range(0f, 90f)]
     private float m_FrontWheelRotation = 30f;
     [SerializeField, Range(1f, 100f)]
@@ -21,6 +22,10 @@ public class CarController : MonoBehaviour, IPawnController
     [SerializeField]
     private AnimationCurve m_SpeedCurve;            // 对应不同发动机功率能达到的极速
     private Rigidbody m_Rigibody;
+
+    public float getWheelPosition(){
+        return m_WheelPosition;
+    }
 
     /* Control */
     // RANGE -90 ~ 90
@@ -131,7 +136,7 @@ public class CarController : MonoBehaviour, IPawnController
 
     float computeObjectRotateAngle(float deltaShift)
     {
-        float radius = Mathf.Atan2(deltaShift, m_WheelToCenter);
+        float radius = Mathf.Atan2(deltaShift, m_WheelPosition);
         return radius * Mathf.Rad2Deg;
     }
 
@@ -213,4 +218,25 @@ public class CarController : MonoBehaviour, IPawnController
         Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.right) * (turn / m_FrontWheelRotation));
     }
 
+}
+
+class CarControllerEditor: Editor{
+    [DrawGizmo(GizmoType.Selected)]
+    static void DrawGizmosSelected(CarController script, GizmoType type)
+    {
+        // Draw wheel position
+
+        var center = script.transform.position;
+        var length = script.getWheelPosition();
+        var width = 1f;
+
+        var frontLeft = center + (Vector3.left * width + Vector3.forward * length) / 2f;
+        var frontRight = center + (Vector3.right * width + Vector3.forward * length) / 2f;
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(frontLeft, frontRight);
+
+        var backLeft = center + (Vector3.left * width + Vector3.back * length) / 2f;
+        var backRight = center + (Vector3.right * width + Vector3.back * length) / 2f;
+        Gizmos.DrawLine(backLeft, backRight);
+    }
 }
