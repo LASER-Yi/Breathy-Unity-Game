@@ -130,7 +130,7 @@ public class CarAiPawn : MonoBehaviour
             if (col.transform == transform) continue;
 
             var direction = col.transform.position - transform.position;
-            var projection = m_RoadInfo.getHorizonalProject(direction);
+            var projection = m_RoadInfo.computeDegreeProjection(direction);
             var distance = Vector3.Distance(transform.position, col.transform.position);
 
             var ray = new Ray(transform.position, direction);
@@ -217,12 +217,9 @@ public class CarAiPawn : MonoBehaviour
         action += Vector3.forward * stra.power;
         action += Vector3.up * (stra.brake ? 1.0f : 0.0f);
 
-        var targetPoint = m_RoadInfo.computeRoadCenterWorld(stra.targetRoadNumber, transform.position);
+        var offset = m_RoadInfo.computeRoadCenterOffset(stra.targetRoadNumber, transform.position);
 
-        var targetOffset = targetPoint - transform.position;
-
-        // action += Vector3.right * computeTurnPercent(targetOffset);
-
+        action += Vector3.right * computeTurnPercent(offset);
         return action;
     }
 
@@ -236,16 +233,6 @@ public class CarAiPawn : MonoBehaviour
             var action = generateAction(stra);
             m_Controller.updateUserInput(action);
         }
-    }
-
-    // 根据当前所在位置和目标位置的百分比
-    // 生成此时的目标转向在水平轴上的投影数值
-    float computeTargetProjection(float offset)
-    {
-        var width = m_RoadInfo.getRoadWidth();
-        var percent = offset / width; // -1 ～ 0 ～ 1
-        percent = Mathf.Clamp(percent, -1f, 1f);
-        return percent;
     }
 
     // 传入在水平轴上的投影，得到目标转向角度
@@ -269,11 +256,21 @@ public class CarAiPawn : MonoBehaviour
         return percent;
     }
 
+    // 根据当前所在位置和目标位置距离百分比
+    // 计算此时应该得到的转向角度
+    float computeTargetProjection(float offset)
+    {
+        var width = m_RoadInfo.getRoadWidth();
+        var percent = -offset / width; // -1 ～ 0 ～ 1
+        percent = Mathf.Clamp(percent, -1f, 1f);
+        return percent;
+    }
+
     // 计算当前转向角度在水平轴上的投影
     float computeCurrentTurnProject()
     {
         var direction = transform.TransformDirection(Vector3.forward);
-        var current = m_RoadInfo.getDegreeProjection(direction);
+        var current = m_RoadInfo.computeDegreeProjection(direction);
         return current;
     }
 

@@ -44,7 +44,6 @@ public class RoadChunk : MonoBehaviour
     // 根据给定索引 -> 计算路中央坐标
     public Vector3 computeRoadCenterWorld(int index, Vector3 worldPos)
     {
-        float forward = transform.TransformDirection(Vector3.forward).z;
 
         // float maxWidth = -(m_RoadNum / 2f);
         float minRoadCenter = ((-m_RoadNum / 2f) + 0.5f) * m_RoadWidth;
@@ -52,6 +51,18 @@ public class RoadChunk : MonoBehaviour
 
         Vector3 worldPoint = transform.TransformPoint(Vector3.right * minRoadCenter);
         return worldPos + worldPoint;
+    }
+
+    public float computeRoadCenterLocalOffset(int index){
+        float minRoadCenter = ((-m_RoadNum / 2f) + 0.5f) * m_RoadWidth;
+        minRoadCenter += index * m_RoadWidth;
+        return minRoadCenter;
+    }
+
+    public float computeRoadCenterOffset(int index, Vector3 worldPos){
+        var local = transform.InverseTransformPoint(worldPos);
+        var target = computeRoadCenterLocalOffset(index);
+        return local.x - target;
     }
 
     // 根据给定位置计算路索引
@@ -73,24 +84,10 @@ public class RoadChunk : MonoBehaviour
         }
     }
 
-    public Vector3 getForwardDirection()
-    {
-        return transform.TransformDirection(Vector3.forward);
-    }
-
-    // 位置在路面上的百分比投影
-    // -1 - 0  - 1
-    // LR - CR - RR
-    public float getHorizonalProject(Vector3 direction)
-    {
-        var right = transform.TransformDirection(Vector3.right);
-        return Vector3.Project(direction, right).x / m_RoadWidth;
-    }
-
     // 方向在路面上的左右投影
     // -1 - 0 - 1
     // L - M - R
-    public float getDegreeProjection(Vector3 direction)
+    public float computeDegreeProjection(Vector3 direction)
     {
         var right = transform.TransformDirection(Vector3.right);
         return Vector3.Dot(direction, right);
