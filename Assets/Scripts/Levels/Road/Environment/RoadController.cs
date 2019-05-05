@@ -45,7 +45,6 @@ public class RoadController : MonoBehaviour
             var length = m_FirstRoad.getRoadLengthWorld();
 
             int chunk = Mathf.FloorToInt(dist / length);
-            Debug.Log(chunk);
             if (chunk < Mathf.FloorToInt(m_RoadCount / 2f)){
                 createRoadFront();
             }

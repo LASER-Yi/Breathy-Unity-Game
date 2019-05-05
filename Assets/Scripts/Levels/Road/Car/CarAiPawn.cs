@@ -117,7 +117,7 @@ public class CarAiPawn : MonoBehaviour
         var center = transform.position;
         var halfExt = Vector3.zero;
         halfExt.y = 0.1f;
-        halfExt.x = m_RoadInfo.getRoadWidth() * 1.5f;
+        halfExt.x = m_RoadInfo.getRoadWidthWorld() * 1.5f; 
         halfExt.z = m_DynamicSafeDistance;
         // 检测方框和路面方向保持一致
         collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, m_RoadInfo.transform.rotation, m_ObstructLayer);

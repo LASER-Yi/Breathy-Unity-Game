@@ -20,6 +20,10 @@ public class RoadChunk : MonoBehaviour
         return m_RoadWidth;
     }
 
+    public float getRoadWidthWorld(){
+        return m_RoadWidth * transform.lossyScale.x;
+    }
+
     void Awake()
     {
         gameObject.layer = LayerMask.NameToLayer("Road");

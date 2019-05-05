@@ -218,7 +218,7 @@ public class CarConservativeAi
         var current = (fwd - m_AiWarnDistance) / (m_AiSafeDistance - m_AiWarnDistance);
         current = Mathf.Clamp01(current);
         // 计算目标位置
-        var target = Mathf.Lerp(0.1f, 0.9f, env.speed / 10f);
+        var target = Mathf.Lerp(0.1f, 0.8f, env.speed / 10f);
 
         var offsetPercent = Mathf.Abs(current - target);
 
@@ -228,9 +228,9 @@ public class CarConservativeAi
             // 目标正在远离
             if (relativeSpeed > 0)
             {
-                deltaOutput += Mathf.Lerp(0f, 0.1f, relativePercent);
+                deltaOutput += Mathf.Lerp(0f, 0.2f, relativePercent);
             }
-            deltaOutput += Mathf.Lerp(0f, 0.1f, offsetPercent);
+            deltaOutput += Mathf.Lerp(0f, 0.2f, offsetPercent);
         }
         // 目标近于预期
         else if (target > current)
@@ -238,10 +238,10 @@ public class CarConservativeAi
             // 目标正在接近
             if (relativeSpeed < 0)
             {
-                deltaOutput -= Mathf.Lerp(0f, 0.1f, relativePercent);
+                deltaOutput -= Mathf.Lerp(0f, 0.2f, relativePercent);
 
             }
-            deltaOutput -= Mathf.Lerp(0f, 0.1f, offsetPercent);
+            deltaOutput -= Mathf.Lerp(0f, 0.2f, offsetPercent);
         }
 
         output += deltaOutput * Time.deltaTime;
