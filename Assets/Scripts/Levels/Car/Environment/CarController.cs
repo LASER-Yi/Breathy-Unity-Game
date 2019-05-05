@@ -7,7 +7,7 @@ using UnityEngine;
 
 // 控制车辆的接口, 实现移动的功能
 // TODO: 将车辆物理改成依靠受力
-public class CarObject : MonoBehaviour, IPawnController
+public class CarController : MonoBehaviour, IPawnController
 {
     [SerializeField]
     private float m_WheelToCenter;                  // 对应不同车辆的前后轮距离
@@ -25,6 +25,8 @@ public class CarObject : MonoBehaviour, IPawnController
     /* Control */
     // RANGE -90 ~ 90
 
+    private float m_CurrentSteerAngle;
+
     private float m_DynamicFwRotation
     {
         get
@@ -33,10 +35,9 @@ public class CarObject : MonoBehaviour, IPawnController
             return Mathf.Lerp(1f, m_FrontWheelRotation, percent);
         }
     }
-    private float m_CurrentSteerAngle;
 
     // 前轮转向弧度
-    private float m_CurrentSteerRadius
+    private float m_DynamicSteerRadius
     {
         get
         {
@@ -51,6 +52,7 @@ public class CarObject : MonoBehaviour, IPawnController
     void Awake()
     {
         gameObject.layer = LayerMask.NameToLayer("Car");
+        m_RoadLayer = 1 << LayerMask.NameToLayer("Road");
         m_Rigibody = GetComponent<Rigidbody>();
         m_Rigibody.isKinematic = false;
     }
@@ -65,15 +67,65 @@ public class CarObject : MonoBehaviour, IPawnController
         return transform.position;
     }
 
-    float computeShift(float deltaV)
+    private LayerMask m_RoadLayer;
+    protected RoadChunk m_CurrentAttachRoad;
+
+    protected void updateRoadState()
     {
-        float shift = Mathf.Sin(m_CurrentSteerRadius) * deltaV;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, m_RoadLayer))
+        {
+            var road = hit.transform.GetComponentInParent<RoadChunk>();
+            if (road != null)
+            {
+                if (m_CurrentAttachRoad != null)
+                {
+                    if (m_CurrentAttachRoad != road)
+                    {
+                        // 更新路
+                        m_CurrentAttachRoad.removeCarFromRoad();
+                        road.addCarToRoad();
+                        m_CurrentAttachRoad = road;
+                        // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
+                    }
+                }
+                else
+                {
+                    road.addCarToRoad();
+                    m_CurrentAttachRoad = road;
+                    // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
+                }
+            }
+        }
+    }
+
+    public bool isRoadInfoAvaliable()
+    {
+        if (m_CurrentAttachRoad == null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public RoadChunk getRoadInfoChunk()
+    {
+        if (m_CurrentAttachRoad == null) Debug.LogAssertion("请检查路面信息!!!!");
+        return m_CurrentAttachRoad;
+    }
+
+    float computeShift(float turnRadius, float deltaV)
+    {
+        float shift = Mathf.Sin(turnRadius) * deltaV;
         return shift;
     }
 
-    float computeForward(float deltaV)
+    float computeForward(float turnRadius, float deltaV)
     {
-        float forward = Mathf.Cos(m_CurrentSteerRadius) * deltaV;
+        float forward = Mathf.Cos(turnRadius) * deltaV;
         return forward;
     }
 
@@ -93,7 +145,7 @@ public class CarObject : MonoBehaviour, IPawnController
         m_IsBrake = (input.y == 1f);
     }
 
-    void updateEngineOutput()
+    float updateEngineOutput()
     {
         m_CurrentEnginePercent -= Time.deltaTime / 50f;
 
@@ -110,24 +162,25 @@ public class CarObject : MonoBehaviour, IPawnController
             m_CurrentEnginePercent += Time.deltaTime * m_TargetEnginePercent / 10f;
         }
         m_CurrentEnginePercent = Mathf.Clamp(m_CurrentEnginePercent, 0f, 1f);
+        return m_CurrentEnginePercent;
     }
 
-    float m_CurrentVelocity = 0f;
+    private float m_CurrentVelocity = 0f;
 
-    float computeCurrentSpeed()
+    float computeCurrentSpeed(float powerPercent)
     {
         // 根据引擎功率计算现在的速度
-        float current = m_SpeedCurve.Evaluate(m_CurrentEnginePercent) * m_MaxSpeed;
+        float current = m_SpeedCurve.Evaluate(powerPercent) * m_MaxSpeed;
         m_CurrentVelocity = current;
         return current;
     }
 
-    void updateRigidbody()
+    void updateRigidbody(float powerPercent, float turnRadius)
     {
-        var velocity = computeCurrentSpeed();
+        var velocity = computeCurrentSpeed(powerPercent);
 
-        float fwd = computeForward(velocity);
-        float shift = computeShift(velocity);
+        float fwd = computeForward(turnRadius, velocity);
+        float shift = computeShift(turnRadius, velocity);
 
         Vector3 deltaPosition = Vector3.forward * fwd + Vector3.right * shift;
 
@@ -141,8 +194,11 @@ public class CarObject : MonoBehaviour, IPawnController
 
     void Update()
     {
-        updateEngineOutput();
-        updateRigidbody();
+        updateRoadState();
+
+        var power = updateEngineOutput();
+        var turn = m_DynamicSteerRadius;
+        updateRigidbody(power, turn);
     }
 
     void OnDrawGizmos()
@@ -151,6 +207,7 @@ public class CarObject : MonoBehaviour, IPawnController
         var power = m_CurrentEnginePercent;
         var turn = m_CurrentSteerAngle;
 
+        // 可视化车辆控制信息
         Gizmos.color = Color.red;
         Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.forward) * power);
         Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.right) * (turn / m_FrontWheelRotation));

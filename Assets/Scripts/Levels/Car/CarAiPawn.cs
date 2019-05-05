@@ -40,7 +40,7 @@ namespace CarAiAttribute
     }
 }
 
-[RequireComponent(typeof(CarObject)), RequireComponent(typeof(BoxCollider))]
+[RequireComponent(typeof(CarController)), RequireComponent(typeof(BoxCollider))]
 public class CarAiPawn : MonoBehaviour
 {
     enum EAiType
@@ -53,16 +53,12 @@ public class CarAiPawn : MonoBehaviour
     private EAiType m_AiType = EAiType.Conservative;
 
     private CarConservativeAi m_ConservativeAi = new CarConservativeAi();
-
-    protected IPawnController m_Controller;
+    protected CarController m_Controller;
     private BoxCollider m_Collider;
-
-    private LayerMask m_RoadLayer;
     private LayerMask m_ObstructLayer;
 
     [SerializeField]
     private float m_ReactionTime;
-    protected RoadObject m_AttachRoad;
 
     // Ai Parameters
 
@@ -98,42 +94,19 @@ public class CarAiPawn : MonoBehaviour
         }
     }
 
+    private RoadChunk m_RoadInfo{
+        get{
+            return m_Controller.getRoadInfoChunk();
+        }
+    }
+
 
     void Awake()
     {
-        m_Controller = GetComponent<IPawnController>();
+        m_Controller = GetComponent<CarController>();
         m_Collider = GetComponent<BoxCollider>();
-        m_RoadLayer = 1 << LayerMask.NameToLayer("Road");
+        
         m_ObstructLayer = 1 << LayerMask.NameToLayer("Car");
-    }
-
-    protected void checkRoadState()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, m_RoadLayer))
-        {
-            var road = hit.transform.GetComponentInParent<RoadObject>();
-            if (road != null)
-            {
-                if (m_AttachRoad != null)
-                {
-                    if (m_AttachRoad != road)
-                    {
-                        // 更新路
-                        m_AttachRoad.removeAiFromRoad(this);
-                        road.addAiToRoad(this);
-                        m_AttachRoad = road;
-                        m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
-                    }
-                }
-                else
-                {
-                    road.addAiToRoad(this);
-                    m_AttachRoad = road;
-                    m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
-                }
-            }
-        }
     }
 
     private Collider[] collResults = new Collider[20];
@@ -144,7 +117,7 @@ public class CarAiPawn : MonoBehaviour
         var center = transform.position;
         var halfExt = Vector3.zero;
         halfExt.y = 0.1f;
-        halfExt.x = m_AttachRoad.getRoadWidth() * 1.5f;
+        halfExt.x = m_RoadInfo.getRoadWidth() * 1.5f;
         halfExt.z = m_DynamicSafeDistance;
         collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
     }
@@ -157,7 +130,7 @@ public class CarAiPawn : MonoBehaviour
             if (col.transform == transform) continue;
 
             var direction = col.transform.position - transform.position;
-            var projection = m_AttachRoad.getHorizonalProject(direction);
+            var projection = m_RoadInfo.getHorizonalProject(direction);
             var distance = Vector3.Distance(transform.position, col.transform.position);
 
             var ray = new Ray(transform.position, direction);
@@ -214,7 +187,7 @@ public class CarAiPawn : MonoBehaviour
         // 重点进行车前方区域探测
         env.speed = m_Controller.getVelocity();
         env.timestamp = Time.time + Time.deltaTime;
-        env.roadNumber = m_AttachRoad.computeRoadNumberWorld(m_CurrentHorizonal);
+        env.roadNumber = m_RoadInfo.computeRoadNumberWorld(m_CurrentHorizonal);
         return env;
     }
 
@@ -244,7 +217,7 @@ public class CarAiPawn : MonoBehaviour
         action += Vector3.forward * stra.power;
         action += Vector3.up * (stra.brake ? 1.0f : 0.0f);
 
-        var targetHorizonal = m_AttachRoad.computeRoadCenterWorld(stra.targetRoadNumber);
+        var targetHorizonal = m_RoadInfo.computeRoadCenterWorld(stra.targetRoadNumber);
         var targetOffset = targetHorizonal - m_CurrentHorizonal;
 
         action += Vector3.right * computeTurnPercent(targetOffset);
@@ -255,8 +228,7 @@ public class CarAiPawn : MonoBehaviour
     void Update()
     {
         // Note: 为了避免影响帧数，请每帧不要进行太多探测
-        checkRoadState();
-        if (m_AttachRoad != null)
+        if (m_Controller.isRoadInfoAvaliable())
         {
             var env = computeEnvironment();
             var stra = computeStrategic(env);
@@ -269,7 +241,7 @@ public class CarAiPawn : MonoBehaviour
     // 生成此时的目标转向在水平轴上的投影数值
     float computeTargetProjection(float offset)
     {
-        var width = m_AttachRoad.getRoadWidth();
+        var width = m_RoadInfo.getRoadWidth();
         var percent = offset / width; // -1 ～ 0 ～ 1
         percent = Mathf.Clamp(percent, -1f, 1f);
         return percent;
@@ -299,8 +271,8 @@ public class CarAiPawn : MonoBehaviour
     // 计算当前转向角度在水平轴上的投影
     float computeCurrentTurnProject()
     {
-        var selfDirection = transform.TransformDirection(Vector3.forward);
-        var current = m_AttachRoad.getDegreeProjection(selfDirection);
+        var direction = transform.TransformDirection(Vector3.forward);
+        var current = m_RoadInfo.getDegreeProjection(direction);
         return current;
     }
 

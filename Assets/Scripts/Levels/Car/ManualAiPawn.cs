@@ -12,8 +12,7 @@ public class ManualAiPawn : CarAiPawn
     [SerializeField]
     private bool m_IsBrake = false;
     void Update(){
-        checkRoadState();
-        if (m_AttachRoad != null)
+        if (m_Controller.isRoadInfoAvaliable())
         {
             var stra = Strategic.Default;
             stra.brake = m_IsBrake;

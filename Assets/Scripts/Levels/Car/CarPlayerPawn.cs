@@ -6,7 +6,7 @@ using UnityEngine;
 // 左右转只能在前进时候进行
 // 松开油门会减速
 
-[RequireComponent(typeof(CarObject))]
+[RequireComponent(typeof(CarController))]
 public class CarPlayerPawn : MonoBehaviour
 {
     private IPawnController m_Controller;
