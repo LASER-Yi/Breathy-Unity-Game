@@ -242,6 +242,7 @@ public class CarConservativeAi
 
             }
             deltaOutput -= Mathf.Lerp(0f, 0.2f, offsetPercent);
+            // m_State = EAiState.Change;
         }
 
         output += deltaOutput * Time.deltaTime;

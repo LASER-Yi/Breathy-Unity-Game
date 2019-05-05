@@ -128,6 +128,7 @@ public class CarAiPawn : MonoBehaviour
         for (int i = 0; i < collCount; ++i)
         {
             var col = collResults[i];
+            if(col == null) continue;
             if (col.transform == transform) continue;
 
             var direction = col.transform.position - transform.position;
@@ -289,8 +290,10 @@ public class CarAiPawn : MonoBehaviour
         Gizmos.color = Color.green;
         for (int i = 0; i < collCount; ++i)
         {
-            var position = collResults[i].transform.position;
-            Gizmos.DrawLine(origin, position);
+            if(collResults[i] != null){
+                var position = collResults[i].transform.position;
+                Gizmos.DrawLine(origin, position);
+            }
         }
     }
 }

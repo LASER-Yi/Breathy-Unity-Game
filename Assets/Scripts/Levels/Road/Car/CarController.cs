@@ -106,6 +106,8 @@ public class CarController : MonoBehaviour, IPawnController
                     // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
                 }
             }
+        }else{
+            Destroy(gameObject);
         }
     }
 
