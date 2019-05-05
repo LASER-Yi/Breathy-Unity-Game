@@ -187,7 +187,7 @@ public class CarAiPawn : MonoBehaviour
         // 重点进行车前方区域探测
         env.speed = m_Controller.getVelocity();
         env.timestamp = Time.time + Time.deltaTime;
-        env.roadNumber = m_RoadInfo.computeRoadNumberWorld(m_CurrentHorizonal);
+        env.roadNumber = m_RoadInfo.computeRoadNumberWorld(transform.position);
         return env;
     }
 
@@ -217,10 +217,11 @@ public class CarAiPawn : MonoBehaviour
         action += Vector3.forward * stra.power;
         action += Vector3.up * (stra.brake ? 1.0f : 0.0f);
 
-        var targetHorizonal = m_RoadInfo.computeRoadCenterWorld(stra.targetRoadNumber);
-        var targetOffset = targetHorizonal - m_CurrentHorizonal;
+        var targetPoint = m_RoadInfo.computeRoadCenterWorld(stra.targetRoadNumber, transform.position);
 
-        action += Vector3.right * computeTurnPercent(targetOffset);
+        var targetOffset = targetPoint - transform.position;
+
+        // action += Vector3.right * computeTurnPercent(targetOffset);
 
         return action;
     }

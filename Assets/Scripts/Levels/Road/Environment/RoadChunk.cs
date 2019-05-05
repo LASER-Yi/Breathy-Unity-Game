@@ -41,29 +41,31 @@ public class RoadChunk : MonoBehaviour
         return m_RoadNum;
     }
 
-    // 根据给定索引计算路中央
-    // 索引为路本地坐标+x方向增加
-    public float computeRoadCenterWorld(int index)
+    // 根据给定索引 -> 计算路中央坐标
+    public Vector3 computeRoadCenterWorld(int index, Vector3 worldPos)
     {
         float forward = transform.TransformDirection(Vector3.forward).z;
-        forward = forward > 0 ? 1f : -1f;
-        float centerZ = transform.position.z;
-        float maxWidth = -(m_RoadNum / 2.0f) * m_RoadWidth;
-        float positionX = maxWidth + ((m_RoadWidth / 2.0f) * (2 * index + 1));
-        return transform.position.x + positionX;
+
+        // float maxWidth = -(m_RoadNum / 2f);
+        float minRoadCenter = ((-m_RoadNum / 2f) + 0.5f) * m_RoadWidth;
+        minRoadCenter += index * m_RoadWidth;
+
+        Vector3 worldPoint = transform.TransformPoint(Vector3.right * minRoadCenter);
+        return worldPos + worldPoint;
     }
 
     // 根据给定位置计算路索引
     // 给定位置为世界坐标
-    public int computeRoadNumberWorld(float worldPosition)
+    public int computeRoadNumberWorld(Vector3 worldPosition)
     {
-        float offset = worldPosition - transform.position.x;
-        offset += (m_RoadNum * m_RoadWidth) / 2f;
+        var local = transform.InverseTransformPoint(worldPosition).x;
+        var offset = (m_RoadNum * m_RoadWidth) / 2f;
+        local += offset;
 
-        int number = Mathf.FloorToInt(offset / m_RoadWidth);
-        if (number < m_RoadNum && number >= 0)
+        int index = Mathf.FloorToInt(local / m_RoadWidth);
+        if (index < m_RoadNum && index >= 0)
         {
-            return number;
+            return index;
         }
         else
         {
@@ -125,17 +127,24 @@ public class RoadObjectEditor : Editor
 
         float maxWidth = (script.getRoadNum() / 2.0f) * script.getRoadWidth();
 
-        float drawLineLength = 20f;
+        float drawLineLength = 5f;
         float heightOffset = 0.2f;
 
-        Gizmos.DrawLine(original + new Vector3(-maxWidth, heightOffset, -drawLineLength / 2.0f),
-        original + new Vector3(-maxWidth, heightOffset, drawLineLength / 2.0f));
+        var button = script.transform.TransformPoint(new Vector3(-maxWidth, heightOffset, -drawLineLength / 2.0f));
+
+        var top = script.transform.TransformPoint(new Vector3(-maxWidth, heightOffset, drawLineLength / 2.0f));
+
+        Gizmos.DrawLine(button, top);
 
         float maxOffset = maxWidth;
         for (int count = 0; count < script.getRoadNum(); ++count)
         {
-            Gizmos.DrawLine(original + new Vector3(maxOffset, heightOffset, -drawLineLength / 2.0f),
-             original + new Vector3(maxOffset, heightOffset, drawLineLength / 2.0f));
+
+            var _button = script.transform.TransformPoint(new Vector3(maxOffset, heightOffset, -drawLineLength / 2.0f));
+
+            var _top = script.transform.TransformPoint(new Vector3(maxOffset, heightOffset, drawLineLength / 2.0f));
+
+            Gizmos.DrawLine(_button, _top);
 
             maxOffset -= script.getRoadWidth();
         }
