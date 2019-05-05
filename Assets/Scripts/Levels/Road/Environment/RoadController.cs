@@ -7,8 +7,9 @@ using UnityEditor;
 // 在路面前方和后方放置Trigger, 用于移除AI车辆
 public class RoadController : MonoBehaviour
 {
-    private RoadComponentNode m_FirstRoad = null;    // 指向此路面区块链的头部（前方)
-    private RoadComponentNode m_LastRoad = null;     // 指向此路面区块链的尾部（后方）
+    private RoadNode m_FirstRoad = null;    // 指向此路面区块链的头部（前方)
+    private RoadNode m_LastRoad = null;     // 指向此路面区块链的尾部（后方）
+    private IPawnController m_Player;
 
     [SerializeField]
     private int m_MaxRoadCount = 20;
@@ -20,6 +21,7 @@ public class RoadController : MonoBehaviour
     void Awake()
     {
         initalRoadChunk();
+        m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<IPawnController>();
     }
 
     [ExecuteAlways]
@@ -30,6 +32,23 @@ public class RoadController : MonoBehaviour
         {
             createRoadFront();
             createRoadRear();
+        }
+    }
+
+    void Update(){
+        if(m_Player != null && m_FirstRoad != null){
+            var player = m_Player.getWorldPosition();
+            var firstChunk = m_FirstRoad.transform.position;
+            player.y = 0f;
+            firstChunk.y = 0f;
+            var dist = Vector3.Distance(player, firstChunk);
+            var length = m_FirstRoad.getRoadLengthWorld();
+
+            int chunk = Mathf.FloorToInt(dist / length);
+            Debug.Log(chunk);
+            if (chunk < Mathf.FloorToInt(m_RoadCount / 2f)){
+                createRoadFront();
+            }
         }
     }
 
@@ -49,7 +68,7 @@ public class RoadController : MonoBehaviour
             var rotation = transform.rotation;
 
             var obj = Instantiate(m_ChunkPrefab, position, rotation);
-            var script = obj.GetComponent<RoadComponentNode>();
+            var script = obj.GetComponent<RoadNode>();
             if (script != null)
             {
                 obj.transform.SetParent(transform, true);

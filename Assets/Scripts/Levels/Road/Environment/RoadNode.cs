@@ -5,11 +5,11 @@ using UnityEditor;
 
 // 维护两个区块的统一状态
 // 生成AI车辆
-public class RoadComponentNode : MonoBehaviour
+public class RoadNode : MonoBehaviour
 {
     private static int count = 0;
-    private RoadComponentNode m_FrontRoad = null;          // 此路面的前一区块
-    private RoadComponentNode m_BehideRoad = null;           // 此路面的后一区块
+    private RoadNode m_FrontRoad = null;          // 此路面的前一区块
+    private RoadNode m_BehideRoad = null;           // 此路面的后一区块
 
     [SerializeField]
     private float m_RoadLength;
@@ -19,7 +19,11 @@ public class RoadComponentNode : MonoBehaviour
         return m_RoadLength;
     }
 
-    public RoadComponentNode getFrontRoad(){
+    public float getRoadLengthWorld(){
+        return m_RoadLength * transform.lossyScale.z;
+    }
+
+    public RoadNode getFrontRoad(){
         return m_FrontRoad;
     }
 
@@ -29,7 +33,7 @@ public class RoadComponentNode : MonoBehaviour
         gameObject.name = "Road_" + count;
     }
 
-    public RoadComponentNode createRoadFront(GameObject prefab)
+    public RoadNode createRoadFront(GameObject prefab)
     {
         if (m_FrontRoad == null)
         {
@@ -37,7 +41,7 @@ public class RoadComponentNode : MonoBehaviour
             var nextRotation = transform.rotation;
 
             var obj = Instantiate(prefab, nextPosition, nextRotation);
-            var script = obj.GetComponent<RoadComponentNode>();
+            var script = obj.GetComponent<RoadNode>();
             if (script != null)
             {
                 obj.transform.SetParent(transform.parent, true);
@@ -52,7 +56,7 @@ public class RoadComponentNode : MonoBehaviour
         return m_FrontRoad;
     }
 
-    public RoadComponentNode createRoadBehide(GameObject prefab)
+    public RoadNode createRoadBehide(GameObject prefab)
     {
         if (m_BehideRoad == null)
         {
@@ -60,7 +64,7 @@ public class RoadComponentNode : MonoBehaviour
             var prevRotation = transform.rotation;
 
             var obj = Instantiate(prefab, prevPosition, prevRotation);
-            var script = obj.GetComponent<RoadComponentNode>();
+            var script = obj.GetComponent<RoadNode>();
             if (script != null)
             {
                 obj.transform.SetParent(transform.parent, true);
@@ -75,7 +79,7 @@ public class RoadComponentNode : MonoBehaviour
         return m_BehideRoad;
     }
 
-    protected void setBackRoad(RoadComponentNode node)
+    protected void setBackRoad(RoadNode node)
     {
         if (m_BehideRoad == null)
         {
@@ -87,7 +91,7 @@ public class RoadComponentNode : MonoBehaviour
         }
     }
 
-    public void setFrontRoad(RoadComponentNode node){
+    public void setFrontRoad(RoadNode node){
         if (m_FrontRoad == null)
         {
             m_FrontRoad = node;
@@ -100,12 +104,12 @@ public class RoadComponentNode : MonoBehaviour
 
 }
 
-[CustomEditor(typeof(RoadComponentNode))]
+[CustomEditor(typeof(RoadNode))]
 public class RoadComponentEditor : Editor
 {
 
     [DrawGizmo(GizmoType.Selected | GizmoType.InSelectionHierarchy)]
-    static void DrawGizmosSelected(RoadComponentNode script, GizmoType type)
+    static void DrawGizmosSelected(RoadNode script, GizmoType type)
     {
         // Draw road m_RoadLength
 

@@ -119,7 +119,8 @@ public class CarAiPawn : MonoBehaviour
         halfExt.y = 0.1f;
         halfExt.x = m_RoadInfo.getRoadWidth() * 1.5f;
         halfExt.z = m_DynamicSafeDistance;
-        collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, Quaternion.identity, m_ObstructLayer);
+        // 检测方框和路面方向保持一致
+        collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, m_RoadInfo.transform.rotation, m_ObstructLayer);
     }
 
     private void computeFromColliders(ref Environment env)

@@ -13,7 +13,7 @@ public class RoadChunk : MonoBehaviour
     [SerializeField]
     private float m_RoadWidth;
     private int m_AboveCarCount = 0;
-    private RoadComponentNode m_Component = null;
+    private RoadNode m_Component = null;
 
     public float getRoadWidth()
     {
@@ -23,7 +23,7 @@ public class RoadChunk : MonoBehaviour
     void Awake()
     {
         gameObject.layer = LayerMask.NameToLayer("Road");
-        m_Component = GetComponent<RoadComponentNode>();
+        m_Component = GetComponent<RoadNode>();
     }
 
     /* Component 通信 */
