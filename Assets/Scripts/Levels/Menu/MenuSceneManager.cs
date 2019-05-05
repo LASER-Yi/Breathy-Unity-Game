@@ -47,12 +47,14 @@ public class MenuSceneManager : SceneBaseController
         lightController.startDefaultLightLoop();
 
         var attr = CameraAttribute.Empty;
-        attr.setPosition(Vector3.up * 0f);
-        attr.setRotation(Quaternion.Euler(0f, 45f, 0f));
+        attr.setPosition(Vector3.down * 30f);
+        attr.setRotation(Quaternion.Euler(0f, 30f, 0f));
         attr.setZLength(400f);
         attr.setFov(17f);
 
         CameraController.instance.setAttribute(attr);
+
+        yield return new WaitForSecondsRealtime(0.6f);
 
         CameraAttribute target = CameraAttribute.Empty;
         target.setPosition(Vector3.up * 20f);

@@ -46,7 +46,7 @@ public class RoadChunk : MonoBehaviour
     }
 
     // 根据给定索引 -> 计算路中央坐标
-    public Vector3 computeRoadCenterWorld(int index, Vector3 worldPos)
+    public Vector3 computeRoadCenterWorld(int index)
     {
 
         // float maxWidth = -(m_RoadNum / 2f);
@@ -54,7 +54,7 @@ public class RoadChunk : MonoBehaviour
         minRoadCenter += index * m_RoadWidth;
 
         Vector3 worldPoint = transform.TransformPoint(Vector3.right * minRoadCenter);
-        return worldPos + worldPoint;
+        return worldPoint;
     }
 
     public float computeRoadCenterLocalOffset(int index){

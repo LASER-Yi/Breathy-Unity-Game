@@ -10,6 +10,10 @@ public class RoadController : MonoBehaviour
     private RoadNode m_FirstRoad = null;    // 指向此路面区块链的头部（前方)
     private RoadNode m_LastRoad = null;     // 指向此路面区块链的尾部（后方）
     private IPawnController m_Player;
+    [SerializeField]
+    private GameObject m_FrontRoadCollider;
+    [SerializeField]
+    private GameObject m_BackRoadCollider;
 
     [SerializeField]
     private int m_MaxRoadCount = 20;
@@ -24,7 +28,18 @@ public class RoadController : MonoBehaviour
         m_Player = GameObject.FindGameObjectWithTag("Player").GetComponent<IPawnController>();
     }
 
-    [ExecuteAlways]
+    void setFirstRoad(RoadNode node)
+    {
+        m_FirstRoad = node;
+        m_FrontRoadCollider.transform.position = node.transform.position;
+    }
+
+    void setLastRoad(RoadNode node)
+    {
+        m_LastRoad = node;
+        m_BackRoadCollider.transform.position = node.transform.position;
+    }
+
     public void initalRoadChunk()
     {
         removeAllRoad();
@@ -35,8 +50,10 @@ public class RoadController : MonoBehaviour
         }
     }
 
-    void Update(){
-        if(m_Player != null && m_FirstRoad != null){
+    void Update()
+    {
+        if (m_Player != null && m_FirstRoad != null)
+        {
             var player = m_Player.getWorldPosition();
             var firstChunk = m_FirstRoad.transform.position;
             player.y = 0f;
@@ -45,16 +62,19 @@ public class RoadController : MonoBehaviour
             var length = m_FirstRoad.getRoadLengthWorld();
 
             int chunk = Mathf.FloorToInt(dist / length);
-            if (chunk < Mathf.FloorToInt(m_RoadCount / 2f)){
+            if (chunk < Mathf.FloorToInt(m_RoadCount / 2f))
+            {
                 createRoadFront();
             }
         }
     }
 
-    [ExecuteAlways]
     public void removeAllRoad()
     {
-        foreach(Transform item in transform){
+        foreach (Transform item in transform)
+        {
+            if (item.name == "__save__") continue;
+
             Destroy(item.gameObject);
         }
     }
@@ -82,17 +102,18 @@ public class RoadController : MonoBehaviour
         }
     }
 
-    [ExecuteAlways]
     public void createRoadFront()
     {
         if (m_FirstRoad == null)
         {
             createFirstRoad();
         }
-        if(m_RoadCount >= m_MaxRoadCount){
+        if (m_RoadCount >= m_MaxRoadCount)
+        {
             removeRoadBehind();
         }
-        m_FirstRoad = m_FirstRoad.createRoadFront(m_ChunkPrefab);
+        var chunk = m_FirstRoad.createRoadFront(m_ChunkPrefab);
+        setFirstRoad(chunk);
         ++m_RoadCount;
     }
 
@@ -102,21 +123,22 @@ public class RoadController : MonoBehaviour
         {
             createFirstRoad();
         }
-        if(m_RoadCount < m_MaxRoadCount){
-            m_LastRoad = m_LastRoad.createRoadBehide(m_ChunkPrefab);
+        if (m_RoadCount < m_MaxRoadCount)
+        {
+            var chunk = m_LastRoad.createRoadBehide(m_ChunkPrefab);
+            setLastRoad(chunk);
             ++m_RoadCount;
         }
     }
 
-    [ExecuteAlways]
     public void removeRoadBehind()
     {
         if (m_RoadCount > 1)
         {
             --m_RoadCount;
-            var tempory = m_LastRoad;
-            m_LastRoad = tempory.getFrontRoad();
-            DestroyImmediate(tempory.gameObject);
+            var tempory = m_LastRoad.getFrontRoad();
+            DestroyImmediate(m_LastRoad.gameObject);
+            setLastRoad(tempory);
         }
     }
 }

@@ -23,7 +23,8 @@ public class CarController : MonoBehaviour, IPawnController
     private AnimationCurve m_SpeedCurve;            // 对应不同发动机功率能达到的极速
     private Rigidbody m_Rigibody;
 
-    public float getWheelPosition(){
+    public float getWheelPosition()
+    {
         return m_WheelPosition;
     }
 
@@ -65,6 +66,10 @@ public class CarController : MonoBehaviour, IPawnController
     public float getVelocity()
     {
         return m_CurrentVelocity;
+    }
+
+    public void setEnginePower(float percent){
+        m_CurrentEnginePercent = percent;
     }
 
     public Vector3 getWorldPosition()
@@ -194,7 +199,10 @@ public class CarController : MonoBehaviour, IPawnController
         float deltaAngle = computeObjectRotateAngle(shift) * Time.deltaTime;
         var currentRotator = transform.rotation;
         var deltaRototor = Quaternion.Euler(0f, deltaAngle, 0f);
-        m_Rigibody.MoveRotation(currentRotator * deltaRototor);
+        if (deltaRototor != Quaternion.identity)
+        {
+            m_Rigibody.MoveRotation(currentRotator * deltaRototor);
+        }
     }
 
     void Update()
@@ -220,7 +228,8 @@ public class CarController : MonoBehaviour, IPawnController
 
 }
 
-class CarControllerEditor: Editor{
+class CarControllerEditor : Editor
+{
     [DrawGizmo(GizmoType.Selected)]
     static void DrawGizmosSelected(CarController script, GizmoType type)
     {
