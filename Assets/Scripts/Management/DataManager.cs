@@ -28,8 +28,8 @@ public class DataManager
     
     [System.Serializable]
     public struct SaveData{
-        public int timestamp;
-        public int score;
+        public int dayCount;
+        public GSceneController.ESceneIndex sceneIndex;
     }
 
     [System.Serializable]
@@ -41,7 +41,7 @@ public class DataManager
             return Application.persistentDataPath + "/save.brsd";
         }
     }
-    private Dictionary<string, SaveData> m_Score;
+    private Dictionary<int, SaveData> m_SaveData;
 
     DataManager(){
         loadDataFromFile();
@@ -53,8 +53,8 @@ public class DataManager
             try{
                 var raws = Encoding.UTF8.GetBytes(m_DataPath);
                 var data = Encoding.UTF8.GetString(raws);
-                var container = JsonUtility.FromJson<JsonContainer<Dictionary<string, SaveData>>>(data);
-                m_Score = container.content;
+                var container = JsonUtility.FromJson<JsonContainer<Dictionary<int, SaveData>>>(data);
+                m_SaveData = container.content;
             }catch (System.Exception e){
                 Debug.LogError(e);
                 setupNewData();
@@ -67,8 +67,8 @@ public class DataManager
     }
 
     private bool saveDataToFile(){
-        var originalData = new JsonContainer<Dictionary<string, SaveData>>();
-        originalData.content = m_Score;
+        var originalData = new JsonContainer<Dictionary<int, SaveData>>();
+        originalData.content = m_SaveData;
         var data = JsonUtility.ToJson(originalData);
         if(data != null){
             var raws = Encoding.UTF8.GetBytes(data);
@@ -84,23 +84,19 @@ public class DataManager
         }
     }
     private void setupNewData(){
-        m_Score = new Dictionary<string, SaveData>();
+        m_SaveData = new Dictionary<int, SaveData>();
         saveDataToFile();
     }
 
-    public SaveData getDataByString(string str){
-        SaveData data;
-        if (m_Score.TryGetValue(str,out data)){
-            return data;
-        }else{
-            data.score = 0;
-            data.timestamp = 0;
-            setScoreByString(str, data);
-            return data;
-        }
-    }
-
-    public void setScoreByString(string str, SaveData data){
-        m_Score.Add(str, data);
-    }
+    // public SaveData getDataByIndex(){
+    //     SaveData data;
+    //     if (m_Score.TryGetValue(str,out data)){
+    //         return data;
+    //     }else{
+    //         data.dayCount = 0;
+    //         data.sceneIndex = GSceneController.ESceneIndex.Menu;
+    //         setScoreByString(str, data);
+    //         return data;
+    //     }
+    // }
 }

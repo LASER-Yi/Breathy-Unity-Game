@@ -25,11 +25,20 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-    public DataManager saveDataDict{
+    public DataManager m_SaveDataManager{
         get{
             return DataManager.Instance;
         }
     }
+
+    void Awake(){
+        // var savedata = m_SaveDataManager.
+    }
+
+    void OnDestory(){  
+    }
+
+    private int m_DayCount = 0;
 
     private float _currenttod;
 
