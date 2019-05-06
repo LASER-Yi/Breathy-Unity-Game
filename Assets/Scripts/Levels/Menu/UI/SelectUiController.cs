@@ -143,8 +143,8 @@ class SelectUiController : MonoBehaviour, IStackableUi
         animator.stopAllAnimation();
 
         var keyframe = LCameraSystem.CameraAttribute.Empty;
-        keyframe.setZLength(500f);
-        keyframe.setPosition(Vector3.up * 40f);
+        keyframe.setZLength(200f);
+        keyframe.setRotation(Quaternion.Euler(0f, -40f, 0f));
 
         var delta = LCameraSystem.CameraAttribute.Empty;
         delta.setRotation(Quaternion.Euler(0f, -m_RotateSpeed, 0f));

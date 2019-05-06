@@ -43,12 +43,11 @@ public class MenuSceneManager : SceneBaseController
     IEnumerator ieTransferOnStartup()
     {
         var lightController = GLightController.instance;
-        lightController.setTimeOfDays(6f);
-        lightController.startDefaultLightLoop();
+        GameManager.instance.setTimeOfDay(10f);
 
         var attr = CameraAttribute.Empty;
         attr.setPosition(Vector3.down * 30f);
-        attr.setRotation(Quaternion.Euler(0f, 30f, 0f));
+        attr.setRotation(Quaternion.Euler(0f, 10f, 0f));
         attr.setZLength(400f);
         attr.setFov(17f);
 
@@ -58,10 +57,10 @@ public class MenuSceneManager : SceneBaseController
 
         CameraAttribute target = CameraAttribute.Empty;
         target.setPosition(Vector3.up * 20f);
-        target.setRotation(Quaternion.identity);
-        target.setZLength(300f);
+        target.setRotation(Quaternion.Euler(45f, -30f, 0));
+        target.setZLength(500f);
 
-        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 2f, t => Mathf.SmoothStep(0f, 1f, t));
+        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 4f, t => Mathf.SmoothStep(0f, 1f, t));
 
         m_IsBtnEnable = true;
     }

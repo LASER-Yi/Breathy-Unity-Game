@@ -10,8 +10,8 @@ public class GSceneController : MonoBehaviour
         Loader = 0,
         Menu = 1,
         Road = 2,
-        Market = 3,
-        Heart = 4
+        Work = 3,
+        Sleep = 4
     }
     private Dictionary<ESceneIndex, string> m_SceneName;
     private static Object _lock = new Object();
@@ -45,9 +45,9 @@ public class GSceneController : MonoBehaviour
     void initalSceneName()
     {
         m_SceneName = new Dictionary<ESceneIndex, string>();
-        m_SceneName.Add(ESceneIndex.Road, "Road");
-        m_SceneName.Add(ESceneIndex.Market, "Market");
-        m_SceneName.Add(ESceneIndex.Heart, "Sleepy");
+        m_SceneName.Add(ESceneIndex.Road, "在路上");
+        m_SceneName.Add(ESceneIndex.Work, "工作");
+        m_SceneName.Add(ESceneIndex.Sleep, "房间");
     }
     public string getSceneName(ESceneIndex index)
     {

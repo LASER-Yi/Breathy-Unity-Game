@@ -30,4 +30,104 @@ public class GameManager : MonoBehaviour
             return DataManager.Instance;
         }
     }
+
+    private float _currenttod;
+
+    private float m_CurrentTimeOfDay{
+        get{
+            return _currenttod;
+        }
+        set{
+            if (value > 24f)
+            {
+                _currenttod = value - 24f;
+            }
+            else if (value < 0f)
+            {
+                _currenttod = 0f;
+            }
+            else
+            {
+                _currenttod = value;
+            }
+        }
+    }
+
+    public KeyValuePair<int, int> getTimeOfDayFormat(){
+        var hour = Mathf.FloorToInt(m_CurrentTimeOfDay);
+        var minute = Mathf.FloorToInt((m_CurrentTimeOfDay - hour) * 60f);
+        var pair = new KeyValuePair<int, int>(hour, minute);
+        return pair;
+    }
+
+    public float getTimeOfDayOriginal(){
+        return m_CurrentTimeOfDay;
+    }
+
+    public void setTimeOfDay(float original){
+        m_CurrentTimeOfDay = original;
+    }
+
+    public void setTimeOfDay(int hour, int minute){
+        float value = hour;
+        value += (float)minute / 60f;
+        m_CurrentTimeOfDay = value;
+    }
+
+    Coroutine m_DayLoopCoro;
+
+    public void startDayLoop(){
+        stopDayLoop();
+        m_DayLoopCoro = StartCoroutine(ieDayLoop());
+    }
+
+    public void stopDayLoop(){
+        if(m_DayLoopCoro != null){
+            StopCoroutine(m_DayLoopCoro);
+            m_DayLoopCoro = null;
+        }
+    }
+
+    IEnumerator ieDayLoop(){
+        float minuteOfDays = 24f;
+        float deltaHour = 24f / (minuteOfDays * 60f);
+
+        while (true)
+        {
+            yield return null;
+            var result = m_CurrentTimeOfDay + deltaHour * Time.deltaTime;
+            setTimeOfDay(result);
+        }
+    }
+
+    public void startLerpTime(float toValue)
+    {
+        StartCoroutine(ieDayLerp(toValue));
+    }
+
+    public void startLerpTime(int hour, int minute)
+    {
+        float value = hour;
+        value += (float)minute / 60f;
+        StartCoroutine(ieDayLerp(value));
+    }
+
+    IEnumerator ieDayLerp(float toValue){
+        float currentTime = 0f;
+        float progress = 0f;
+
+        float lerpTimer = 4f;
+
+        float startTimeOfDays = m_CurrentTimeOfDay;
+
+        while (currentTime < lerpTimer)
+        {
+            yield return null;
+            currentTime += Time.deltaTime;
+            progress = currentTime / lerpTimer;
+
+            var current = Mathf.Lerp(m_CurrentTimeOfDay, toValue, progress);
+            setTimeOfDay(current);
+        }
+    }
 }
