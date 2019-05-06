@@ -59,6 +59,19 @@ public class CarConservativeAi
     void changeAiState(EAiState state)
     {
         m_State = state;
+        switch (state)
+        {
+            case EAiState.Follow:
+                {
+                    m_FollowTimer = 0f;
+                    break;
+                }
+            case EAiState.Change:
+                {
+                    m_IsComputedRoad = false;
+                    break;
+                }
+        }
     }
 
     public Strategic tick(in Environment env)
@@ -81,7 +94,7 @@ public class CarConservativeAi
 
                     var relativeSpeed = Mathf.Abs(computeRelativeSpeed(in env, EDirection.front));
 
-                    if (stra.power < 0.75f && relativeSpeed < 2f && env.frontDistance > m_AiWarnDistance)
+                    if (stra.power < 0.75f && env.frontDistance > m_AiWarnDistance)
                     {
                         m_FollowTimer += Time.deltaTime;
                     }
@@ -93,6 +106,7 @@ public class CarConservativeAi
                     if (m_FollowTimer > m_FollowThreshold)
                     {
                         changeAiState(EAiState.Change);
+                        m_FollowTimer = 0f;
                     }
                     break;
                 }
@@ -114,6 +128,10 @@ public class CarConservativeAi
                     {
                         // 防止变道期间空位被抢占
                         stra.targetRoadNumber = computeNewRoadNumber(in env);
+                        if (stra.targetRoadNumber == env.roadNumber)
+                        {
+                            changeAiState(EAiState.Follow);
+                        }
                     }
                     break;
                 }
@@ -242,7 +260,6 @@ public class CarConservativeAi
 
             }
             deltaOutput -= Mathf.Lerp(0f, 0.2f, offsetPercent);
-            // m_State = EAiState.Change;
         }
 
         output += deltaOutput * Time.deltaTime;
