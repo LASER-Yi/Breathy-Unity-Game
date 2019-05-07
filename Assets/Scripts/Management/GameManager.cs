@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace LGameDataStruct{
+    public struct CharacterData{
+        public int coin;
+        public float healthPercent;
+        public float currentBodyPercent;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
     private static Object _lock = new Object();
@@ -103,7 +111,7 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator ieDayLoop(){
-        float minuteOfDays = 24f;
+        float minuteOfDays = 10f;
         float deltaHour = 24f / (minuteOfDays * 60f);
 
         while (true)
