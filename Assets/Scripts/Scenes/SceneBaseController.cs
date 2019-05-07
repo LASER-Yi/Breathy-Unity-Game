@@ -37,6 +37,7 @@ public abstract class SceneBaseController : MonoBehaviour
 
     [SerializeField]
     private bool m_IsShowAfterLoad = false;
+    [SerializeField]
     protected string m_SceneName;
     [SerializeField]
     private RectTransform m_TitlePrefab;
@@ -53,14 +54,8 @@ public abstract class SceneBaseController : MonoBehaviour
         GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu);
     }
 
-    private void initalSceneInfo(){
-        var index = GSceneController.instance.getActiveScene();
-        m_SceneName = GSceneController.instance.getSceneName(index);
-    }
-
     protected void Start()
     {
-        initalSceneInfo();
         m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
         if(m_SceneSkybox != null){
             RenderSettings.skybox = m_SceneSkybox.material;

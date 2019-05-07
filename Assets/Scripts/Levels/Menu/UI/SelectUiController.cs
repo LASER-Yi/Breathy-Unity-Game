@@ -66,35 +66,35 @@ class SelectUiController : MonoBehaviour, IStackableUi
         return position;
     }
 
-    void initalSceneInfo()
-    {
-        if (m_BtnPrefab == null) return;
+    // void initalSceneInfo()
+    // {
+    //     if (m_BtnPrefab == null) return;
 
-        m_SceneInfo = new List<SelectInfo>();
-        var sceneList = GSceneController.instance.getSceneList();
-        foreach (var item in sceneList)
-        {
-            var select = new SelectInfo();
-            select.bindScene = item.Key;
+    //     m_SceneInfo = new List<SelectInfo>();
+    //     var sceneList = GSceneController.instance.getSceneList();
+    //     foreach (var item in sceneList)
+    //     {
+    //         var select = new SelectInfo();
+    //         select.bindScene = item.Key;
 
-            var btn = Instantiate(m_BtnPrefab).GetComponent<Button>();
-            btn.transform.SetParent(transform);
-            btn.transform.localPosition = Vector3.zero;
-            btn.transform.localScale = Vector3.one;
-            select.bindBtn = btn;
-            var btnText = btn.GetComponentInChildren<Text>();
-            btnText.text = item.Value;
-            btn.onClick.AddListener(delegate { onBtnClick(select.bindScene); });
+    //         var btn = Instantiate(m_BtnPrefab).GetComponent<Button>();
+    //         btn.transform.SetParent(transform);
+    //         btn.transform.localPosition = Vector3.zero;
+    //         btn.transform.localScale = Vector3.one;
+    //         select.bindBtn = btn;
+    //         var btnText = btn.GetComponentInChildren<Text>();
+    //         btnText.text = item.Value;
+    //         btn.onClick.AddListener(delegate { onBtnClick(select.bindScene); });
 
-            select.pointPosition = generateWorldPositionInBox();
+    //         select.pointPosition = generateWorldPositionInBox();
 
-            // var line = Instantiate(m_LinePrefab);
-            // select.line = line;
-            // line.transform.SetParent(m_LineContainer.transform, false);
+    //         // var line = Instantiate(m_LinePrefab);
+    //         // select.line = line;
+    //         // line.transform.SetParent(m_LineContainer.transform, false);
 
-            m_SceneInfo.Add(select);
-        }
-    }
+    //         m_SceneInfo.Add(select);
+    //     }
+    // }
 
     void onBtnClick(GSceneController.ESceneIndex index)
     {
@@ -103,7 +103,6 @@ class SelectUiController : MonoBehaviour, IStackableUi
 
     void Awake()
     {
-        initalSceneInfo();
         m_Canvas = GetComponentInParent<Canvas>();
     }
 

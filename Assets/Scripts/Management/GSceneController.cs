@@ -13,7 +13,6 @@ public class GSceneController : MonoBehaviour
         Work = 3,
         Sleep = 4
     }
-    private Dictionary<ESceneIndex, string> m_SceneName;
     private static Object _lock = new Object();
     private static GSceneController _instance;
 
@@ -40,35 +39,6 @@ public class GSceneController : MonoBehaviour
 
     public ESceneIndex getActiveScene(){
         return m_ActiveScene;
-    }
-
-    void initalSceneName()
-    {
-        m_SceneName = new Dictionary<ESceneIndex, string>();
-        m_SceneName.Add(ESceneIndex.Road, "在路上");
-        m_SceneName.Add(ESceneIndex.Work, "工作");
-        m_SceneName.Add(ESceneIndex.Sleep, "房间");
-    }
-    public string getSceneName(ESceneIndex index)
-    {
-        if (m_SceneName.ContainsKey(index))
-        {
-            return m_SceneName[index];
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public Dictionary<ESceneIndex, string> getSceneList()
-    {
-        return m_SceneName;
-    }
-
-    void Awake()
-    {
-        initalSceneName();
     }
 
     void Start()
