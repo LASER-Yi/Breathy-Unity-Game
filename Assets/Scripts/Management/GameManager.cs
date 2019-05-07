@@ -44,6 +44,14 @@ public class GameManager : MonoBehaviour
 
     void Awake(){
         // var savedata = m_SaveDataManager.
+        // 载入存档
+        m_Character.coin = 0;
+        m_Character.currentBodyPercent = 1f;
+        m_Character.healthPercent = 1f;
+    }
+
+    public CharacterData getCharacterData(){
+        return m_Character;
     }
 
     private int m_DayCount = 0;

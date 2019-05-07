@@ -38,44 +38,31 @@ namespace LCameraSystem
                 return CameraController.instance;
             }
         }
-
-        public delegate float interpolation(float t);
+        [SerializeField]
+        private AnimationCurve m_DefaultCurve;
 
         public delegate void callback();
-
-        private static float vSmoothStep(float t)
-        {
-            return Mathf.SmoothStep(0f, 1f, t);
-        }
-
-        private static float vLerp(float t)
-        {
-            return t;
-        }
 
         public void stopAllAnimation()
         {
             StopAllCoroutines();
         }
 
-        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time)
+        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time, AnimationCurve curve = null)
         {
             if (from != null) m_CamController.setAttribute(from.Value);
 
-            StartCoroutine(ieStartCameraNextKeyframe(to, time, vLerp));
-        }
-
-        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time, interpolation func)
-        {
-            if (from != null) m_CamController.setAttribute(from.Value);
-
-            StartCoroutine(ieStartCameraNextKeyframe(to, time, func));
+            StartCoroutine(ieStartCameraNextKeyframe(to, time, curve));
         }
 
         private UnityEngine.Object intp_lock = new Object();
 
-        public IEnumerator ieStartCameraNextKeyframe(CameraAttribute attr, float time, interpolation func)
+        public IEnumerator ieStartCameraNextKeyframe(CameraAttribute attr, float time, AnimationCurve curve = null)
         {
+            AnimationCurve animaCurve = m_DefaultCurve;
+            if(curve != null){
+                animaCurve = curve;
+            }
             lock (intp_lock)
             {
                 float currentTime = 0f;
@@ -95,7 +82,7 @@ namespace LCameraSystem
                     currentTime += deltaTime;
                     progress = currentTime / time;
 
-                    float intp = func(progress);
+                    float intp = animaCurve.Evaluate(progress);
 
                     var frame = CameraAttribute.Empty;
 

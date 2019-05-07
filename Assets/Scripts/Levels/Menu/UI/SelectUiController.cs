@@ -148,9 +148,7 @@ class SelectUiController : MonoBehaviour, IStackableUi
         var delta = LCameraSystem.CameraAttribute.Empty;
         delta.setRotation(Quaternion.Euler(0f, -m_RotateSpeed, 0f));
 
-        animator.startKeyframeAnimation(null, keyframe, 0.6f,
-            t => Mathf.SmoothStep(0f, 1f, t)
-        );
+        animator.startKeyframeAnimation(null, keyframe, 0.6f);
         animator.startLoopAnimation(delta);
     }
 

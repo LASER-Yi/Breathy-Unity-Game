@@ -60,7 +60,7 @@ public class MenuSceneManager : SceneBaseController
         target.setRotation(Quaternion.Euler(45f, -30f, 0));
         target.setZLength(500f);
 
-        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 4f, t => Mathf.SmoothStep(0f, 1f, t));
+        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 4f);
 
         m_IsBtnEnable = true;
     }
