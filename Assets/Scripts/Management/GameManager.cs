@@ -121,6 +121,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void adjustTimeFlow(float newFlow){
+        m_MinuteOfDays = newFlow;
+    }
+
+    private float m_MinuteOfDays = 10f;
+
     IEnumerator ieDayLoop(){
         float minuteOfDays = 10f;
         float deltaHour = 24f / (minuteOfDays * 60f);

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.SceneManagement;
 
 public abstract class SceneBaseController : MonoBehaviour
@@ -54,9 +55,14 @@ public abstract class SceneBaseController : MonoBehaviour
         GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu);
     }
 
+    public void attachSceneUi(){
+        m_UiController.cleanStack(true);
+        m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
+    }
+
     protected void Start()
     {
-        m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
+        attachSceneUi();
         if(m_SceneSkybox != null){
             RenderSettings.skybox = m_SceneSkybox.material;
         }
@@ -75,40 +81,53 @@ public abstract class SceneBaseController : MonoBehaviour
         GCanvasController.instance.removeFromCover(title);
     }
 
-    protected looper updatePreLoop;
-    protected checker checkPreState;
-    protected looper updateMainLoop;
-    protected checker checkMainState;
-    protected looper updateEndLoop;
-    protected checker checkEndState;
+    // protected looper updatePreLoop;
+    // protected checker checkPreState;
+    // protected looper updateMainLoop;
+    // protected checker checkMainState;
+    // protected looper updateEndLoop;
+    // protected checker checkEndState;
 
-    public void startGameLoop(){
-        StartCoroutine(ieGameProcess());
-    }
+    // public void startGameLoop(){
+    //     StartCoroutine(ieGameProcess());
+    // }
 
-    protected delegate bool checker();
+    // protected delegate bool checker();
 
-    protected delegate void looper();
+    // protected delegate void looper();
 
-    IEnumerator ieGameProcess(){
-        if(checkPreState != null && updatePreLoop != null){
-            yield return ieCheckAndLoop(checkPreState, updatePreLoop);
-        }
-        if(checkMainState != null && updateMainLoop != null){
-            yield return ieCheckAndLoop(checkMainState, updateMainLoop);
-        }
-        if(checkEndState != null && updateEndLoop != null){
-            yield return ieCheckAndLoop(checkEndState, updateEndLoop);
-        }
-        yield return null;
-        backToMenu();
-    }
+    // IEnumerator ieGameProcess(){
+    //     if(checkPreState != null && updatePreLoop != null){
+    //         yield return ieCheckAndLoop(checkPreState, updatePreLoop);
+    //     }
+    //     if(checkMainState != null && updateMainLoop != null){
+    //         yield return ieCheckAndLoop(checkMainState, updateMainLoop);
+    //     }
+    //     if(checkEndState != null && updateEndLoop != null){
+    //         yield return ieCheckAndLoop(checkEndState, updateEndLoop);
+    //     }
+    //     yield return null;
+    //     backToMenu();
+    // }
 
-    IEnumerator ieCheckAndLoop(checker chk, looper lop){
-        while (chk())
+    // IEnumerator ieCheckAndLoop(checker chk, looper lop){
+    //     while (chk())
+    //     {
+    //         lop();
+    //         yield return null;
+    //     }
+    // }
+}
+
+[CustomEditor(typeof(SceneBaseController))]
+class SceneBaseControllerEditor: Editor{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+        var script = target as SceneBaseController;
+        if (GUILayout.Button("放置UI"))
         {
-            lop();
-            yield return null;
+            script.attachSceneUi();
         }
     }
 }

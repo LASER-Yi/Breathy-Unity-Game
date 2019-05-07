@@ -104,3 +104,5 @@ public class GSceneController : MonoBehaviour
         m_LoadProgress = 0.5f;
     }
 }
+
+
