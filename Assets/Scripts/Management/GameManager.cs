@@ -35,9 +35,6 @@ public class GameManager : MonoBehaviour
         // var savedata = m_SaveDataManager.
     }
 
-    void OnDestory(){  
-    }
-
     private int m_DayCount = 0;
 
     private float _currenttod;
@@ -60,6 +57,14 @@ public class GameManager : MonoBehaviour
                 _currenttod = value;
             }
         }
+    }
+
+    public void addDayCount(){
+        ++m_DayCount;
+    }
+
+    public int getDayCount(){
+        return m_DayCount;
     }
 
     public KeyValuePair<int, int> getTimeOfDayFormat(){

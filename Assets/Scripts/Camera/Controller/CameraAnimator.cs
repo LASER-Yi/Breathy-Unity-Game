@@ -48,15 +48,18 @@ namespace LCameraSystem
             return Mathf.SmoothStep(0f, 1f, t);
         }
 
-        private static float vLerp(float t){
+        private static float vLerp(float t)
+        {
             return t;
         }
 
-        public void stopAllAnimation(){
+        public void stopAllAnimation()
+        {
             StopAllCoroutines();
         }
 
-        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time){
+        public void startKeyframeAnimation(CameraAttribute? from, CameraAttribute to, float time)
+        {
             if (from != null) m_CamController.setAttribute(from.Value);
 
             StartCoroutine(ieStartCameraNextKeyframe(to, time, vLerp));
@@ -96,10 +99,10 @@ namespace LCameraSystem
 
                     var frame = CameraAttribute.Empty;
 
-                    if (attr.position.HasValue) frame.position = Vector3.Lerp(currPosition, attr.position.Value, intp);
-                    if (attr.rotation.HasValue) frame.rotation = Quaternion.Slerp(currRotation, attr.rotation.Value, intp);
-                    if (attr.zlength.HasValue) frame.zlength = Mathf.Lerp(currLength, attr.zlength.Value, intp);
-                    if (attr.fov.HasValue) frame.fov = Mathf.Lerp(currFov, attr.fov.Value, intp);
+                    if (attr.position is Vector3 pos) frame.position = Vector3.Lerp(currPosition, pos, intp);
+                    if (attr.rotation is Quaternion rot) frame.rotation = Quaternion.Slerp(currRotation, rot, intp);
+                    if (attr.zlength is float length) frame.zlength = Mathf.Lerp(currLength, length, intp);
+                    if (attr.fov is float fov) frame.fov = Mathf.Lerp(currFov, fov, intp);
 
                     m_CamController.setAttribute(frame);
                 }

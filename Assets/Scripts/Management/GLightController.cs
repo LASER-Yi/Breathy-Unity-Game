@@ -26,13 +26,19 @@ public class GLightController : MonoBehaviour
         }
     }
 
+    private VolumetricFogAndMist.VolumetricFog m_VolumetricFog;
+
     [SerializeField]
     private Light m_SunLight;
+
+    void Awake(){
+        m_VolumetricFog = Camera.main.GetComponent<VolumetricFogAndMist.VolumetricFog>();
+    }
 
     private Quaternion computeLightRotation(float hour)
     {
         var xValue = Mathf.Lerp(-90f, 270f, hour / 24f);
-        var yValue = Mathf.SmoothStep(90f, 120f, (hour % 24f) / 12f);
+        var yValue = Mathf.SmoothStep(0, -70f, (hour % 24f) / 12f);
         var rotator = Quaternion.Euler(xValue, yValue, 0f);
         return rotator;
     }

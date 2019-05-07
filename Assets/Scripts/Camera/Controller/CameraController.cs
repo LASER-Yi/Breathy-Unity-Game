@@ -60,10 +60,10 @@ namespace LCameraSystem
 
         public void setAttribute(CameraAttribute attr)
         {
-            if (attr.position.HasValue) m_WorldPosition = attr.position.Value;
-            if (attr.rotation.HasValue) m_WorldRotation = attr.rotation.Value;
-            if (attr.zlength.HasValue) m_CurrentZLength = attr.zlength.Value;
-            if (attr.fov.HasValue) m_CurrentFov = attr.fov.Value;
+            if (attr.position is Vector3 pos) m_WorldPosition = pos;
+            if (attr.rotation is Quaternion rot) m_WorldRotation = rot;
+            if (attr.zlength is float length) m_CurrentZLength = length;
+            if (attr.fov is float fov) m_CurrentFov = fov;
         }
 
         public void setAttribute(CameraAttributeNotNull attr)
