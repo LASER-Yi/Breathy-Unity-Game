@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LGameDataStruct;
 
 namespace LGameDataStruct{
     public struct CharacterData{
@@ -33,6 +34,8 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
+
+    private CharacterData m_Character;
     public DataManager m_SaveDataManager{
         get{
             return DataManager.Instance;
