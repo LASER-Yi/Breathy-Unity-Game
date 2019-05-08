@@ -27,10 +27,8 @@ public class MenuSceneManager : SceneBaseController
         StartCoroutine(ieTransferOnStartup());
     }
 
-    public void gotoSelectGame()
-    {
-        if (!m_IsBtnEnable) return;
-        m_UiController.pushToStack(m_SelectPrefab, true).GetComponent<SelectUiController>().setupManager(this);
+    public void startGame(){
+        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Sleep);
     }
 
     public void loadSubGame(GSceneController.ESceneIndex index)

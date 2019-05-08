@@ -79,10 +79,26 @@ public class GameManager : MonoBehaviour
             {
                 _currenttod = value;
             }
+            fireTimeChangedEvent();
         }
     }
 
-    public void addDayCount()
+    private int m_CurrentHour
+    {
+        get
+        {
+            return Mathf.FloorToInt(m_CurrentTimeOfDay);
+        }
+    }
+    private int m_CurrentMinute
+    {
+        get
+        {
+            return Mathf.FloorToInt((m_CurrentTimeOfDay - m_CurrentHour) * 60f);
+        }
+    }
+
+    public void increaseDayCount()
     {
         ++m_DayCount;
     }
@@ -92,17 +108,40 @@ public class GameManager : MonoBehaviour
         return m_DayCount;
     }
 
-    public KeyValuePair<int, int> getTimeOfDayFormat()
+    public struct GameTime
     {
-        var hour = Mathf.FloorToInt(m_CurrentTimeOfDay);
-        var minute = Mathf.FloorToInt((m_CurrentTimeOfDay - hour) * 60f);
-        var pair = new KeyValuePair<int, int>(hour, minute);
-        return pair;
+        public int hour;
+        public int minute;
     }
 
-    public float getTimeOfDayOriginal()
+    private delegate void OnGameTimeChangedHandler(GameManager sender, GameTime time);
+
+    private event OnGameTimeChangedHandler eventTimeChanged;
+
+    public void addEventListener(ITimeDidChangedHandler listener)
     {
-        return m_CurrentTimeOfDay;
+        eventTimeChanged += listener.OnGameTimeChanged;
+    }
+
+    public void removeEventListener(ITimeDidChangedHandler listener)
+    {
+        eventTimeChanged -= listener.OnGameTimeChanged;
+    }
+
+    private void fireTimeChangedEvent()
+    {
+        try
+        {
+            eventTimeChanged?.Invoke(this, new GameTime()
+            {
+                hour = m_CurrentHour,
+                minute = m_CurrentMinute
+            });
+        }
+        catch (System.NullReferenceException e)
+        {
+            Debug.Log(e.ToString());
+        }
     }
 
     public void setTimeOfDay(float original)
@@ -118,13 +157,13 @@ public class GameManager : MonoBehaviour
     }
 
     Coroutine m_DayLoopCoro;
-    public void startDayLoop()
+    public void startTimeLoop()
     {
-        stopDayLoop();
+        stopTimeLoop();
         m_DayLoopCoro = StartCoroutine(ieDayLoop());
     }
 
-    public void stopDayLoop()
+    public void stopTimeLoop()
     {
         if (m_DayLoopCoro != null)
         {
@@ -133,7 +172,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void adjustTimeFlow(float newFlow)
+    public void setTimeSpeed(float newFlow)
     {
         m_MinuteOfDays = newFlow;
     }
@@ -185,10 +224,12 @@ public class GameManager : MonoBehaviour
     }
 }
 
-interface ICharacterDataDidChanged{
+public interface ICharacterDataDidChangedHandler
+{
     void OnCharacterDataChanged(GameManager sender, CharacterData data);
 }
 
-interface IGameTimeDidChanged{
-    void OnGameTimeChanged(GameManager sender);
+public interface ITimeDidChangedHandler
+{
+    void OnGameTimeChanged(GameManager sender, GameManager.GameTime time);
 }

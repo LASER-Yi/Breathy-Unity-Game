@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GLightController : MonoBehaviour
+public class GLightController : MonoBehaviour, ITimeDidChangedHandler
 {
     private static Object _lock = new Object();
     private static GLightController _instance;
@@ -33,6 +33,11 @@ public class GLightController : MonoBehaviour
 
     void Awake(){
         m_VolumetricFog = Camera.main.GetComponent<VolumetricFogAndMist.VolumetricFog>();
+        GameManager.instance.addEventListener(this);
+    }
+
+    void OnDestroy(){
+        GameManager.instance.removeEventListener(this);
     }
 
     private Quaternion computeLightRotation(float hour)
@@ -48,8 +53,8 @@ public class GLightController : MonoBehaviour
         m_SunLight.transform.rotation = computeLightRotation((float)hour);
     }
 
-    void Update(){
-        var currentHour = GameManager.instance.getTimeOfDayOriginal();
-        setLightRotation(currentHour);
+    public void OnGameTimeChanged(GameManager sender, GameManager.GameTime time){
+        var current = time.hour + (time.minute / 60f);
+        setLightRotation(current);
     }
 }

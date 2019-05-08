@@ -12,9 +12,9 @@ public class CarSceneManager : SceneBaseController
         base.Start();
         m_PlayerCar = GameObject.FindGameObjectWithTag("Player").GetComponent<CarController>();
         m_PlayerCar.setEnginePower(0.4f);
-        GameManager.instance.adjustTimeFlow(18f);
+        GameManager.instance.setTimeSpeed(18f);
         GameManager.instance.setTimeOfDay(9);
-        GameManager.instance.startDayLoop();
+        GameManager.instance.startTimeLoop();
     }
 
     public float getPlayerVelocity(){

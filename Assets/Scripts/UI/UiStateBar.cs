@@ -15,4 +15,6 @@ public class UiStateBar : MonoBehaviour
     private Image m_HealthImage;
     [SerializeField]
     private Text m_HealthText;
+
+    
 }

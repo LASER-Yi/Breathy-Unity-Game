@@ -34,13 +34,13 @@ public class WorkSceneManager : SceneBaseController
         base.Start();
         initalCameraPosition();
         GameManager.instance.setTimeOfDay(9, 30);
-        GameManager.instance.startDayLoop();
+        GameManager.instance.startTimeLoop();
     }
 
     void Update(){
-        if(GameManager.instance.getTimeOfDayOriginal() > 9f){
-            // 结束工作
-        }
+        // if(GameManager.instance.getTimeOfDayOriginal() > 9f){
+        //     // 结束工作
+        // }
     }
 
     List<int> randomElement(List<int> list){

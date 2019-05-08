@@ -5,6 +5,8 @@ using LCameraSystem;
 
 public class SleepSceneManager : SceneBaseController
 {
+    [SerializeField]
+    private Light m_RoomLight;
     private CameraController m_CamController
     {
         get
@@ -22,8 +24,13 @@ public class SleepSceneManager : SceneBaseController
         attr.fov = 60f;
 
         GameManager.instance.setTimeOfDay(21);
-        GameManager.instance.startDayLoop();
+        GameManager.instance.startTimeLoop();
 
         m_CamController.setAttribute(attr);
+    }
+
+    public void beginSleep(){
+        m_RoomLight.enabled = false;
+        // GameManager.instance.setTimeFlow(2);
     }
 }

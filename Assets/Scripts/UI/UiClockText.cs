@@ -3,30 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UiClockText : MonoBehaviour
+public class UiClockText : MonoBehaviour, ITimeDidChangedHandler
 {
     private Text m_ClockText;
     private System.Text.StringBuilder m_TextBuilder;
     void Awake(){
         m_ClockText = GetComponent<Text>();
         m_TextBuilder = new System.Text.StringBuilder();
+        GameManager.instance.addEventListener(this);
     }
 
-    void Update()
+    void OnDestroy(){
+        GameManager.instance.removeEventListener(this);
+    }
+
+    public void OnGameTimeChanged(GameManager sender, GameManager.GameTime time)
     {
-        var time = GameManager.instance.getTimeOfDayFormat();
         m_TextBuilder.Clear();
-        if (time.Key < 10)
+        if (time.hour < 10)
         {
             m_TextBuilder.Append('0');
         }
-        m_TextBuilder.Append(time.Key);
+        m_TextBuilder.Append(time.hour);
         m_TextBuilder.Append(':');
-        if (time.Value < 10)
+        if (time.minute < 10)
         {
             m_TextBuilder.Append('0');
         }
-        m_TextBuilder.Append(time.Value);
+        m_TextBuilder.Append(time.minute);
         m_ClockText.text = m_TextBuilder.ToString();
     }
 }

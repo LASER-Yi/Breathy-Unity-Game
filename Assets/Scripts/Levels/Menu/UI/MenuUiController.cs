@@ -70,7 +70,7 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     public void onStartPress()
     {
         
-        m_Manager.gotoSelectGame();
+        m_Manager.startGame();
     }
 
     public void onSettingPress()
