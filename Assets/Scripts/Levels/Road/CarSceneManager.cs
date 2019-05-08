@@ -24,4 +24,14 @@ public class CarSceneManager : SceneBaseController
     public float getDistanceToEndPoint(){
         return Vector3.Distance(m_PlayerCar.transform.position, m_EndPoint.transform.position);
     }
+
+    void Update(){
+        if(getDistanceToEndPoint() < 20f){
+
+        }
+    }
+
+    void loadNextScene(){
+        
+    }
 }

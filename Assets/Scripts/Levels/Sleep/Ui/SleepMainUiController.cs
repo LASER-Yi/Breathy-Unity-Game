@@ -5,19 +5,15 @@ using UnityEngine.UI;
 
 public class SleepMainUiController : MonoBehaviour, IStackableUi
 {
-    private SleepSceneManager m_SceneController;
     [SerializeField]
     private RectTransform m_ActionContainer;
     [SerializeField]
     private RectTransform m_ActionLabel;
 
-    void Start()
+    void Awake()
     {
         m_ActionDic = new Dictionary<KeyCode, actionFunction>();
         m_ActionList = new List<UiActionLabel>();
-        if(SceneBaseController.instance is SleepSceneManager ssm){
-            m_SceneController = ssm;
-        }
     }
 
     private delegate void actionFunction();
@@ -26,60 +22,69 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
 
     private List<UiActionLabel> m_ActionList;
 
-    public void cleanAllAction(){
-        foreach(var item in m_ActionList){
+    public void cleanAllAction()
+    {
+        foreach (var item in m_ActionList)
+        {
             Destroy(item.gameObject);
         }
         m_ActionList.Clear();
         m_ActionDic.Clear();
     }
 
-    void setupAction(KeyCode? code, actionFunction func, string name, string actionName){
+    void setupAction(KeyCode? code, actionFunction func, string name, string actionName)
+    {
         var _obj = Instantiate(m_ActionLabel);
         var script = _obj.GetComponent<UiActionLabel>();
         script.setActionLabel(name, actionName);
         _obj.SetParent(m_ActionContainer, false);
-
-        if(code is KeyCode kc) m_ActionDic.Add(kc, func);
+        m_ActionList.Add(script);
+        if (code is KeyCode kc) m_ActionDic.Add(kc, func);
     }
 
-    public void showStartupAction()
+    public void showStartupAction(SleepSceneManager sender)
+    {
+        showWaitAction();
+        setupAction(KeyCode.Space, sender.prepareSleep, "SPACE", "睡觉");
+    }
+
+    public void showWaitAction()
     {
         cleanAllAction();
         setupAction(null, null, "......", "等待");
-        setupAction(KeyCode.Space, m_SceneController.gotoSleep, "SPACE", "睡觉");
     }
 
-    public void showWaitAction(){
-        cleanAllAction();
-        setupAction(null, null, "......", "等待");
+    public void showWakeupAction(SleepSceneManager sender)
+    {
+        setupAction(KeyCode.Space, sender.loadNextScene, "SPACE", "上班");
     }
 
-    public void showWakeupAction(){
-        setupAction(null, null, "......", "等待");
-        setupAction(KeyCode.Space, m_SceneController.loadNextScene, "SPACE", "上班");
-    }
-
-    IEnumerator transformStateBar(){
+    public IEnumerator transformStateBar()
+    {
         var timer = 3f;
         var currentTime = 0f;
         while (currentTime < timer)
         {
             yield return null;
-            
+            currentTime += Time.deltaTime;
+
         }
     }
 
-    void checkUserInput(){
-        foreach(var item in m_ActionDic){
-            if(Input.GetKeyUp(item.Key)){
+    void checkUserInput()
+    {
+        foreach (var item in m_ActionDic)
+        {
+            if (Input.GetKeyUp(item.Key))
+            {
                 item.Value();
                 break;
             }
         }
     }
 
-    void Update(){
+    void Update()
+    {
         checkUserInput();
     }
     public RectTransform getTransform()

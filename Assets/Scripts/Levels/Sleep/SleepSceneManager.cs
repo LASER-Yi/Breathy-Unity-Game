@@ -7,6 +7,8 @@ public class SleepSceneManager : SceneBaseController
 {
     [SerializeField]
     private Light m_RoomLight;
+    [SerializeField]
+    private Light m_MoonLight;
     private CameraController m_CamController
     {
         get
@@ -31,23 +33,27 @@ public class SleepSceneManager : SceneBaseController
         m_CamController.setAttribute(attr);
 
         m_SceneUiController = GCanvasController.instance.getCurrentRootUi().GetComponent<SleepMainUiController>();
-        m_SceneUiController.showStartupAction();
+        m_SceneUiController.showStartupAction(this);
     }
 
     public void loadNextScene(){
         // 动画
-        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Road, true);
+        GSceneController.instance.LoadNextScene(true);
     }
 
-    public void gotoSleep(){
-        m_RoomLight.enabled = false;
-        // 声音
-
+    public void prepareSleep(){
+        StartCoroutine(iePrepareSleep());
     }
 
-    IEnumerator prepareSleep(){
+    IEnumerator iePrepareSleep(){
         m_RoomLight.enabled = false;
+        m_SceneUiController.showWaitAction();
         yield return new WaitForSeconds(1f);
-        
+        yield return m_SceneUiController.transformStateBar();
+        float waitTimer = GameManager.instance.startLerpTime(8, 20);
+        m_MoonLight.enabled = false;
+        yield return new WaitForSeconds(waitTimer + 2);
+        m_SceneUiController.showWakeupAction(this);
+
     }
 }

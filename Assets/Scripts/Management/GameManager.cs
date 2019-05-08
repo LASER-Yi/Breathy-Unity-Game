@@ -191,34 +191,38 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void startLerpTime(float toValue)
+    public float startLerpTime(float toValue)
     {
-        StartCoroutine(ieDayLerp(toValue));
+        StartCoroutine(ieDayLerp(toValue, 5f));
+        return 5f;
     }
 
-    public void startLerpTime(int hour, int minute)
+    public float startLerpTime(int hour, int minute)
     {
         float value = hour;
         value += (float)minute / 60f;
-        StartCoroutine(ieDayLerp(value));
+        StartCoroutine(ieDayLerp(value, 5f));
+        return 5f;
     }
 
-    IEnumerator ieDayLerp(float toValue)
+    IEnumerator ieDayLerp(float toValue, float timer)
     {
         float currentTime = 0f;
         float progress = 0f;
 
-        float lerpTimer = 4f;
-
         float startTimeOfDays = m_CurrentTimeOfDay;
 
-        while (currentTime < lerpTimer)
+        float deltaChange = toValue - m_CurrentTimeOfDay;
+        if(deltaChange < 0) deltaChange = 24f + deltaChange;
+        deltaChange /= timer;
+
+        while (currentTime < timer)
         {
             yield return null;
             currentTime += Time.deltaTime;
-            progress = currentTime / lerpTimer;
+            progress = currentTime / timer;
 
-            var current = Mathf.Lerp(m_CurrentTimeOfDay, toValue, progress);
+            var current = m_CurrentTimeOfDay + deltaChange * Time.deltaTime;
             setTimeOfDay(current);
         }
     }

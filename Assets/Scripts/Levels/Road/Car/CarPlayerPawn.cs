@@ -10,6 +10,8 @@ using UnityEngine;
 public class CarPlayerPawn : MonoBehaviour
 {
     private IPawnController m_Controller;
+    [SerializeField, Range(0, 0.25f)]
+    private float m_SpaceSensitivity = 0.1f;
 
     void Awake()
     {
@@ -22,14 +24,26 @@ public class CarPlayerPawn : MonoBehaviour
         if (m_Controller != null) m_Controller.updateUserInput(input);
     }
 
+    private float m_CurrentPower = 0.5f;
+
     public Vector3 handleUserInput()
     {
-        Vector3 input = Vector3.zero;
         float horizon = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        bool handbrake = Input.GetButton("Jump");
-        input += Vector3.up * (handbrake ? 1.0f : 0.0f);
-        input += Vector3.forward * vertical;
+        bool speedup = Input.GetButtonDown("Jump");
+        if (speedup)
+        {
+            m_CurrentPower += m_SpaceSensitivity;
+        }
+        else
+        {
+            m_CurrentPower -= Time.deltaTime;
+        }
+        m_CurrentPower = Mathf.Clamp01(m_CurrentPower);
+
+        Vector3 input = Vector3.zero;
+        input += Vector3.forward * m_CurrentPower;
+        input += Vector3.down * vertical;
         input += Vector3.right * horizon;
         return input;
     }

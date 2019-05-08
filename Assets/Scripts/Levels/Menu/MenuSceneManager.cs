@@ -28,7 +28,7 @@ public class MenuSceneManager : SceneBaseController
     }
 
     public void startGame(){
-        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Sleep, true);
+        GSceneController.instance.LoadNextScene(true);
     }
 
     IEnumerator ieTransferOnStartup()

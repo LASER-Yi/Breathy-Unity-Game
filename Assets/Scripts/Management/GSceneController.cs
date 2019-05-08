@@ -35,9 +35,12 @@ public class GSceneController : MonoBehaviour
         }
     }
 
+    private ESceneIndex m_NextScene = ESceneIndex.Menu;
+    private bool m_IsLastSceneHome = false;
     private ESceneIndex m_ActiveScene;
 
-    public ESceneIndex getActiveScene(){
+    public ESceneIndex getActiveScene()
+    {
         return m_ActiveScene;
     }
 
@@ -45,8 +48,10 @@ public class GSceneController : MonoBehaviour
     {
         if (SceneManager.sceneCount != 2)
         {
-            LoadSceneAsync(ESceneIndex.Menu, false);
-        }else{
+            LoadNextScene(false);
+        }
+        else
+        {
             m_ActiveScene = (ESceneIndex)SceneManager.GetSceneAt(1).buildIndex;
         }
     }
@@ -58,6 +63,46 @@ public class GSceneController : MonoBehaviour
         return m_LoadProgress;
     }
 
+    public void updateNextScene(){
+        switch (m_NextScene)
+        {
+            case ESceneIndex.Menu:
+                {
+                    m_NextScene = ESceneIndex.Sleep;
+                    break;
+                }
+            case ESceneIndex.Sleep:
+                {
+                    m_NextScene = ESceneIndex.Road;
+                    m_IsLastSceneHome = true;
+                    break;
+                }
+            case ESceneIndex.Road:
+                {
+                    if (m_IsLastSceneHome)
+                    {
+                        m_NextScene = ESceneIndex.Work;
+                    }
+                    else
+                    {
+                        m_NextScene = ESceneIndex.Sleep;
+                    }
+                    break;
+                }
+            case ESceneIndex.Work:
+                {
+                    m_NextScene = ESceneIndex.Road;
+                    m_IsLastSceneHome = false;
+                    break;
+                }
+        }
+    }
+
+    public void LoadNextScene(bool animate)
+    {
+        LoadSceneAsync(m_NextScene, animate);
+    }
+
     public void LoadSceneAsync(ESceneIndex index, bool animate)
     {
         StopAllCoroutines();
@@ -66,6 +111,7 @@ public class GSceneController : MonoBehaviour
 
     private IEnumerator IE_LoadScene(ESceneIndex index)
     {
+        updateNextScene();
         var loadScreen = GCanvasController.instance.setupLoadCanvas();
         m_LoadProgress = 0f;
 
