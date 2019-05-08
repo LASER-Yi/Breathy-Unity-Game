@@ -77,7 +77,7 @@ public abstract class SceneBaseController : MonoBehaviour
         var title = GCanvasController.instance.addToCover(m_TitlePrefab);
         var text = title.GetComponent<UnityEngine.UI.Text>();
         if (text != null) text.text = m_SceneName;
-        yield return new WaitForSecondsRealtime(3.0f);
+        yield return new WaitForSecondsRealtime(5.0f);
         GCanvasController.instance.removeFromCover(title);
     }
 

@@ -14,7 +14,7 @@ public class UiTitleText : MonoBehaviour, ICoverableUi
         m_TitleText = GetComponent<Text>();
         var days = GameManager.instance.getDayCount();
         if(m_TitleText.text != ""){
-            m_DayCountText.text = "Day " + days;
+            m_DayCountText.text = "DAY " + days;
         }else{
             m_DayCountText.text = "";
         }

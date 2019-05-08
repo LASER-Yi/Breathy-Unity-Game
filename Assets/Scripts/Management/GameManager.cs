@@ -128,12 +128,11 @@ public class GameManager : MonoBehaviour
     private float m_MinuteOfDays = 10f;
 
     IEnumerator ieDayLoop(){
-        float minuteOfDays = 10f;
-        float deltaHour = 24f / (minuteOfDays * 60f);
 
         while (true)
         {
             yield return null;
+            float deltaHour = 24f / (m_MinuteOfDays * 60f);
             var result = m_CurrentTimeOfDay + deltaHour * Time.deltaTime;
             setTimeOfDay(result);
         }
