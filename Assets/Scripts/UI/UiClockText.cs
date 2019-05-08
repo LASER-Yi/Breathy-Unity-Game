@@ -12,7 +12,6 @@ public class UiClockText : MonoBehaviour
         m_TextBuilder = new System.Text.StringBuilder();
     }
 
-    // Update is called once per frame
     void Update()
     {
         var time = GameManager.instance.getTimeOfDayFormat();

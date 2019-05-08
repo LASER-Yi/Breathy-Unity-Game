@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using LGameDataStruct;
 
-namespace LGameDataStruct{
-    public struct CharacterData{
+namespace LGameDataStruct
+{
+    public struct CharacterData
+    {
         public int coin;
         public float healthPercent;
         public float currentBodyPercent;
@@ -36,13 +38,16 @@ public class GameManager : MonoBehaviour
     }
 
     private CharacterData m_Character;
-    public DataManager m_SaveDataManager{
-        get{
+    public DataManager m_SaveDataManager
+    {
+        get
+        {
             return DataManager.Instance;
         }
     }
 
-    void Awake(){
+    void Awake()
+    {
         // var savedata = m_SaveDataManager.
         // 载入存档
         m_Character.coin = 0;
@@ -50,19 +55,18 @@ public class GameManager : MonoBehaviour
         m_Character.healthPercent = 1f;
     }
 
-    public CharacterData getCharacterData(){
-        return m_Character;
-    }
-
     private int m_DayCount = 0;
 
     private float _currenttod;
 
-    private float m_CurrentTimeOfDay{
-        get{
+    private float m_CurrentTimeOfDay
+    {
+        get
+        {
             return _currenttod;
         }
-        set{
+        set
+        {
             if (value > 24f)
             {
                 _currenttod = value - 24f;
@@ -78,56 +82,66 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void addDayCount(){
+    public void addDayCount()
+    {
         ++m_DayCount;
     }
 
-    public int getDayCount(){
+    public int getDayCount()
+    {
         return m_DayCount;
     }
 
-    public KeyValuePair<int, int> getTimeOfDayFormat(){
+    public KeyValuePair<int, int> getTimeOfDayFormat()
+    {
         var hour = Mathf.FloorToInt(m_CurrentTimeOfDay);
         var minute = Mathf.FloorToInt((m_CurrentTimeOfDay - hour) * 60f);
         var pair = new KeyValuePair<int, int>(hour, minute);
         return pair;
     }
 
-    public float getTimeOfDayOriginal(){
+    public float getTimeOfDayOriginal()
+    {
         return m_CurrentTimeOfDay;
     }
 
-    public void setTimeOfDay(float original){
+    public void setTimeOfDay(float original)
+    {
         m_CurrentTimeOfDay = original;
     }
 
-    public void setTimeOfDay(int hour, int minute){
+    public void setTimeOfDay(int hour, int minute)
+    {
         float value = hour;
         value += (float)minute / 60f;
         m_CurrentTimeOfDay = value;
     }
 
     Coroutine m_DayLoopCoro;
-
-    public void startDayLoop(){
+    public void startDayLoop()
+    {
         stopDayLoop();
         m_DayLoopCoro = StartCoroutine(ieDayLoop());
     }
 
-    public void stopDayLoop(){
-        if(m_DayLoopCoro != null){
+    public void stopDayLoop()
+    {
+        if (m_DayLoopCoro != null)
+        {
             StopCoroutine(m_DayLoopCoro);
             m_DayLoopCoro = null;
         }
     }
 
-    public void adjustTimeFlow(float newFlow){
+    public void adjustTimeFlow(float newFlow)
+    {
         m_MinuteOfDays = newFlow;
     }
 
     private float m_MinuteOfDays = 10f;
 
-    IEnumerator ieDayLoop(){
+    IEnumerator ieDayLoop()
+    {
 
         while (true)
         {
@@ -150,7 +164,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ieDayLerp(value));
     }
 
-    IEnumerator ieDayLerp(float toValue){
+    IEnumerator ieDayLerp(float toValue)
+    {
         float currentTime = 0f;
         float progress = 0f;
 
@@ -168,4 +183,12 @@ public class GameManager : MonoBehaviour
             setTimeOfDay(current);
         }
     }
+}
+
+interface ICharacterDataDidChanged{
+    void OnCharacterDataChanged(GameManager sender, CharacterData data);
+}
+
+interface IGameTimeDidChanged{
+    void OnGameTimeChanged(GameManager sender);
 }
