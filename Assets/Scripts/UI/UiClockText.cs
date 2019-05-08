@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class UiClockText : MonoBehaviour, ITimeDidChangedHandler
 {
+    [SerializeField]
     private Text m_ClockText;
     private System.Text.StringBuilder m_TextBuilder;
     void Awake(){
-        m_ClockText = GetComponent<Text>();
         m_TextBuilder = new System.Text.StringBuilder();
         GameManager.instance.addEventListener(this);
     }

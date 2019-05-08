@@ -8,8 +8,8 @@ namespace LGameDataStruct
     public struct CharacterData
     {
         public int coin;
+        public float livePercent;
         public float healthPercent;
-        public float currentBodyPercent;
     }
 }
 
@@ -36,8 +36,6 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-
-    private CharacterData m_Character;
     public DataManager m_SaveDataManager
     {
         get
@@ -46,13 +44,39 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private CharacterData m_Character;
+
+    public CharacterData getCharacterData()
+    {
+        return m_Character;
+    }
+
+    private void fireCharacterChangedEvent()
+    {
+        characterDataChanged?.Invoke(this, m_Character);
+    }
+
+    private delegate void OnCharacterChangedHandler(GameManager sender, CharacterData data);
+
+    private event OnCharacterChangedHandler characterDataChanged;
+
+    public void addEventListener(ICharacterDataDidChangedHandler listener)
+    {
+        characterDataChanged += listener.OnCharacterDataChanged;
+    }
+
+    public void removeEventListener(ICharacterDataDidChangedHandler listener)
+    {
+        characterDataChanged -= listener.OnCharacterDataChanged;
+    }
+
     void Awake()
     {
         // var savedata = m_SaveDataManager.
         // 载入存档
-        m_Character.coin = 0;
-        m_Character.currentBodyPercent = 1f;
-        m_Character.healthPercent = 1f;
+        m_Character.coin = 1002;
+        m_Character.livePercent = 0.4f;
+        m_Character.healthPercent = 0.98f;
     }
 
     private int m_CurrentDayCount = 0;
@@ -125,18 +149,11 @@ public class GameManager : MonoBehaviour
 
     private void fireTimeChangedEvent()
     {
-        try
+        eventTimeChanged?.Invoke(this, new GameTime()
         {
-            eventTimeChanged?.Invoke(this, new GameTime()
-            {
-                hour = m_CurrentHour,
-                minute = m_CurrentMinute
-            });
-        }
-        catch (System.NullReferenceException e)
-        {
-            Debug.Log(e.ToString());
-        }
+            hour = m_CurrentHour,
+            minute = m_CurrentMinute
+        });
     }
 
     Coroutine m_DayLoopCoro;
@@ -160,17 +177,17 @@ public class GameManager : MonoBehaviour
         m_MinuteOfDays = newFlow;
     }
 
-    private float m_MinuteOfDays = 10f;
+    private float m_MinuteOfDays = 24f;
 
     IEnumerator ieDayLoop()
     {
 
         while (true)
         {
-            yield return null;
             float deltaHour = 24f / (m_MinuteOfDays * 60f);
-            var result = m_CurrentTimeOfDay + deltaHour * Time.deltaTime;
+            var result = m_CurrentTimeOfDay + deltaHour;
             setTimeOfDay(result);
+            yield return new WaitForSeconds(1f);
         }
     }
 

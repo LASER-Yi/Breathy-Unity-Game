@@ -178,6 +178,9 @@ public class GCanvasController : MonoBehaviour
             script.onWillRemoveFromStack(false);
             Destroy(script.getTransform().gameObject);
         }
+        foreach(Transform item in m_StackObject){
+            Destroy(item.gameObject);
+        }
         m_RootUi = null;
     }
 

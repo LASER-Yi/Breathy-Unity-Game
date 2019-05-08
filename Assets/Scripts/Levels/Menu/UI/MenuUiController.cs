@@ -25,26 +25,26 @@ public class MenuUiController : MonoBehaviour, IStackableUi
         {
             {
                 var _object = Instantiate(m_BtnPrefab);
-                var text = _object.GetComponentInChildren<Text>();
-                text.text = "开始游戏";
+                var btnc = _object.GetComponent<UiHoverButton>();
+                btnc.setFormatterText("开始游戏");
                 var btn = _object.GetComponent<Button>();
                 btn.onClick.AddListener(onStartPress);
                 _object.SetParent(m_BtnContainer.transform, false);
             }
 
-            {
-                var _object = Instantiate(m_BtnPrefab);
-                var text = _object.GetComponentInChildren<Text>();
-                text.text = "游戏设置";
-                var btn = _object.GetComponent<Button>();
-                btn.onClick.AddListener(onSettingPress);
-                _object.SetParent(m_BtnContainer.transform, false);
-            }
+            // {
+            //     var _object = Instantiate(m_BtnPrefab);
+            //     var text = _object.GetComponentInChildren<Text>();
+            //     text.text = "游戏设置";
+            //     var btn = _object.GetComponent<Button>();
+            //     btn.onClick.AddListener(onSettingPress);
+            //     _object.SetParent(m_BtnContainer.transform, false);
+            // }
 
             {
                 var _object = Instantiate(m_BtnPrefab);
-                var text = _object.GetComponentInChildren<Text>();
-                text.text = "关于游戏";
+                var btnc = _object.GetComponent<UiHoverButton>();
+                btnc.setFormatterText("关于");
                 var btn = _object.GetComponent<Button>();
                 btn.onClick.AddListener(onInfoPress);
                 _object.SetParent(m_BtnContainer.transform, false);
@@ -52,8 +52,8 @@ public class MenuUiController : MonoBehaviour, IStackableUi
 
             {
                 var _object = Instantiate(m_BtnPrefab);
-                var text = _object.GetComponentInChildren<Text>();
-                text.text = "结束游戏";
+                var btnc = _object.GetComponent<UiHoverButton>();
+                btnc.setFormatterText("结束");
                 var btn = _object.GetComponent<Button>();
                 btn.onClick.AddListener(onExitPress);
                 _object.SetParent(m_BtnContainer.transform, false);

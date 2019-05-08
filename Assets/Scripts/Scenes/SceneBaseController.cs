@@ -52,7 +52,7 @@ public abstract class SceneBaseController : MonoBehaviour
 
     public void backToMenu()
     {
-        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu);
+        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu, false);
     }
 
     public void attachSceneUi(){

@@ -14,6 +14,8 @@ public class SleepSceneManager : SceneBaseController
             return LCameraSystem.CameraController.instance;
         }
     }
+
+    private SleepMainUiController m_SceneUiController;
     new void Start()
     {
         base.Start();
@@ -23,14 +25,29 @@ public class SleepSceneManager : SceneBaseController
         attr.zlength = 105f;
         attr.fov = 60f;
 
-        GameManager.instance.setTimeOfDay(21);
+        GameManager.instance.setTimeOfDay(21f);
         GameManager.instance.startTimeLoop();
 
         m_CamController.setAttribute(attr);
+
+        m_SceneUiController = GCanvasController.instance.getCurrentRootUi().GetComponent<SleepMainUiController>();
+        m_SceneUiController.showStartupAction();
     }
 
-    public void beginSleep(){
+    public void loadNextScene(){
+        // 动画
+        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Road, true);
+    }
+
+    public void gotoSleep(){
         m_RoomLight.enabled = false;
-        // GameManager.instance.setTimeFlow(2);
+        // 声音
+
+    }
+
+    IEnumerator prepareSleep(){
+        m_RoomLight.enabled = false;
+        yield return new WaitForSeconds(1f);
+        
     }
 }

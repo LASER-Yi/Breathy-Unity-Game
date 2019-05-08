@@ -45,7 +45,7 @@ public class GSceneController : MonoBehaviour
     {
         if (SceneManager.sceneCount != 2)
         {
-            LoadSceneAsync(ESceneIndex.Menu);
+            LoadSceneAsync(ESceneIndex.Menu, false);
         }else{
             m_ActiveScene = (ESceneIndex)SceneManager.GetSceneAt(1).buildIndex;
         }
@@ -58,7 +58,7 @@ public class GSceneController : MonoBehaviour
         return m_LoadProgress;
     }
 
-    public void LoadSceneAsync(ESceneIndex index)
+    public void LoadSceneAsync(ESceneIndex index, bool animate)
     {
         StopAllCoroutines();
         StartCoroutine(IE_LoadScene(index));

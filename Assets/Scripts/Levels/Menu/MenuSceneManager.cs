@@ -28,14 +28,7 @@ public class MenuSceneManager : SceneBaseController
     }
 
     public void startGame(){
-        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Sleep);
-    }
-
-    public void loadSubGame(GSceneController.ESceneIndex index)
-    {
-        if (!m_IsBtnEnable) return;
-        StopAllCoroutines();
-        GSceneController.instance.LoadSceneAsync(index);
+        GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Sleep, true);
     }
 
     IEnumerator ieTransferOnStartup()
