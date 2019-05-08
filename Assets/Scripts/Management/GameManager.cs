@@ -55,34 +55,7 @@ public class GameManager : MonoBehaviour
         m_Character.healthPercent = 1f;
     }
 
-    private int m_DayCount = 0;
-
-    private float _currenttod;
-
-    private float m_CurrentTimeOfDay
-    {
-        get
-        {
-            return _currenttod;
-        }
-        set
-        {
-            if (value > 24f)
-            {
-                _currenttod = value - 24f;
-            }
-            else if (value < 0f)
-            {
-                _currenttod = 0f;
-            }
-            else
-            {
-                _currenttod = value;
-            }
-            fireTimeChangedEvent();
-        }
-    }
-
+    private int m_CurrentDayCount = 0;
     private int m_CurrentHour
     {
         get
@@ -98,14 +71,36 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private float m_CurrentTimeOfDay;
+
+
+    public void setTimeOfDay(float original)
+    {
+        var willValue = original;
+        if (willValue > 24) willValue -= 24f;
+        m_CurrentTimeOfDay = willValue;
+        fireTimeChangedEvent();
+    }
+
+    public void setTimeOfDay(int hour, int minute)
+    {
+        if (hour > 24)
+        {
+            hour -= 24;
+        }
+        float time = hour + minute / 60f;
+
+        setTimeOfDay(time);
+    }
+
     public void increaseDayCount()
     {
-        ++m_DayCount;
+        ++m_CurrentDayCount;
     }
 
     public int getDayCount()
     {
-        return m_DayCount;
+        return m_CurrentDayCount;
     }
 
     public struct GameTime
@@ -142,18 +137,6 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log(e.ToString());
         }
-    }
-
-    public void setTimeOfDay(float original)
-    {
-        m_CurrentTimeOfDay = original;
-    }
-
-    public void setTimeOfDay(int hour, int minute)
-    {
-        float value = hour;
-        value += (float)minute / 60f;
-        m_CurrentTimeOfDay = value;
     }
 
     Coroutine m_DayLoopCoro;
