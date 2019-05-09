@@ -21,7 +21,7 @@ public class MenuSceneManager : SceneBaseController
     {
         base.Start();
         m_SceneUiController = m_SceneUi.GetComponent<MenuUiController>();
-        GameManager.instance.resetWholeGame();
+        m_Game.resetWholeGame();
         StartCoroutine(ieTransferOnStartup());
     }
 
@@ -45,7 +45,7 @@ public class MenuSceneManager : SceneBaseController
 
     public void startGame()
     {
-        GameManager.instance.setTimeOfDay(21f);
+        m_Game.setClock(21f);
         GSceneController.instance.LoadNextScene(true);
     }
 
@@ -61,7 +61,7 @@ public class MenuSceneManager : SceneBaseController
     IEnumerator ieTransferOnStartup()
     {
         var lightController = GLightController.instance;
-        GameManager.instance.setTimeOfDay(10f);
+        m_Game.setClock(10f);
 
         var attr = CameraAttribute.Empty;
         attr.setPosition(Vector3.down * 30f);

@@ -42,6 +42,18 @@ public class GameManager : MonoBehaviour
     //     }
     // }
 
+    public SleepSceneParam computeSleepParam(){
+        return new SleepSceneParam();
+    }
+
+    public WorkSceneParam computeWorkScene(){
+        return new WorkSceneParam();
+    }
+
+    public RoadSceneParam computeRoadSceneParam(){
+        return new RoadSceneParam();
+    }
+
     private CharacterData m_Character;
 
     public CharacterData getCharacterData()
@@ -68,33 +80,29 @@ public class GameManager : MonoBehaviour
         characterDataChanged -= listener.OnCharacterDataChanged;
     }
 
-
     public void addCoinValue(int val)
     {
         m_Character.coin += val;
     }
 
-
+    private float m_CurrentClock;
     private int m_CurrentDayCount = 0;
     private int m_CurrentHour
     {
         get
         {
-            return Mathf.FloorToInt(m_CurrentTimeOfDay);
+            return Mathf.FloorToInt(m_CurrentClock);
         }
     }
     private int m_CurrentMinute
     {
         get
         {
-            return Mathf.FloorToInt((m_CurrentTimeOfDay - m_CurrentHour) * 60f);
+            return Mathf.FloorToInt((m_CurrentClock - m_CurrentHour) * 60f);
         }
     }
 
-    private float m_CurrentTimeOfDay;
-
-
-    public void addDayCount()
+    public void increaseDayCount()
     {
         ++m_CurrentDayCount;
     }
@@ -103,21 +111,21 @@ public class GameManager : MonoBehaviour
     {
         return m_CurrentDayCount;
     }
-    public void setTimeOfDay(float original)
+    public void setClock(float original)
     {
         var willValue = original;
         if (willValue > 24) willValue -= 24f;
-        m_CurrentTimeOfDay = willValue;
+        m_CurrentClock = willValue;
         fireTimeChangedEvent();
     }
 
-    public void setTimeDelta(float delta)
+    public void setDeltaClock(float delta)
     {
-        var current = m_CurrentTimeOfDay;
-        setTimeOfDay(current + delta);
+        var current = m_CurrentClock;
+        setClock(current + delta);
     }
 
-    public void setTimeOfDay(int hour, int minute)
+    public void setClock(int hour, int minute)
     {
         if (hour > 24)
         {
@@ -125,7 +133,7 @@ public class GameManager : MonoBehaviour
         }
         float time = hour + minute / 60f;
 
-        setTimeOfDay(time);
+        setClock(time);
     }
 
 
@@ -182,8 +190,8 @@ public class GameManager : MonoBehaviour
         while (true)
         {
             float deltaHour = 24f / (m_MinuteOfDays * 60f);
-            var result = m_CurrentTimeOfDay + deltaHour;
-            setTimeOfDay(result);
+            var result = m_CurrentClock + deltaHour;
+            setClock(result);
             yield return new WaitForSeconds(1f);
         }
     }
@@ -209,7 +217,7 @@ public class GameManager : MonoBehaviour
         float endValue = toValue;
         if (endValue < toValue) endValue += 24;
 
-        float startValue = m_CurrentTimeOfDay;
+        float startValue = m_CurrentClock;
 
         while (currentTime < timer)
         {
@@ -220,7 +228,7 @@ public class GameManager : MonoBehaviour
             progress = Mathf.Pow(progress, 2f);
 
             var current = Mathf.SmoothStep(startValue, endValue, progress);
-            setTimeOfDay(current);
+            setClock(current);
         }
     }
 }

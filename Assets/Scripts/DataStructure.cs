@@ -14,6 +14,7 @@ namespace LGameStructure
     {
         public int leaveHour;
         public float timespeed;
+        public float gainMultiply;
     }
 
     public struct SleepSceneParam

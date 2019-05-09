@@ -146,6 +146,7 @@ public class PuzzleUiController : MonoBehaviour
         if (m_CorrectList.Count == 8)
         {
             m_IsPuzzleSolve = true;
+            m_Controller.solveCurrentPuzzle();
         }
     }
 

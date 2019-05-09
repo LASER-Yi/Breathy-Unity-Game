@@ -28,6 +28,12 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
+    protected GameManager m_Game{
+        get{
+            return GameManager.instance;
+        }
+    }
+
     protected GCanvasController m_UiController
     {
         get

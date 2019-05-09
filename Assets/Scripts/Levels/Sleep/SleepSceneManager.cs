@@ -27,31 +27,35 @@ public class SleepSceneManager : SceneBaseController
         m_SceneUiController = m_SceneUi.GetComponent<SleepMainUiController>();
         m_SceneUiController.showStartupAction(this);
 
-        GameManager.instance.setTimeDelta(0.1f);
-        GameManager.instance.startTimeLoop();
+        m_Game.setDeltaClock(0.1f);
+        m_Game.startTimeLoop();
     }
 
-    public void loadNextScene(){
+    public void loadNextScene()
+    {
         // 动画
-        GameManager.instance.addDayCount();
+        m_Game.increaseDayCount();
         GSceneController.instance.LoadNextScene(true);
     }
 
-    public void clickShopBtn(){
+    public void clickShopBtn()
+    {
 
     }
 
-    public void clickSleepBtn(){
+    public void clickSleepBtn()
+    {
         StartCoroutine(iePrepareSleep());
     }
 
-    IEnumerator iePrepareSleep(){
+    IEnumerator iePrepareSleep()
+    {
         m_SceneUiController.showWaitAction();
         yield return new WaitForSeconds(1f);
         m_RoomLight.enabled = false;
         yield return new WaitForSeconds(1f);
         yield return m_SceneUiController.transformStateBar();
-        float waitTimer = GameManager.instance.startLerpTime(8, 20);
+        float waitTimer = m_Game.startLerpTime(8, 20);
         m_MoonLight.enabled = false;
         yield return new WaitForSeconds(waitTimer + 2);
         m_SceneUiController.showWakeupAction(this);

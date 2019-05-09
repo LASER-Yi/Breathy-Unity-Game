@@ -7,6 +7,8 @@ using LGameStructure;
 public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 {
 
+    private WorkSceneParam m_SceneParam;
+
     void initalCameraPosition()
     {
         var position = GameObject.FindGameObjectWithTag("Player").transform.position;
@@ -21,15 +23,15 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
     {
         base.Start();
         initalCameraPosition();
-        GameManager.instance.setTimeDelta(0.1f);
-        GameManager.instance.setTimeSpeed(12f);
-        GameManager.instance.startTimeLoop();
-        GameManager.instance.addEventListener(this);
+        m_Game.setDeltaClock(0.1f);
+        m_Game.setTimeSpeed(12f);
+        m_Game.startTimeLoop();
+        m_Game.addEventListener(this);
     }
 
     void OnDestroy()
     {
-        GameManager.instance.removeEventListener(this);
+        m_Game.removeEventListener(this);
     }
 
     public void OnGameTimeChanged(GameManager sender, TimeOfGame time)
@@ -52,6 +54,10 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
             originList.RemoveAt(pick);
         }
         return randList;
+    }
+
+    public void solveCurrentPuzzle(){
+        // 给玩家增加金钱
     }
 
     private int m_MaxLimiter = 9;

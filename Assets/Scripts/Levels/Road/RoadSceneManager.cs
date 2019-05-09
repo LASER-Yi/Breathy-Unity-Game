@@ -16,9 +16,9 @@ public class RoadSceneManager : SceneBaseController
         m_PlayerCar = GameObject.FindGameObjectWithTag("Player").GetComponent<CarController>();
         m_PlayerCar.setEnginePower(0.4f);
 
-        GameManager.instance.setTimeDelta(0.5f);
-        GameManager.instance.setTimeSpeed(18f);
-        GameManager.instance.startTimeLoop();
+        m_Game.setDeltaClock(0.5f);
+        m_Game.setTimeSpeed(18f);
+        m_Game.startTimeLoop();
     }
 
     public float getPlayerVelocity()
