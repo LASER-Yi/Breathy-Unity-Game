@@ -18,7 +18,6 @@ public class CarController : MonoBehaviour, IPawnController
     private float m_MaxSpeed = 10f;                 // 对应不同车辆的极速
     [SerializeField, Range(0f, 0.4f)]
     private float m_Acceleration = 0.1f;          // 对应加速度
-
     [SerializeField]
     private AnimationCurve m_SpeedCurve;            // 对应不同发动机功率能达到的极速
     private Rigidbody m_Rigibody;
@@ -163,7 +162,7 @@ public class CarController : MonoBehaviour, IPawnController
 
         if (m_IsBrake)
         {
-            m_CurrentEnginePercent -= Time.deltaTime * m_CurrentEnginePercent;
+            m_CurrentEnginePercent -= Time.deltaTime * 3f;
         }
         else if (m_TargetEnginePercent > m_CurrentEnginePercent)
         {

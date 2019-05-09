@@ -12,9 +12,9 @@ namespace LGameStructure
 
     public struct WorkSceneParam
     {
-        public int leaveHour;
+        public float leaveHour;
         public float timespeed;
-        public float gainMultiply;
+        public int coinGain;
     }
 
     public struct SleepSceneParam
@@ -24,7 +24,7 @@ namespace LGameStructure
 
     public struct RoadSceneParam
     {
-        public float reactionTime;
+        public float reactionDelay;
     }
 
     public struct ShopItem

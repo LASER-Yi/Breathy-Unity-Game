@@ -77,6 +77,6 @@ public class UiStateBar : MonoBehaviour, ICharacterDataDidChangedHandler
 
     public void OnCharacterDataChanged(GameManager sender, LGameStructure.CharacterData data)
     {
-        
+        updateUi(data);
     }
 }

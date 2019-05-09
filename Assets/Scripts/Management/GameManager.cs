@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
         m_Character.coin = Random.Range(20, 40);
         m_Character.livePercent = Random.Range(0.2f, 0.4f);
         m_Character.healthPercent = Random.Range(0.9f, 1f);
+        fireCharacterChangedEvent();
     }
 
     // public DataManager m_SaveDataManager
@@ -43,15 +44,23 @@ public class GameManager : MonoBehaviour
     // }
 
     public SleepSceneParam computeSleepParam(){
-        return new SleepSceneParam();
+        var param = new SleepSceneParam();
+        param.liveRecoverEffection = 1f;
+        return param;
     }
 
-    public WorkSceneParam computeWorkScene(){
-        return new WorkSceneParam();
+    public WorkSceneParam computeWorkParam(){
+        var param = new WorkSceneParam();
+        param.coinGain = Random.Range(10, 20);
+        param.leaveHour = Mathf.Clamp(m_CurrentClock + 8f, 18f, 21f);
+        param.timespeed = 18f;
+        return param;
     }
 
-    public RoadSceneParam computeRoadSceneParam(){
-        return new RoadSceneParam();
+    public RoadSceneParam computeRoadParam(){
+        var param = new RoadSceneParam();
+        param.reactionDelay = 0f;
+        return param;
     }
 
     private CharacterData m_Character;
@@ -80,9 +89,10 @@ public class GameManager : MonoBehaviour
         characterDataChanged -= listener.OnCharacterDataChanged;
     }
 
-    public void addCoinValue(int val)
+    public void increaseCoinValue(int val)
     {
         m_Character.coin += val;
+        fireCharacterChangedEvent();
     }
 
     private float m_CurrentClock;

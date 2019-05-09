@@ -27,6 +27,8 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         m_Game.setTimeSpeed(12f);
         m_Game.startTimeLoop();
         m_Game.addEventListener(this);
+
+        m_SceneParam = m_Game.computeWorkParam();
     }
 
     void OnDestroy()
@@ -56,8 +58,11 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         return randList;
     }
 
-    public void solveCurrentPuzzle(){
+    public void solveCurrentPuzzle()
+    {
         // 给玩家增加金钱
+        var coin = Random.Range(30, 40);
+        m_Game.increaseCoinValue(m_SceneParam.coinGain);
     }
 
     private int m_MaxLimiter = 9;

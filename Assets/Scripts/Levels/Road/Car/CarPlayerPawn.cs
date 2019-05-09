@@ -11,7 +11,7 @@ public class CarPlayerPawn : MonoBehaviour
 {
     private IPawnController m_Controller;
     [SerializeField, Range(0, 0.25f)]
-    private float m_SpaceSensitivity = 0.1f;
+    private float m_IncreaseRate = 0.1f;
 
     void Awake()
     {
@@ -33,11 +33,11 @@ public class CarPlayerPawn : MonoBehaviour
         bool speedup = Input.GetButtonDown("Jump");
         if (speedup)
         {
-            m_CurrentPower += m_SpaceSensitivity;
+            m_CurrentPower += m_IncreaseRate;
         }
         else
         {
-            m_CurrentPower -= Time.deltaTime;
+            m_CurrentPower -= Time.deltaTime / 2f;
         }
         m_CurrentPower = Mathf.Clamp01(m_CurrentPower);
 
