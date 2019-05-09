@@ -62,6 +62,16 @@ public class CameraFrameController : MonoBehaviour
         }
     }
 
+    private bool m_IsEnableFollow = false;
+
+    public void enableFollow(){
+        m_IsEnableFollow = true;
+    }
+
+    public void disableFollow(){
+        m_IsEnableFollow = false;
+    }
+
     private Vector3 m_TargetCameraPosition;
 
     // catchupdelay -> 玩家越过中线开始摄像机从下窗格追上并锁定玩家的时间
@@ -137,8 +147,10 @@ public class CameraFrameController : MonoBehaviour
     }
 
     void LateUpdate(){
-        float rate = computeCounterPosition();
-        computeTargetPosition(m_ButtonFramePercent);
-        setCameraPosition();
+        if(m_IsEnableFollow){
+            float rate = computeCounterPosition();
+            computeTargetPosition(m_ButtonFramePercent);
+            setCameraPosition();
+        }
     }
 }

@@ -283,8 +283,6 @@ public class GameManager : MonoBehaviour
             currentTime += Time.deltaTime;
             progress = currentTime / timer;
 
-            progress = Mathf.Pow(progress, 2f);
-
             var current = Mathf.SmoothStep(startValue, endValue, progress);
             setClock(current);
         }
