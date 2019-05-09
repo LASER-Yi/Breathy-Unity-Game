@@ -69,8 +69,8 @@ public class UiStateBar : MonoBehaviour, ICharacterDataDidChangedHandler
         m_TextBuilder.Append(data.coin.ToString());
         m_CoinText.text = m_TextBuilder.ToString();
 
-        m_CurrentLiveText.text = data.livePercent.ToString();
-        m_CurrentLiveImage.fillAmount = data.livePercent;
+        m_CurrentLiveText.text = data.shieldPercent.ToString();
+        m_CurrentLiveImage.fillAmount = data.shieldPercent;
         m_HealthText.text = data.healthPercent.ToString();
         m_HealthImage.fillAmount = data.healthPercent;
     }

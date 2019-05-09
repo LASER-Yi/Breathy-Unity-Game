@@ -22,34 +22,47 @@ public class MenuSceneManager : SceneBaseController
         base.Start();
         m_SceneUiController = m_SceneUi.GetComponent<MenuUiController>();
         m_Game.resetWholeGame();
-        StartCoroutine(ieTransferOnStartup());
+
+        m_Game.setClock(10f);
+        var attr = CameraAttribute.Empty;
+        attr.setPosition(Vector3.down * 30f);
+        attr.setRotation(Quaternion.Euler(-1f, 0f, 0f));
+        attr.setZLength(100f);
+        attr.setFov(17f);
+
+        m_CamController.setAttribute(attr);
     }
 
     private bool m_IsAnyKeyDown = false;
 
-    void Update(){
-        if(!m_IsAnyKeyDown){
-            if(Input.anyKeyDown){
+    void Update()
+    {
+        if (!m_IsAnyKeyDown)
+        {
+            if (Input.anyKeyDown)
+            {
                 m_IsAnyKeyDown = true;
                 setupMenuInterface();
             }
         }
     }
 
-    void setupMenuInterface(){
+    void setupMenuInterface()
+    {
         m_SceneUiController.cleanBtnContainer();
         m_SceneUiController.setupButton("开始游戏", new UnityAction(startGame));
         m_SceneUiController.setupButton("关于", null);
         m_SceneUiController.setupButton("结束游戏", new UnityAction(exitGame));
+        StartCoroutine(ieTransferOnStartup());
     }
 
-    public void startGame()
+    private void startGame()
     {
         m_Game.setClock(21f);
         GSceneController.instance.LoadNextScene(true);
     }
 
-    public void exitGame()
+    private void exitGame()
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -60,19 +73,6 @@ public class MenuSceneManager : SceneBaseController
 
     IEnumerator ieTransferOnStartup()
     {
-        var lightController = GLightController.instance;
-        m_Game.setClock(10f);
-
-        var attr = CameraAttribute.Empty;
-        attr.setPosition(Vector3.down * 30f);
-        attr.setRotation(Quaternion.Euler(-1f, 0f, 0f));
-        attr.setZLength(100f);
-        attr.setFov(17f);
-
-        m_CamController.setAttribute(attr);
-
-        yield return new WaitForSecondsRealtime(1f);
-
         CameraAttribute target = CameraAttribute.Empty;
         target.setPosition(Vector3.up * 10f);
         target.setRotation(Quaternion.Euler(2f, 0f, 0f));

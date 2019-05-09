@@ -6,7 +6,7 @@ namespace LGameStructure
     public struct CharacterData
     {
         public int coin;
-        public float livePercent;
+        public float shieldPercent;
         public float healthPercent;
     }
 
@@ -19,7 +19,7 @@ namespace LGameStructure
 
     public struct SleepSceneParam
     {
-        public float liveRecoverEffection;
+        public float shieldRecoverRate;
     }
 
     public struct RoadSceneParam

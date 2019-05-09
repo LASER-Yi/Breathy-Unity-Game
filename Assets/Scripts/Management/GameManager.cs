@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     public void resetWholeGame(){
         // 随机初始化
         m_Character.coin = Random.Range(20, 40);
-        m_Character.livePercent = Random.Range(0.2f, 0.4f);
+        m_Character.shieldPercent = Random.Range(0.2f, 0.4f);
         m_Character.healthPercent = Random.Range(0.9f, 1f);
         fireCharacterChangedEvent();
     }
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
 
     public SleepSceneParam computeSleepParam(){
         var param = new SleepSceneParam();
-        param.liveRecoverEffection = 1f;
+        param.shieldRecoverRate = m_Character.healthPercent;
         return param;
     }
 
@@ -92,6 +92,18 @@ public class GameManager : MonoBehaviour
     public void increaseCoinValue(int val)
     {
         m_Character.coin += val;
+        fireCharacterChangedEvent();
+    }
+
+    public void increaseShieldValue(float val){
+        m_Character.shieldPercent += val;
+        m_Character.shieldPercent = Mathf.Clamp01(m_Character.shieldPercent);
+        fireCharacterChangedEvent();
+    }
+
+    public void increaseHealthValue(float val){
+        m_Character.healthPercent += val;
+        m_Character.healthPercent = Mathf.Clamp01(m_Character.healthPercent);
         fireCharacterChangedEvent();
     }
 

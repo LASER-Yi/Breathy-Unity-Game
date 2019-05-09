@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using LCameraSystem;
+using LGameStructure;
 
 public class SleepSceneManager : SceneBaseController
 {
+    private SleepSceneParam m_Param;
     [SerializeField]
     private Light m_RoomLight;
     [SerializeField]
@@ -29,6 +31,8 @@ public class SleepSceneManager : SceneBaseController
 
         m_Game.setDeltaClock(0.1f);
         m_Game.startTimeLoop();
+
+        m_Param = m_Game.computeSleepParam();
     }
 
     public void loadNextScene()
@@ -45,19 +49,27 @@ public class SleepSceneManager : SceneBaseController
 
     public void clickSleepBtn()
     {
-        StartCoroutine(iePrepareSleep());
+        StartCoroutine(ieSleepProcess());
     }
 
-    IEnumerator iePrepareSleep()
+    IEnumerator ieSleepProcess()
     {
         m_SceneUiController.showWaitAction();
         yield return new WaitForSeconds(1f);
         m_RoomLight.enabled = false;
         yield return new WaitForSeconds(1f);
+
         yield return m_SceneUiController.transformStateBar();
-        float waitTimer = m_Game.startLerpTime(8, 20);
+
         m_MoonLight.enabled = false;
-        yield return new WaitForSeconds(waitTimer + 2);
+        float currentTimer = 0f;
+        float waitTimer = m_Game.startLerpTime(8, 20);
+
+        while (currentTimer < waitTimer)
+        {
+            yield return null;
+            m_Game.increaseShieldValue(Time.deltaTime * m_Param.shieldRecoverRate);
+        }
         m_SceneUiController.showWakeupAction(this);
 
     }
