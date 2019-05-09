@@ -18,15 +18,14 @@ public class WorkUiManager : MonoBehaviour, IStackableUi
         m_ActionContainer = GetComponentInChildren<UiActionContainer>();
     }
 
-    void Start()
-    {
-        setupWorkAction();
-    }
-
-    void setupWorkAction()
+    public void setupWorkAction()
     {
         m_ActionContainer.cleanAllAction();
         m_ActionContainer.setupAction(null, null, "SPACE", "看时间");
+    }
+
+    public void setupLeaveAction(WorkSceneManager sender){
+        m_ActionContainer.setupAction(KeyCode.G, sender.leaveWork, "G", "下班");
     }
 
     public RectTransform getTransform()

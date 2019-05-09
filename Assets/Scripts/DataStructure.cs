@@ -24,6 +24,7 @@ namespace LGameStructure
 
     public struct RoadSceneParam
     {
+        public float pressForce;
         public float reactionDelay;
     }
 

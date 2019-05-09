@@ -9,6 +9,13 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     private WorkSceneParam m_SceneParam;
 
+    private FpsCameraController m_FpsCamController;
+
+    private WorkUiManager m_SceneUiController;
+
+    void Awake(){
+        m_FpsCamController = GetComponent<FpsCameraController>();
+    }
 
     void initalCameraPosition()
     {
@@ -30,6 +37,17 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         m_Game.addEventListener(this);
 
         m_SceneParam = m_Game.computeWorkParam();
+
+        m_FpsCamController.enableMove();
+
+        m_SceneUiController = m_SceneUi.GetComponent<WorkUiManager>();
+        m_SceneUiController.setupWorkAction();
+    }
+
+    void Update(){
+        if(Input.GetButtonUp("Cancel")){
+            m_FpsCamController.toggleMove();
+        }
     }
 
     void OnDestroy()
@@ -37,12 +55,18 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         m_Game.removeEventListener(this);
     }
 
+    public void leaveWork(){
+        GSceneController.instance.LoadNextScene(true);
+    }
+
+    private bool m_IsSetupAction = false;
     public void OnGameTimeChanged(GameManager sender, TimeOfGame time)
     {
-        if (time.hour >= 20)
+        if (time.hour >= 20 && !m_IsSetupAction)
         {
             // 结束工作
-            GSceneController.instance.LoadNextScene(true);
+            m_SceneUiController.setupLeaveAction(this);
+            m_IsSetupAction = true;
         }
     }
 

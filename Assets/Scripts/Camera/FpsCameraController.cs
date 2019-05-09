@@ -23,6 +23,26 @@ public class FpsCameraController : MonoBehaviour
 
     private Vector3 m_HeadRotation = Vector3.zero;
 
+    private bool m_IsEnableMouseMove = false;
+
+    public void enableMove(){
+        m_IsEnableMouseMove = true;
+        Cursor.visible = false;
+    }
+
+    public void disableMove(){
+        m_IsEnableMouseMove = false;
+        Cursor.visible = true;
+    }
+
+    public void toggleMove(){
+        if(m_IsEnableMouseMove){
+            disableMove();
+        }else{
+            enableMove();
+        }
+    }
+
     Vector2 getUserInput(){
         var mouseX = Input.GetAxis("Mouse X");
         var mouseY = Input.GetAxis("Mouse Y");
@@ -41,7 +61,9 @@ public class FpsCameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        var input = getUserInput();
-        updateCameraRotation(input);
+        if(m_IsEnableMouseMove){
+            var input = getUserInput();
+            updateCameraRotation(input);
+        }
     }
 }

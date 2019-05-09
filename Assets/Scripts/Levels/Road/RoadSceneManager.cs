@@ -10,6 +10,11 @@ public class RoadSceneManager : SceneBaseController
     private GameObject m_EndPoint;
 
     private RoadSceneParam m_SceneParam;
+
+    void Awake()
+    {
+        m_SceneParam = m_Game.computeRoadParam();
+    }
     new void Start()
     {
         base.Start();
@@ -19,6 +24,11 @@ public class RoadSceneManager : SceneBaseController
         m_Game.setDeltaClock(0.5f);
         m_Game.setTimeSpeed(18f);
         m_Game.startTimeLoop();
+    }
+
+    public float getPressForce()
+    {
+        return m_SceneParam.pressForce;
     }
 
     public float getPlayerVelocity()

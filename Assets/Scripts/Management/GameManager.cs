@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour
     public RoadSceneParam computeRoadParam()
     {
         var param = new RoadSceneParam();
+        param.pressForce = m_Character.shieldPercent + 0.1f;
         param.reactionDelay = 0f;
         return param;
     }

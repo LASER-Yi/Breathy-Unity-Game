@@ -18,6 +18,11 @@ public class CarPlayerPawn : MonoBehaviour
         m_Controller = GetComponent<IPawnController>();
     }
 
+    void Start(){
+        var manager = SceneBaseController.instance as RoadSceneManager;
+        m_IncreaseRate = manager.getPressForce();
+    }
+
     void Update()
     {
         var input = handleUserInput();
