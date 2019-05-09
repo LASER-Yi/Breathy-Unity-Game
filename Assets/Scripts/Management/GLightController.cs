@@ -53,7 +53,7 @@ public class GLightController : MonoBehaviour, ITimeDidChangedHandler
         m_SunLight.transform.rotation = computeLightRotation((float)hour);
     }
 
-    public void OnGameTimeChanged(GameManager sender, GameManager.TimeOfGame time){
+    public void OnGameTimeChanged(GameManager sender, LGameStructure.TimeOfGame time){
         var current = time.hour + (time.minute / 60f);
         setLightRotation(current);
     }

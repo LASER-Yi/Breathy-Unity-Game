@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using LCameraSystem;
-using LGameDataStruct;
+using LGameStructure;
 
 public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 {
@@ -32,7 +32,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         GameManager.instance.removeEventListener(this);
     }
 
-    public void OnGameTimeChanged(GameManager sender, GameManager.TimeOfGame time)
+    public void OnGameTimeChanged(GameManager sender, TimeOfGame time)
     {
         if (time.hour >= 20)
         {

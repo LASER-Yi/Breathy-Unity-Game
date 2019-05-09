@@ -1,41 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using LGameDataStruct;
-
-namespace LGameDataStruct
-{
-    public struct CharacterData
-    {
-        public int coin;
-        public float livePercent;
-        public float healthPercent;
-    }
-
-    public struct WorkSceneParam
-    {
-        public int leaveHour;
-        public float timespeed;
-    }
-
-    public struct SleepSceneParam
-    {
-        public float liveRecoverEffection;
-    }
-
-    public struct RoadSceneParam
-    {
-        public float reactionTime;
-    }
-
-    public struct ShopItem
-    {
-        public int value;
-        public string title;
-        public string desc;
-        public string prefabPath;       //In Resource
-    }
-}
+using LGameStructure;
 
 public class GameManager : MonoBehaviour
 {
@@ -162,11 +128,7 @@ public class GameManager : MonoBehaviour
         setTimeOfDay(time);
     }
 
-    public struct TimeOfGame
-    {
-        public int hour;
-        public int minute;
-    }
+
 
     private delegate void OnGameTimeChangedHandler(GameManager sender, TimeOfGame time);
 
@@ -261,14 +223,4 @@ public class GameManager : MonoBehaviour
             setTimeOfDay(current);
         }
     }
-}
-
-public interface ICharacterDataDidChangedHandler
-{
-    void OnCharacterDataChanged(GameManager sender, CharacterData data);
-}
-
-public interface ITimeDidChangedHandler
-{
-    void OnGameTimeChanged(GameManager sender, GameManager.TimeOfGame time);
 }

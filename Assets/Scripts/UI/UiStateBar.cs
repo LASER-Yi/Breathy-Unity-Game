@@ -62,7 +62,7 @@ public class UiStateBar : MonoBehaviour, ICharacterDataDidChangedHandler
         yield return null;
     }
 
-    void updateUi(LGameDataStruct.CharacterData data)
+    void updateUi(LGameStructure.CharacterData data)
     {
         m_TextBuilder.Clear();
         m_TextBuilder.Append("₣ ");
@@ -75,7 +75,7 @@ public class UiStateBar : MonoBehaviour, ICharacterDataDidChangedHandler
         m_HealthImage.fillAmount = data.healthPercent;
     }
 
-    public void OnCharacterDataChanged(GameManager sender, LGameDataStruct.CharacterData data)
+    public void OnCharacterDataChanged(GameManager sender, LGameStructure.CharacterData data)
     {
         
     }
