@@ -45,7 +45,7 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
     public void showStartupAction(SleepSceneManager sender)
     {
         showWaitAction();
-        setupAction(KeyCode.Space, sender.prepareSleep, "SPACE", "睡觉");
+        setupAction(KeyCode.Space, sender.clickSleepBtn, "SPACE", "睡觉");
     }
 
     public void showWaitAction()

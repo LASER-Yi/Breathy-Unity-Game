@@ -35,6 +35,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         base.Start();
         initalCameraPosition();
         GameManager.instance.setTimeDelta(0.1f);
+        GameManager.instance.setTimeSpeed(12f);
         GameManager.instance.startTimeLoop();
         GameManager.instance.addEventListener(this);
     }
@@ -46,7 +47,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     public void OnGameTimeChanged(GameManager sender, GameManager.GameTime time)
     {
-        if (time.hour > 20)
+        if (time.hour >= 20)
         {
             // 结束工作
             GSceneController.instance.LoadNextScene(true);
@@ -72,7 +73,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
     {
         ++m_SolveCounter;
         Random.InitState(Mathf.CeilToInt(Time.realtimeSinceStartup * 1000));
-        var answer = Random.Range(5, m_MaxLimiter);
+        var answer = Random.Range(m_MaxLimiter - 4, m_MaxLimiter);
         ++m_MaxLimiter;
 
         var puzzle = new List<int>();

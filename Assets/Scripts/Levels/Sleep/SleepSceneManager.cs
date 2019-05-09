@@ -29,7 +29,7 @@ public class SleepSceneManager : SceneBaseController
 
         m_CamController.setAttribute(attr);
 
-        m_SceneUiController = GCanvasController.instance.getCurrentRootUi().GetComponent<SleepMainUiController>();
+        m_SceneUiController = m_SceneUi.GetComponent<SleepMainUiController>();
         m_SceneUiController.showStartupAction(this);
 
         GameManager.instance.setTimeDelta(0.1f);
@@ -38,16 +38,18 @@ public class SleepSceneManager : SceneBaseController
 
     public void loadNextScene(){
         // 动画
+        GameManager.instance.addDayCount();
         GSceneController.instance.LoadNextScene(true);
     }
 
-    public void prepareSleep(){
+    public void clickSleepBtn(){
         StartCoroutine(iePrepareSleep());
     }
 
     IEnumerator iePrepareSleep(){
-        m_RoomLight.enabled = false;
         m_SceneUiController.showWaitAction();
+        yield return new WaitForSeconds(1f);
+        m_RoomLight.enabled = false;
         yield return new WaitForSeconds(1f);
         yield return m_SceneUiController.transformStateBar();
         float waitTimer = GameManager.instance.startLerpTime(8, 20);

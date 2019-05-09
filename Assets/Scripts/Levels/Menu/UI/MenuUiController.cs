@@ -2,94 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using LCameraSystem;
 
 public class MenuUiController : MonoBehaviour, IStackableUi
 {
-    private MenuSceneManager m_Manager;
     private HorizontalLayoutGroup m_BtnContainer;
 
     [SerializeField]
     private RectTransform m_BtnPrefab;
 
-    // [SerializeField]
-    // private float m_MouseDropDegree = 5f;
-    // [SerializeField, Range(0f, 1f)]
-    // private float m_UpDownDropPrecent = 0.5f;
+    public delegate void BtnAction();
+
+    public void cleanBtnContainer(){
+        foreach(Transform item in m_BtnContainer.transform){
+            Destroy(item.gameObject);
+        }
+    }
+
+    public void setupButton(string name, UnityAction action){
+        var _object = Instantiate(m_BtnPrefab);
+        var btnc = _object.GetComponent<UiHoverButton>();
+        btnc.setFormatterText(name);
+        var btn = _object.GetComponent<Button>();
+        btn.onClick.AddListener(action);
+        _object.SetParent(m_BtnContainer.transform, false);
+    }
 
     void Awake()
     {
         m_BtnContainer = GetComponentInChildren<HorizontalLayoutGroup>();
-
-        if (m_BtnPrefab != null)
-        {
-            {
-                var _object = Instantiate(m_BtnPrefab);
-                var btnc = _object.GetComponent<UiHoverButton>();
-                btnc.setFormatterText("开始游戏");
-                var btn = _object.GetComponent<Button>();
-                btn.onClick.AddListener(onStartPress);
-                _object.SetParent(m_BtnContainer.transform, false);
-            }
-
-            // {
-            //     var _object = Instantiate(m_BtnPrefab);
-            //     var text = _object.GetComponentInChildren<Text>();
-            //     text.text = "游戏设置";
-            //     var btn = _object.GetComponent<Button>();
-            //     btn.onClick.AddListener(onSettingPress);
-            //     _object.SetParent(m_BtnContainer.transform, false);
-            // }
-
-            {
-                var _object = Instantiate(m_BtnPrefab);
-                var btnc = _object.GetComponent<UiHoverButton>();
-                btnc.setFormatterText("关于");
-                var btn = _object.GetComponent<Button>();
-                btn.onClick.AddListener(onInfoPress);
-                _object.SetParent(m_BtnContainer.transform, false);
-            }
-
-            {
-                var _object = Instantiate(m_BtnPrefab);
-                var btnc = _object.GetComponent<UiHoverButton>();
-                btnc.setFormatterText("结束");
-                var btn = _object.GetComponent<Button>();
-                btn.onClick.AddListener(onExitPress);
-                _object.SetParent(m_BtnContainer.transform, false);
-            }
-        }
-
-    }
-
-    // TODO: 修改为MVC模式
-    public void setManager(MenuSceneManager instance)
-    {
-        m_Manager = instance;
-    }
-    public void onStartPress()
-    {
-        GameManager.instance.setTimeOfDay(21f);
-        m_Manager.startGame();
-    }
-
-    public void onSettingPress()
-    {
-
-    }
-
-    public void onInfoPress()
-    {
-
-    }
-
-    public void onExitPress()
-    {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
     }
 
     public RectTransform getTransform(){

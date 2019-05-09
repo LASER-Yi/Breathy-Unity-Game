@@ -74,9 +74,15 @@ public class GameManager : MonoBehaviour
     {
         // var savedata = m_SaveDataManager.
         // 载入存档
-        m_Character.coin = 1002;
-        m_Character.livePercent = 0.4f;
-        m_Character.healthPercent = 0.98f;
+        // 随机初始化
+        m_Character.coin = Random.Range(20, 40);
+        m_Character.livePercent = Random.Range(0.2f, 0.4f);
+        m_Character.healthPercent = Random.Range(0.9f, 1f);
+    }
+
+    public void addDayCount()
+    {
+        ++m_CurrentDayCount;
     }
 
     private int m_CurrentDayCount = 0;
@@ -106,7 +112,8 @@ public class GameManager : MonoBehaviour
         fireTimeChangedEvent();
     }
 
-    public void setTimeDelta(float delta){
+    public void setTimeDelta(float delta)
+    {
         var current = m_CurrentTimeOfDay;
         setTimeOfDay(current + delta);
     }
@@ -214,12 +221,10 @@ public class GameManager : MonoBehaviour
     {
         float currentTime = 0f;
         float progress = 0f;
+        float endValue = toValue;
+        if (endValue < toValue) endValue += 24;
 
-        float startTimeOfDays = m_CurrentTimeOfDay;
-
-        float deltaChange = toValue - m_CurrentTimeOfDay;
-        if(deltaChange < 0) deltaChange = 24f + deltaChange;
-        deltaChange /= timer;
+        float startValue = m_CurrentTimeOfDay;
 
         while (currentTime < timer)
         {
@@ -227,7 +232,9 @@ public class GameManager : MonoBehaviour
             currentTime += Time.deltaTime;
             progress = currentTime / timer;
 
-            var current = m_CurrentTimeOfDay + deltaChange * Time.deltaTime;
+            progress = Mathf.Pow(progress, 2f);
+
+            var current = Mathf.SmoothStep(startValue, endValue, progress);
             setTimeOfDay(current);
         }
     }

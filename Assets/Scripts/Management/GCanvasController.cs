@@ -36,7 +36,6 @@ public class GCanvasController : MonoBehaviour
     private RectTransform m_CoverObject;
     private Stack<IStackableUi> m_Stack;
     // UI栈的底层，保证任何时候调用Pop都无法推出（除非清空UI）
-    private IStackableUi m_RootUi;
     private int m_StackBase = 0;
 
     private List<ICoverableUi> m_Cover;
@@ -51,10 +50,6 @@ public class GCanvasController : MonoBehaviour
         {
             pushToStack(m_MenuPrefab, false);
         }
-    }
-
-    public RectTransform getCurrentRootUi(){
-        return m_RootUi.getTransform();
     }
 
     public void setEscapeAction(escape action)
@@ -148,8 +143,6 @@ public class GCanvasController : MonoBehaviour
             if(m_Stack.Count != 0){
                 var prev = m_Stack.Peek();
                 prev.onWillNotBecomeTop();
-            }else{
-                m_RootUi = script;
             }
 
             rect.SetParent(m_StackObject, false);
@@ -181,7 +174,6 @@ public class GCanvasController : MonoBehaviour
         foreach(Transform item in m_StackObject){
             Destroy(item.gameObject);
         }
-        m_RootUi = null;
     }
 
     public void popStack()
