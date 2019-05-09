@@ -8,13 +8,22 @@ public class UiClockText : MonoBehaviour, ITimeDidChangedHandler
     [SerializeField]
     private Text m_ClockText;
     private System.Text.StringBuilder m_TextBuilder;
-    void Awake(){
+    void Awake()
+    {
         m_TextBuilder = new System.Text.StringBuilder();
         GameManager.instance.addEventListener(this);
     }
 
-    void OnDestroy(){
+    void OnDestroy()
+    {
         GameManager.instance.removeEventListener(this);
+    }
+
+    public void setTransparent(float alpha)
+    {
+        var color = m_ClockText.color;
+        color.a = 1f - alpha;
+        m_ClockText.color = color;
     }
 
     public void OnGameTimeChanged(GameManager sender, LGameStructure.TimeOfGame time)

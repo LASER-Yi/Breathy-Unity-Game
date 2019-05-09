@@ -4,16 +4,13 @@ using UnityEngine;
 using LCameraSystem;
 using LGameStructure;
 
-public class SleepSceneManager : SceneBaseController
+public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
 {
     private SleepSceneParam m_Param;
     [SerializeField]
     private Light m_RoomLight;
     [SerializeField]
     private Light m_MoonLight;
-
-    [SerializeField]
-    private RectTransform m_ShopPanelPrefab;
     private SleepMainUiController m_SceneUiController;
     new void Start()
     {
@@ -29,6 +26,7 @@ public class SleepSceneManager : SceneBaseController
         m_SceneUiController = m_SceneUi.GetComponent<SleepMainUiController>();
         m_SceneUiController.showStartupAction(this);
 
+        m_Game.setTimeSpeed(24f);
         m_Game.setDeltaClock(0.1f);
         m_Game.startTimeLoop();
 
@@ -52,6 +50,14 @@ public class SleepSceneManager : SceneBaseController
         StartCoroutine(ieSleepProcess());
     }
 
+    public void OnGameTimeChanged(GameManager sender, LGameStructure.TimeOfGame time){
+        if(time.hour < 17 || time.hour > 5){
+            m_MoonLight.enabled = false;
+        }else{
+            m_MoonLight.enabled = true;
+        }
+    }
+
     IEnumerator ieSleepProcess()
     {
         m_SceneUiController.showWaitAction();
@@ -60,15 +66,18 @@ public class SleepSceneManager : SceneBaseController
         yield return new WaitForSeconds(1f);
 
         yield return m_SceneUiController.transformStateBar();
-
-        m_MoonLight.enabled = false;
         float currentTimer = 0f;
         float waitTimer = m_Game.startLerpTime(8, 20);
+
+        float recoverRate = 1f / waitTimer;
 
         while (currentTimer < waitTimer)
         {
             yield return null;
-            m_Game.increaseShieldValue(Time.deltaTime * m_Param.shieldRecoverRate);
+            currentTimer += Time.deltaTime;
+
+            m_Game.increaseShieldValue(Time.deltaTime *
+             recoverRate * m_Param.shieldRecoverRate);
         }
         m_SceneUiController.showWakeupAction(this);
 

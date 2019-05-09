@@ -4,7 +4,7 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Brightness ("Brightness", Range(0, 1)) = 0.5
-        _Smoothness ("Transparent", Range(0, 1)) = 0.0
+        _Transparent ("Transparent", Range(0, 1)) = 0.0
     }
     SubShader
     {
@@ -34,7 +34,7 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _Brightness;
-            float _Smoothness;
+            float _Transparent;
 
             struct appdata_v{
                 float4  vertex : POSITION;
@@ -71,7 +71,7 @@
                 float4 color = tex2D(_MainTex, i.uv);
                 float4 _grabimage = tex2Dproj(_GrabTexture, UNITY_PROJ_COORD(i.uvgrab));
                 color.xyz = lerp(color ,(_grabimage * _Brightness), color.w);
-                color.w = 1.0 - _Smoothness;
+                color.w = 1.0 - _Transparent;
                 return color;
             }
             ENDCG

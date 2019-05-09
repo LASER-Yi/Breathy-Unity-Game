@@ -39,11 +39,6 @@ public class GSceneController : MonoBehaviour
     private bool m_IsLastSceneHome = false;
     private ESceneIndex m_ActiveScene;
 
-    public ESceneIndex getActiveScene()
-    {
-        return m_ActiveScene;
-    }
-
     void Start()
     {
         if (SceneManager.sceneCount != 2)
@@ -106,10 +101,10 @@ public class GSceneController : MonoBehaviour
     public void LoadSceneAsync(ESceneIndex index, bool animate)
     {
         StopAllCoroutines();
-        StartCoroutine(IE_LoadScene(index));
+        StartCoroutine(ieLoadScene(index));
     }
 
-    private IEnumerator IE_LoadScene(ESceneIndex index)
+    private IEnumerator ieLoadScene(ESceneIndex index)
     {
         updateNextScene();
         var loadScreen = GCanvasController.instance.setupLoadCanvas();
@@ -119,7 +114,7 @@ public class GSceneController : MonoBehaviour
         if (SceneManager.sceneCount == 2)
         {
             var currentScene = SceneManager.GetSceneAt(1);
-            if (currentScene != null) yield return IE_UnloadScene(currentScene);
+            if (currentScene != null) yield return ieUnloadScene(currentScene);
         }
 
         m_ActiveScene = index;
@@ -138,7 +133,7 @@ public class GSceneController : MonoBehaviour
         yield return null;
     }
 
-    private IEnumerator IE_UnloadScene(Scene sce)
+    private IEnumerator ieUnloadScene(Scene sce)
     {
         var operation = SceneManager.UnloadSceneAsync(sce, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
 

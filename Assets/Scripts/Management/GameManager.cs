@@ -27,12 +27,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void resetWholeGame(){
+    public void resetWholeGame()
+    {
         // 随机初始化
         m_Character.coin = Random.Range(20, 40);
         m_Character.shieldPercent = Random.Range(0.2f, 0.4f);
-        m_Character.healthPercent = Random.Range(0.9f, 1f);
+        m_Character.healthPercent = Random.Range(0.98f, 1f);
         fireCharacterChangedEvent();
+    }
+
+    void Awake()
+    {
+        resetWholeGame();
     }
 
     // public DataManager m_SaveDataManager
@@ -43,13 +49,15 @@ public class GameManager : MonoBehaviour
     //     }
     // }
 
-    public SleepSceneParam computeSleepParam(){
+    public SleepSceneParam computeSleepParam()
+    {
         var param = new SleepSceneParam();
         param.shieldRecoverRate = m_Character.healthPercent;
         return param;
     }
 
-    public WorkSceneParam computeWorkParam(){
+    public WorkSceneParam computeWorkParam()
+    {
         var param = new WorkSceneParam();
         param.coinGain = Random.Range(10, 20);
         param.leaveHour = Mathf.Clamp(m_CurrentClock + 8f, 18f, 21f);
@@ -57,7 +65,8 @@ public class GameManager : MonoBehaviour
         return param;
     }
 
-    public RoadSceneParam computeRoadParam(){
+    public RoadSceneParam computeRoadParam()
+    {
         var param = new RoadSceneParam();
         param.reactionDelay = 0f;
         return param;
@@ -95,13 +104,15 @@ public class GameManager : MonoBehaviour
         fireCharacterChangedEvent();
     }
 
-    public void increaseShieldValue(float val){
+    public void increaseShieldValue(float val)
+    {
         m_Character.shieldPercent += val;
         m_Character.shieldPercent = Mathf.Clamp01(m_Character.shieldPercent);
         fireCharacterChangedEvent();
     }
 
-    public void increaseHealthValue(float val){
+    public void increaseHealthValue(float val)
+    {
         m_Character.healthPercent += val;
         m_Character.healthPercent = Mathf.Clamp01(m_Character.healthPercent);
         fireCharacterChangedEvent();
@@ -206,15 +217,39 @@ public class GameManager : MonoBehaviour
 
     private float m_MinuteOfDays = 24f;
 
+    private void checkGameOver()
+    {
+        if (m_Character.healthPercent <= 0f && m_Character.shieldPercent <= 0f)
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+    }
+
     IEnumerator ieDayLoop()
     {
 
         while (true)
         {
+            yield return new WaitForSeconds(1f);
             float deltaHour = 24f / (m_MinuteOfDays * 60f);
             var result = m_CurrentClock + deltaHour;
             setClock(result);
-            yield return new WaitForSeconds(1f);
+            // 同时流逝生命
+            var lifeLoose = 1f / (m_MinuteOfDays * 30f);
+            if (m_Character.shieldPercent > 0)
+            {
+                increaseShieldValue(-lifeLoose);
+            }
+            else
+            {
+                m_Character.shieldPercent = 0f;
+                increaseHealthValue(-lifeLoose * 2f);
+            }
+            checkGameOver();
         }
     }
 
@@ -236,10 +271,10 @@ public class GameManager : MonoBehaviour
     {
         float currentTime = 0f;
         float progress = 0f;
-        float endValue = toValue;
-        if (endValue < toValue) endValue += 24;
 
         float startValue = m_CurrentClock;
+        float endValue = toValue;
+        if (endValue < startValue) endValue += 24f;
 
         while (currentTime < timer)
         {

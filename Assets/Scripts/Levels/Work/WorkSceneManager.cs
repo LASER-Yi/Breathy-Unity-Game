@@ -9,6 +9,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     private WorkSceneParam m_SceneParam;
 
+
     void initalCameraPosition()
     {
         var position = GameObject.FindGameObjectWithTag("Player").transform.position;
