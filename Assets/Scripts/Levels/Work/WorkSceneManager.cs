@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using LCameraSystem;
 
-public class WorkSceneManager : SceneBaseController
+public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 {
     private CameraController m_CamController
     {
@@ -15,7 +15,8 @@ public class WorkSceneManager : SceneBaseController
 
     private int m_SolveCounter = 0;
 
-    public int getSolveCounter(){
+    public int getSolveCounter()
+    {
         return m_SolveCounter;
     }
 
@@ -33,20 +34,31 @@ public class WorkSceneManager : SceneBaseController
     {
         base.Start();
         initalCameraPosition();
-        GameManager.instance.setTimeOfDay(9, 30);
+        GameManager.instance.setTimeDelta(0.1f);
         GameManager.instance.startTimeLoop();
+        GameManager.instance.addEventListener(this);
     }
 
-    void Update(){
-        // if(GameManager.instance.getTimeOfDayOriginal() > 9f){
-        //     // 结束工作
-        // }
+    void OnDestroy()
+    {
+        GameManager.instance.removeEventListener(this);
     }
 
-    List<int> randomElement(List<int> list){
+    public void OnGameTimeChanged(GameManager sender, GameManager.GameTime time)
+    {
+        if (time.hour > 20)
+        {
+            // 结束工作
+            GSceneController.instance.LoadNextScene(true);
+        }
+    }
+
+    List<int> randomElement(List<int> list)
+    {
         var originList = new List<int>(list);
         var randList = new List<int>(list.Count);
-        while(originList.Count != 0){
+        while (originList.Count != 0)
+        {
             var pick = Random.Range(0, originList.Count);
             randList.Add(originList[pick]);
             originList.RemoveAt(pick);

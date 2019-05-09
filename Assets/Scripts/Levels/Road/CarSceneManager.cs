@@ -12,26 +12,37 @@ public class CarSceneManager : SceneBaseController
         base.Start();
         m_PlayerCar = GameObject.FindGameObjectWithTag("Player").GetComponent<CarController>();
         m_PlayerCar.setEnginePower(0.4f);
+        
+        GameManager.instance.setTimeDelta(0.5f);
         GameManager.instance.setTimeSpeed(18f);
-        GameManager.instance.setTimeOfDay(9);
         GameManager.instance.startTimeLoop();
     }
 
-    public float getPlayerVelocity(){
+    public float getPlayerVelocity()
+    {
         return m_PlayerCar.getVelocity();
     }
 
-    public float getDistanceToEndPoint(){
+    public float getDistanceToEndPoint()
+    {
         return Vector3.Distance(m_PlayerCar.transform.position, m_EndPoint.transform.position);
     }
 
-    void Update(){
-        if(getDistanceToEndPoint() < 20f){
-
+    void Update()
+    {
+        if (getDistanceToEndPoint() < 20f)
+        {
+            handleCarReachDestination();
         }
     }
 
-    void loadNextScene(){
-        
+    void handleCarReachDestination()
+    {
+        loadNextScene();
+    }
+
+    void loadNextScene()
+    {
+        GSceneController.instance.LoadNextScene(true);
     }
 }

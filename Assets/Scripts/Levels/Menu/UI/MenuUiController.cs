@@ -69,7 +69,7 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     }
     public void onStartPress()
     {
-        
+        GameManager.instance.setTimeOfDay(21f);
         m_Manager.startGame();
     }
 

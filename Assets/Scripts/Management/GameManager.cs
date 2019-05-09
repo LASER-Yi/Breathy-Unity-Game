@@ -106,6 +106,11 @@ public class GameManager : MonoBehaviour
         fireTimeChangedEvent();
     }
 
+    public void setTimeDelta(float delta){
+        var current = m_CurrentTimeOfDay;
+        setTimeOfDay(current + delta);
+    }
+
     public void setTimeOfDay(int hour, int minute)
     {
         if (hour > 24)

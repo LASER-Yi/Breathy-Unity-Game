@@ -27,13 +27,13 @@ public class SleepSceneManager : SceneBaseController
         attr.zlength = 105f;
         attr.fov = 60f;
 
-        GameManager.instance.setTimeOfDay(21f);
-        GameManager.instance.startTimeLoop();
-
         m_CamController.setAttribute(attr);
 
         m_SceneUiController = GCanvasController.instance.getCurrentRootUi().GetComponent<SleepMainUiController>();
         m_SceneUiController.showStartupAction(this);
+
+        GameManager.instance.setTimeDelta(0.1f);
+        GameManager.instance.startTimeLoop();
     }
 
     public void loadNextScene(){
