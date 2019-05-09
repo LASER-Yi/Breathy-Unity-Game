@@ -36,6 +36,14 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
+    protected LCameraSystem.CameraController m_CamController
+    {
+        get
+        {
+            return LCameraSystem.CameraController.instance;
+        }
+    }
+
     [SerializeField]
     private bool m_IsShowAfterLoad = false;
     [SerializeField]
@@ -55,7 +63,8 @@ public abstract class SceneBaseController : MonoBehaviour
         GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu, false);
     }
 
-    public void attachSceneUi(){
+    public void attachSceneUi()
+    {
         m_UiController.cleanStack(true);
         m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
     }
@@ -63,7 +72,8 @@ public abstract class SceneBaseController : MonoBehaviour
     protected void Start()
     {
         attachSceneUi();
-        if(m_SceneSkybox != null){
+        if (m_SceneSkybox != null)
+        {
             RenderSettings.skybox = m_SceneSkybox.material;
         }
         if (m_IsShowAfterLoad)
@@ -120,7 +130,8 @@ public abstract class SceneBaseController : MonoBehaviour
 }
 
 [CustomEditor(typeof(SceneBaseController))]
-class SceneBaseControllerEditor: Editor{
+class SceneBaseControllerEditor : Editor
+{
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();

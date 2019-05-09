@@ -22,6 +22,8 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
 
     private List<UiActionLabel> m_ActionList;
 
+    private bool m_IsActionEnable = false;
+
     public void cleanAllAction()
     {
         foreach (var item in m_ActionList)
@@ -44,7 +46,8 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
 
     public void showStartupAction(SleepSceneManager sender)
     {
-        showWaitAction();
+        cleanAllAction();
+        setupAction(KeyCode.Q, sender.clickShopBtn, "Q", "商店");
         setupAction(KeyCode.Space, sender.clickSleepBtn, "SPACE", "睡觉");
     }
 
@@ -56,6 +59,7 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
 
     public void showWakeupAction(SleepSceneManager sender)
     {
+        cleanAllAction();
         setupAction(KeyCode.Space, sender.loadNextScene, "SPACE", "上班");
     }
 
@@ -85,7 +89,7 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
 
     void Update()
     {
-        checkUserInput();
+        if(m_IsActionEnable) checkUserInput();
     }
     public RectTransform getTransform()
     {
@@ -98,11 +102,11 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
     }
     public void onDidBecomeTop()
     {
-
+        m_IsActionEnable = true;
     }
     public void onWillNotBecomeTop()
     {
-
+        m_IsActionEnable = false;
     }
     public float onWillRemoveFromStack(bool animate)
     {

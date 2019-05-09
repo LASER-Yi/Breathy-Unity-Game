@@ -17,7 +17,7 @@ public class UiClockText : MonoBehaviour, ITimeDidChangedHandler
         GameManager.instance.removeEventListener(this);
     }
 
-    public void OnGameTimeChanged(GameManager sender, GameManager.GameTime time)
+    public void OnGameTimeChanged(GameManager sender, GameManager.TimeOfGame time)
     {
         m_TextBuilder.Clear();
         if (time.hour < 10)

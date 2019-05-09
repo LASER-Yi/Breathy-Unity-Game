@@ -11,6 +11,30 @@ namespace LGameDataStruct
         public float livePercent;
         public float healthPercent;
     }
+
+    public struct WorkSceneParam
+    {
+        public int leaveHour;
+        public float timespeed;
+    }
+
+    public struct SleepSceneParam
+    {
+        public float liveRecoverEffection;
+    }
+
+    public struct RoadSceneParam
+    {
+        public float reactionTime;
+    }
+
+    public struct ShopItem
+    {
+        public int value;
+        public string title;
+        public string desc;
+        public string prefabPath;       //In Resource
+    }
 }
 
 public class GameManager : MonoBehaviour
@@ -36,13 +60,21 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }
-    public DataManager m_SaveDataManager
-    {
-        get
-        {
-            return DataManager.Instance;
-        }
+
+    public void resetWholeGame(){
+        // 随机初始化
+        m_Character.coin = Random.Range(20, 40);
+        m_Character.livePercent = Random.Range(0.2f, 0.4f);
+        m_Character.healthPercent = Random.Range(0.9f, 1f);
     }
+
+    // public DataManager m_SaveDataManager
+    // {
+    //     get
+    //     {
+    //         return DataManager.Instance;
+    //     }
+    // }
 
     private CharacterData m_Character;
 
@@ -70,20 +102,12 @@ public class GameManager : MonoBehaviour
         characterDataChanged -= listener.OnCharacterDataChanged;
     }
 
-    void Awake()
+
+    public void addCoinValue(int val)
     {
-        // var savedata = m_SaveDataManager.
-        // 载入存档
-        // 随机初始化
-        m_Character.coin = Random.Range(20, 40);
-        m_Character.livePercent = Random.Range(0.2f, 0.4f);
-        m_Character.healthPercent = Random.Range(0.9f, 1f);
+        m_Character.coin += val;
     }
 
-    public void addDayCount()
-    {
-        ++m_CurrentDayCount;
-    }
 
     private int m_CurrentDayCount = 0;
     private int m_CurrentHour
@@ -104,6 +128,15 @@ public class GameManager : MonoBehaviour
     private float m_CurrentTimeOfDay;
 
 
+    public void addDayCount()
+    {
+        ++m_CurrentDayCount;
+    }
+
+    public int getDayCount()
+    {
+        return m_CurrentDayCount;
+    }
     public void setTimeOfDay(float original)
     {
         var willValue = original;
@@ -129,23 +162,13 @@ public class GameManager : MonoBehaviour
         setTimeOfDay(time);
     }
 
-    public void increaseDayCount()
-    {
-        ++m_CurrentDayCount;
-    }
-
-    public int getDayCount()
-    {
-        return m_CurrentDayCount;
-    }
-
-    public struct GameTime
+    public struct TimeOfGame
     {
         public int hour;
         public int minute;
     }
 
-    private delegate void OnGameTimeChangedHandler(GameManager sender, GameTime time);
+    private delegate void OnGameTimeChangedHandler(GameManager sender, TimeOfGame time);
 
     private event OnGameTimeChangedHandler eventTimeChanged;
 
@@ -161,7 +184,7 @@ public class GameManager : MonoBehaviour
 
     private void fireTimeChangedEvent()
     {
-        eventTimeChanged?.Invoke(this, new GameTime()
+        eventTimeChanged?.Invoke(this, new TimeOfGame()
         {
             hour = m_CurrentHour,
             minute = m_CurrentMinute
@@ -247,5 +270,5 @@ public interface ICharacterDataDidChangedHandler
 
 public interface ITimeDidChangedHandler
 {
-    void OnGameTimeChanged(GameManager sender, GameManager.GameTime time);
+    void OnGameTimeChanged(GameManager sender, GameManager.TimeOfGame time);
 }

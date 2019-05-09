@@ -175,21 +175,10 @@ public class PuzzleUiController : MonoBehaviour
         m_IsPuzzleSolve = false;
     }
 
-    private void showCurrentSolve()
-    {
-        var solve = m_Controller.getSolveCounter();
-        for (int i = 0; i < m_PuzzleObjects.Count; ++i)
-        {
-            m_PuzzleObjects[i].text = solve.ToString();
-            updateVisualEffect(i, EEffectType.Default);
-        }
-    }
-
     IEnumerator ieScreenLoop()
     {
         while (true)
         {
-            showCurrentSolve();
             yield return new WaitForSeconds(1f);
             yield return findNewPuzzle();
             yield return new WaitUntil(() => m_IsPuzzleSolve);

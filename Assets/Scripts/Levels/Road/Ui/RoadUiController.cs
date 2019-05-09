@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class RoadUiController : MonoBehaviour, IStackableUi
 {
-    private CarSceneManager m_Controller;
+    private RoadSceneManager m_Controller;
 
     void Start()
     {
-        if (SceneBaseController.instance is CarSceneManager cs)
+        if (SceneBaseController.instance is RoadSceneManager cs)
         {
             m_Controller = cs;
         }

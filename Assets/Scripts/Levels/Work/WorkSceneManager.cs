@@ -2,23 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using LCameraSystem;
+using LGameDataStruct;
 
 public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 {
-    private CameraController m_CamController
-    {
-        get
-        {
-            return CameraController.instance;
-        }
-    }
-
-    private int m_SolveCounter = 0;
-
-    public int getSolveCounter()
-    {
-        return m_SolveCounter;
-    }
 
     void initalCameraPosition()
     {
@@ -45,7 +32,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
         GameManager.instance.removeEventListener(this);
     }
 
-    public void OnGameTimeChanged(GameManager sender, GameManager.GameTime time)
+    public void OnGameTimeChanged(GameManager sender, GameManager.TimeOfGame time)
     {
         if (time.hour >= 20)
         {
@@ -71,7 +58,6 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     public KeyValuePair<int, List<int>> computePuzzle()
     {
-        ++m_SolveCounter;
         Random.InitState(Mathf.CeilToInt(Time.realtimeSinceStartup * 1000));
         var answer = Random.Range(m_MaxLimiter - 4, m_MaxLimiter);
         ++m_MaxLimiter;

@@ -21,6 +21,7 @@ public class MenuSceneManager : SceneBaseController
     {
         base.Start();
         m_SceneUiController = m_SceneUi.GetComponent<MenuUiController>();
+        GameManager.instance.resetWholeGame();
         StartCoroutine(ieTransferOnStartup());
     }
 
@@ -68,7 +69,7 @@ public class MenuSceneManager : SceneBaseController
         attr.setZLength(100f);
         attr.setFov(17f);
 
-        CameraController.instance.setAttribute(attr);
+        m_CamController.setAttribute(attr);
 
         yield return new WaitForSecondsRealtime(1f);
 

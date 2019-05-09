@@ -27,8 +27,9 @@ public class GCanvasController : MonoBehaviour
         }
     }
     [SerializeField]
-    private RectTransform m_LoadPrefab;
-    private RectTransform m_MenuPrefab;
+    private RectTransform m_LoadCover;
+    [SerializeField]
+    private RectTransform m_EscapePanel;
     private Canvas m_Canvas;
     [SerializeField]
     private RectTransform m_StackObject;
@@ -40,26 +41,12 @@ public class GCanvasController : MonoBehaviour
 
     private List<ICoverableUi> m_Cover;
 
-    public delegate void escape();
-
-    private escape escapeAction;
-
     void defaultEscape()
     {
-        if (m_MenuPrefab != null)
+        if (m_EscapePanel != null)
         {
-            pushToStack(m_MenuPrefab, false);
+            pushToStack(m_EscapePanel, false);
         }
-    }
-
-    public void setEscapeAction(escape action)
-    {
-        escapeAction = action;
-    }
-
-    public void setEscapeActionDefault()
-    {
-        escapeAction = defaultEscape;
     }
 
     void Awake()
@@ -67,7 +54,6 @@ public class GCanvasController : MonoBehaviour
         m_Canvas = GetComponent<Canvas>();
         m_Stack = new Stack<IStackableUi>();
         m_Cover = new List<ICoverableUi>();
-        setEscapeActionDefault();
     }
 
     public void cleanCanvas()
@@ -80,7 +66,7 @@ public class GCanvasController : MonoBehaviour
     public RectTransform setupLoadCanvas()
     {
         cleanCanvas();
-        return addToCover(m_LoadPrefab);
+        return addToCover(m_LoadCover);
     }
     /* Cover */
     public RectTransform addToCover(RectTransform prefab)
@@ -193,21 +179,12 @@ public class GCanvasController : MonoBehaviour
             }
             else
             {
-                escapeAction();
+                pushToStack(m_EscapePanel, false);
             }
         }
     }
 
-    public void setMenuPrefab(RectTransform prefab)
-    {
-        if (prefab.GetComponent<IStackableUi>() != null)
-        {
-            m_MenuPrefab = prefab;
-        }
-        setEscapeActionDefault();
-    }
-
-    void handleEscapeEvent()
+    void checkEscapeInput()
     {
         var isPress = Input.GetButtonUp("Cancel");
         if (isPress)
@@ -216,8 +193,8 @@ public class GCanvasController : MonoBehaviour
         }
     }
 
-    void update()
+    void Update()
     {
-        handleEscapeEvent();
+        checkEscapeInput();
     }
 }

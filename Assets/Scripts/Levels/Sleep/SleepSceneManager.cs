@@ -9,14 +9,9 @@ public class SleepSceneManager : SceneBaseController
     private Light m_RoomLight;
     [SerializeField]
     private Light m_MoonLight;
-    private CameraController m_CamController
-    {
-        get
-        {
-            return LCameraSystem.CameraController.instance;
-        }
-    }
 
+    [SerializeField]
+    private RectTransform m_ShopPanelPrefab;
     private SleepMainUiController m_SceneUiController;
     new void Start()
     {
@@ -40,6 +35,10 @@ public class SleepSceneManager : SceneBaseController
         // 动画
         GameManager.instance.addDayCount();
         GSceneController.instance.LoadNextScene(true);
+    }
+
+    public void clickShopBtn(){
+
     }
 
     public void clickSleepBtn(){
