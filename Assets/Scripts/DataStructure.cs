@@ -28,12 +28,20 @@ namespace LGameStructure
         public float reactionDelay;
     }
 
+    [System.Serializable]
     public struct ShopItem
     {
-        public int value;
-        public string title;
+        public string name;
         public string desc;
+        public int value;
         public string prefabPath;       //In Resource
+    }
+
+    [System.Serializable]
+    public struct SaveData
+    {
+        public int dayCount;
+        public GSceneController.ESceneIndex sceneIndex;
     }
 
     public struct TimeOfGame

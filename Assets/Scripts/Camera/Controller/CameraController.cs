@@ -56,6 +56,41 @@ namespace LCameraSystem
             }
         }
 
+        public void startShakeCamera(int level, float time)
+        {
+            StartCoroutine(ieShakeCameraCoro(level, time));
+        }
+
+        private System.Object _shakeLock = new Object();
+
+        IEnumerator ieShakeCameraCoro(int level, float time)
+        {
+            lock (_shakeLock)
+            {
+                float _level = (float)level / 5f;
+                bool isOffset = false;
+                float currentTime = 0f;
+                while (currentTime < time)
+                {
+                    yield return null;
+                    currentTime += Time.deltaTime;
+                    if (isOffset)
+                    {
+                        setTrueCameraPosition(Vector2.zero);
+                    }
+                    else
+                    {
+                        var randX = Random.Range(-1f, 1f);
+                        var randY = Random.Range(-1f, 1f);
+                        var offset = new Vector2(randX, randY) * _level;
+                        setTrueCameraPosition(offset);
+                    }
+                    isOffset = !isOffset;
+                }
+                setTrueCameraPosition(Vector2.zero);
+            }
+        }
+
         /* Setter */
 
         public void setAttribute(CameraAttribute attr)
@@ -189,6 +224,13 @@ namespace LCameraSystem
                 m_RigCamera.localRotation = rotator;
                 m_UiCam.transform.localRotation = rotator;
             }
+        }
+
+        private void setTrueCameraPosition(Vector2 position)
+        {
+            Vector3 pos = new Vector3(position.x, position.y, m_RigCamera.localPosition.z);
+            m_RigCamera.transform.localPosition = pos;
+            m_UiCam.transform.localPosition = pos;
         }
 
         private float m_CurrentZLength

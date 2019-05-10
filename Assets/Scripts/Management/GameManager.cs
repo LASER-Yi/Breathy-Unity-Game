@@ -36,18 +36,21 @@ public class GameManager : MonoBehaviour
         fireCharacterChangedEvent();
     }
 
+    private List<ShopItem> m_CurrentShopItem;
+
     void Awake()
     {
         resetWholeGame();
+        m_CurrentShopItem = m_DataSource.getShopItemsClone();
     }
 
-    // public DataManager m_SaveDataManager
-    // {
-    //     get
-    //     {
-    //         return DataManager.Instance;
-    //     }
-    // }
+    public DataManager m_DataSource
+    {
+        get
+        {
+            return DataManager.Instance;
+        }
+    }
 
     public SleepSceneParam computeSleepParam()
     {

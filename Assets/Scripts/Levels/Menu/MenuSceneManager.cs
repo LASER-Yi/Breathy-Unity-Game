@@ -79,7 +79,7 @@ public class MenuSceneManager : SceneBaseController
         target.setZLength(250f);
 
         yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 5f);
-
+        m_CamController.startShakeCamera(2, 0.8f);
         m_IsBtnEnable = true;
     }
 

@@ -69,8 +69,9 @@
             {
                 // sample the texture
                 float4 color = tex2D(_MainTex, i.uv);
+                color.xyz = lerp(color.xyz, i.color, i.color.w);
                 float4 _grabimage = tex2Dproj(_GrabTexture, UNITY_PROJ_COORD(i.uvgrab));
-                color.xyz = lerp(color ,(_grabimage * _Brightness), color.w);
+                color.xyz = lerp((_grabimage * _Brightness), color , color.w);
                 color.w = 1.0 - _Transparent;
                 return color;
             }
