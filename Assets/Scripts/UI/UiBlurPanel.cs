@@ -11,14 +11,15 @@ public class UiBlurPanel : MonoBehaviour
 
     void Awake(){
         m_BlurImage = GetComponent<Image>();
-        m_BlurMaterial = m_BlurImage.material;
+        m_BlurMaterial = Instantiate(m_BlurImage.material);
+        m_BlurImage.material = m_BlurMaterial;
     }
 
-    public void setBlurValue(float val){
+    public void setTransparent(float val){
         m_BlurMaterial.SetFloat(m_ShaderBlurValue, val);
     }
 
-    public void setBlurValue(float val, float time){
+    public void setTransparent(float val, float time){
         StartCoroutine(ieSetValueCoro(val, time));
     }
 
@@ -32,8 +33,8 @@ public class UiBlurPanel : MonoBehaviour
             progress = currentTime / time;
 
             float currVal = Mathf.SmoothStep(startValue, endValue, progress);
-            setBlurValue(currVal);
+            setTransparent(currVal);
         }
-        setBlurValue(endValue);
+        setTransparent(endValue);
     }
 }

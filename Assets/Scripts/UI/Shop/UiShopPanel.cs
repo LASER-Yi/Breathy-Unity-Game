@@ -10,6 +10,12 @@ public class UiShopPanel : MonoBehaviour, IStackableUi
     // Start is called before the first frame update
     private RectTransform m_ScrollViewContent;
 
+    private UiBlurPanel m_BlurPanel;
+
+    void Awake(){
+        m_BlurPanel = GetComponentInChildren<UiBlurPanel>();
+    }
+
     public void showItem(List<ShopItem> items, int coin){
 
     }
@@ -18,7 +24,8 @@ public class UiShopPanel : MonoBehaviour, IStackableUi
         return transform as RectTransform;
     }
     public void onDidPushToStack(bool animate){
-
+        m_BlurPanel.setTransparent(1f);
+        m_BlurPanel.setTransparent(0f, 0.3f);
     }
     public void onDidBecomeTop(){
 
@@ -27,6 +34,7 @@ public class UiShopPanel : MonoBehaviour, IStackableUi
 
     }
     public float onWillRemoveFromStack(bool animate){
-        return 0f;
+        m_BlurPanel.setTransparent(1f, 0.3f);
+        return 0.5f;
     }
 }

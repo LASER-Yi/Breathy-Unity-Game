@@ -35,6 +35,7 @@
             float4 _MainTex_ST;
             float _Brightness;
             float _Transparent;
+            float _TextureMixRate;
 
             struct appdata_v{
                 float4  vertex : POSITION;
@@ -68,10 +69,14 @@
             float4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                float4 color = tex2D(_MainTex, i.uv);
-                color.xyz = lerp(color.xyz, i.color, i.color.w);
-                float4 _grabimage = tex2Dproj(_GrabTexture, UNITY_PROJ_COORD(i.uvgrab));
-                color.xyz = lerp((_grabimage * _Brightness), color , color.w);
+                float4 texColor = tex2D(_MainTex, i.uv);
+                texColor.xyz = lerp(texColor.xyz, i.color, i.color.w);
+
+                float4 grabColor = tex2Dproj(_GrabTexture, UNITY_PROJ_COORD(i.uvgrab));
+                grabColor *= _Brightness;
+
+                float4 color;
+                color.xyz = lerp(grabColor, texColor , texColor.w);
                 color.w = 1.0 - _Transparent;
                 return color;
             }
