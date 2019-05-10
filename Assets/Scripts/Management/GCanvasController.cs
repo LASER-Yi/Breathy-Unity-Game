@@ -74,16 +74,15 @@ public class GCanvasController : MonoBehaviour
         if(prefab == null) return null;
 
         var rect = Instantiate(prefab);
-        rect.SetParent(m_CoverObject, false);
         var script = rect.GetComponent<ICoverableUi>();
 
         if (script != null)
         {
             m_Cover.Add(script);
-
+            rect.SetParent(m_CoverObject, false);
             script.onAddToCanvas(true);
         }
-
+        rect.SetParent(m_CoverObject, false);
         return rect;
     }
 
@@ -92,14 +91,12 @@ public class GCanvasController : MonoBehaviour
         if(instance == null) return;
         
         var script = instance.GetComponent<ICoverableUi>();
+        var timer = 0f;
         if (script != null)
         {
-            var timer = script.onRemoveFromCanvas(true);
-            if (m_Cover.Remove(script))
-            {
-                Destroy(instance.gameObject, timer);
-            }
+            timer = script.onRemoveFromCanvas(true);
         }
+        Destroy(instance.gameObject, timer);
     }
 
     public void cleanCover()
@@ -118,7 +115,6 @@ public class GCanvasController : MonoBehaviour
         if(prefab == null) return null;
         
         var rect = Instantiate(prefab);
-        rect.SetParent(m_StackObject, false);
         var script = rect.GetComponent<IStackableUi>();
 
         if (script != null)
@@ -128,11 +124,14 @@ public class GCanvasController : MonoBehaviour
                 prev.onWillNotBecomeTop();
             }
 
+            rect.SetParent(m_StackObject, false);
             m_Stack.Push(script);
             if (isBase) m_StackBase = m_Stack.Count;
 
             script.onDidPushToStack(true);
             script.onDidBecomeTop();
+        }else{
+            Destroy(rect.gameObject);
         }
 
         return rect;

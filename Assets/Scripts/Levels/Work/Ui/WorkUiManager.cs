@@ -11,7 +11,7 @@ public class WorkUiManager : MonoBehaviour, IStackableUi
     private RectTransform m_BlurPanelPrefab;
     private UiActionContainer m_ActionContainer;
     private UiClockText m_ClockText;
-    private Image m_BlurPanel;
+    private UiBlurPanel m_BlurPanel;
 
     void Awake()
     {
@@ -34,11 +34,11 @@ public class WorkUiManager : MonoBehaviour, IStackableUi
     }
     public void onDidPushToStack(bool animate)
     {
-        m_BlurPanel = GCanvasController.instance.addToCover(m_BlurPanelPrefab).GetComponent<Image>();
+        m_BlurPanel = GCanvasController.instance.addToCover(m_BlurPanelPrefab).GetComponent<UiBlurPanel>();
         m_ClockText = GCanvasController.instance.addToCover(m_ClockTextPrefab).GetComponent<UiClockText>();
         // m_ClockText.gameObject.SetActive(false);
         // m_BlurPanel.gameObject.SetActive(false);
-        m_BlurPanel.material.SetFloat(m_ShaderValue, 0f);
+        m_BlurPanel.setBlurValue(0f);
         m_ClockText.setTransparent(0f);
     }
     public void onDidBecomeTop()
@@ -51,8 +51,9 @@ public class WorkUiManager : MonoBehaviour, IStackableUi
     }
     public float onWillRemoveFromStack(bool animate)
     {
-        Destroy(m_ClockText);
-        Destroy(m_BlurPanel);
+        GCanvasController.instance.removeFromCover(m_ClockText.transform as RectTransform);
+        m_BlurPanel.setBlurValue(1f);
+        GCanvasController.instance.removeFromCover(m_BlurPanel.transform as RectTransform);
         return 0f;
     }
 
@@ -78,7 +79,7 @@ public class WorkUiManager : MonoBehaviour, IStackableUi
         }
 
         m_ClockTransparent = Mathf.Clamp01(m_ClockTransparent);
-        m_BlurPanel.material.SetFloat(m_ShaderValue, m_ClockTransparent);
+        m_BlurPanel.setBlurValue(m_ClockTransparent);
         m_ClockText.setTransparent(m_ClockTransparent);
     }
 }

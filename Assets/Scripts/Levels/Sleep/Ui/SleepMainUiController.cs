@@ -7,6 +7,9 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
 {
     private UiActionContainer m_ActionContainer;
 
+    [SerializeField]
+    private RectTransform m_ShopPanelPrefab;
+
     void Awake(){
         m_ActionContainer = GetComponentInChildren<UiActionContainer>();
     }
@@ -30,6 +33,11 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
         m_ActionContainer.setupAction(KeyCode.Space, sender.loadNextScene, "SPACE", "上班");
     }
 
+    public void setupShopPanel(List<LGameStructure.ShopItem> items, int coin){
+        var instance = GCanvasController.instance.pushToStack(m_ShopPanelPrefab, false).GetComponent<UiShopPanel>();
+        instance.showItem(items, coin);
+    }
+
     public IEnumerator transformStateBar()
     {
         var timer = 3f;
@@ -38,7 +46,6 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
         {
             yield return null;
             currentTime += Time.deltaTime;
-
         }
     }
 

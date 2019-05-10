@@ -42,7 +42,7 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     public void clickShopBtn()
     {
-
+        m_SceneUiController.setupShopPanel(null, m_Game.getCharacterData().coin);
     }
 
     public void clickSleepBtn()

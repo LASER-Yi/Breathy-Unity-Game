@@ -144,13 +144,13 @@ public class DataManager
     private void loadGameShopList()
     {
         m_ShopItemList = JsonLoader.LoadJsonInResource<List<ShopItem>>("Json/shopItem");
-        foreach (var item in m_ShopItemList)
-        {
-            if (item.prefabPath == null || item.prefabPath == "")
-            {
-                m_ShopItemList.Remove(item);
-            }
-        }
+        // foreach (var item in m_ShopItemList)
+        // {
+        //     if (item.prefabPath == null || item.prefabPath == "")
+        //     {
+        //         m_ShopItemList.Remove(item);
+        //     }
+        // }
         Debug.Log("Load avaliable shop item, count: " + m_ShopItemList.Count);
     }
 
