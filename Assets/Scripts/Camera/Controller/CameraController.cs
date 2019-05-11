@@ -67,7 +67,7 @@ namespace LCameraSystem
         {
             lock (_shakeLock)
             {
-                float _level = (float)level / 5f;
+                float _level = (float)level / 10f;
                 bool isOffset = false;
                 float currentTime = 0f;
                 while (currentTime < time)

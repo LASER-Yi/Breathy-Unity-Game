@@ -95,6 +95,7 @@ public class GCanvasController : MonoBehaviour
         if (script != null)
         {
             timer = script.onRemoveFromCanvas(true);
+            m_Cover.Remove(script);
         }
         Destroy(instance.gameObject, timer);
     }
@@ -107,6 +108,10 @@ public class GCanvasController : MonoBehaviour
             Destroy(item.getTransform().gameObject);
         }
         m_Cover.Clear();
+        foreach (Transform item in m_CoverObject)
+        {
+            Destroy(item.gameObject);
+        }
     }
 
     /* Stack */
