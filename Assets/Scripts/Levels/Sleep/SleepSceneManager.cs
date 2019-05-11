@@ -31,6 +31,22 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
         m_Game.startTimeLoop();
 
         m_Param = m_Game.computeSleepParam();
+        setupOwnItemScene(m_Param.m_OwnItem);
+        m_Game.addEventListener(this);
+    }
+
+    void setupOwnItemScene(List<ShopItem> items){
+        foreach(var item in items){
+            var prefab = Resources.Load<GameObject>(item.prefabPath);
+            if(prefab != null){
+                var _obj = Instantiate(prefab);
+                _obj.transform.SetParent(transform, true);
+            }
+        }
+    }
+
+    void OnDestroy(){
+        m_Game.removeEventListener(this);
     }
 
     public void loadNextScene()
@@ -42,7 +58,7 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     public void clickShopBtn()
     {
-        m_SceneUiController.setupShopPanel(null, m_Game.getCharacterData().coin);
+        m_SceneUiController.setupShopPanel(m_Game.getCurrentShopItems(), m_Game.getCharacterData().coin);
     }
 
     public void clickSleepBtn()
@@ -51,10 +67,10 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
     }
 
     public void OnGameTimeChanged(GameManager sender, LGameStructure.TimeOfGame time){
-        if(time.hour < 17 || time.hour > 5){
-            m_MoonLight.enabled = false;
-        }else{
+        if(time.hour > 17 || time.hour < 5){
             m_MoonLight.enabled = true;
+        }else{
+            m_MoonLight.enabled = false;
         }
     }
 
@@ -69,7 +85,7 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
         float currentTimer = 0f;
         float waitTimer = m_Game.startLerpTime(8, 20);
 
-        float recoverRate = 1f / waitTimer;
+        float recoverRate = 1f / (waitTimer + 2f);
 
         while (currentTimer < waitTimer)
         {

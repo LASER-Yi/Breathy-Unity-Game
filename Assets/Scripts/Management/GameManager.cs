@@ -37,11 +37,32 @@ public class GameManager : MonoBehaviour
     }
 
     private List<ShopItem> m_CurrentShopItem;
+    private List<ShopItem> m_CurrentOwnItem;
+
+    public List<ShopItem> getCurrentShopItems(){
+        return m_CurrentShopItem;
+    }
+
+    public bool tryBuyShopItems(ShopItem item){
+        if(m_Character.coin > item.value){
+            if(m_CurrentShopItem.Remove(item)){
+                m_CurrentOwnItem.Add(item);
+                m_Character.coin -= item.value;
+                fireCharacterChangedEvent();
+                return true;
+            }else {
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
 
     void Awake()
     {
         resetWholeGame();
         m_CurrentShopItem = m_DataSource.getShopItemsClone();
+        m_CurrentOwnItem = new List<ShopItem>();
     }
 
     public DataManager m_DataSource
@@ -55,6 +76,7 @@ public class GameManager : MonoBehaviour
     public SleepSceneParam computeSleepParam()
     {
         var param = new SleepSceneParam();
+        param.m_OwnItem = m_CurrentOwnItem;
         param.shieldRecoverRate = m_Character.healthPercent;
         return param;
     }
@@ -289,5 +311,11 @@ public class GameManager : MonoBehaviour
             var current = Mathf.SmoothStep(startValue, endValue, progress);
             setClock(current);
         }
+    }
+
+    /* Static */
+
+    public static string formatCoinValue(int val){
+        return "₣ " + val.ToString();
     }
 }

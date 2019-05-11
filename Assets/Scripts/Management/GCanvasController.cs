@@ -35,6 +35,8 @@ public class GCanvasController : MonoBehaviour
     private RectTransform m_StackObject;
     [SerializeField]
     private RectTransform m_CoverObject;
+    [SerializeField]
+    private RectTransform m_FullScreenTextPrefab;
     private Stack<IStackableUi> m_Stack;
     // UI栈的底层，保证任何时候调用Pop都无法推出（除非清空UI）
     private int m_StackBase = 0;
@@ -178,6 +180,12 @@ public class GCanvasController : MonoBehaviour
                 pushToStack(m_EscapePanel, false);
             }
         }
+    }
+
+    public void setupFullScreenText(LGameplay.SequenceTextParams param){
+        var rect = addToCover(m_FullScreenTextPrefab);
+        var script = rect.GetComponent<UiFullScreenText>();
+        script.updateScreenInfo(param);
     }
 
     void checkEscapeInput()

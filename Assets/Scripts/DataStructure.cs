@@ -19,6 +19,7 @@ namespace LGameStructure
 
     public struct SleepSceneParam
     {
+        public List<ShopItem> m_OwnItem;
         public float shieldRecoverRate;
     }
 

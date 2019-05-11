@@ -35,6 +35,7 @@ public class GSceneController : MonoBehaviour
         }
     }
 
+
     private ESceneIndex m_NextScene = ESceneIndex.Menu;
     private bool m_IsLastSceneHome = false;
     private ESceneIndex m_ActiveScene;

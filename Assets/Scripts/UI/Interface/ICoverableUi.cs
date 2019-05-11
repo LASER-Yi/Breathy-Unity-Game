@@ -6,6 +6,5 @@ public interface ICoverableUi
 {
     RectTransform getTransform();
     void onAddToCanvas(bool animate);
-
     float onRemoveFromCanvas(bool animate);
 }

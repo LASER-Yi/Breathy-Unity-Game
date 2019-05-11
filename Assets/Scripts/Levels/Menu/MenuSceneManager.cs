@@ -42,7 +42,9 @@ public class MenuSceneManager : SceneBaseController
             if (Input.anyKeyDown)
             {
                 m_IsAnyKeyDown = true;
-                setupMenuInterface();
+                var param = new LGameplay.SequenceTextParams("你好");
+                param.concat("这里是指挥中心").concat("欢迎来到我们的大家族", null, null, new UnityAction(setupMenuInterface));
+                m_UiController.setupFullScreenText(param);
             }
         }
     }

@@ -19,13 +19,6 @@ public class UiStateBar : MonoBehaviour, ICharacterDataDidChangedHandler
     [SerializeField]
     private AnimationCurve m_TransferCurve;
 
-    private System.Text.StringBuilder m_TextBuilder;
-
-    void Awake()
-    {
-        m_TextBuilder = new System.Text.StringBuilder();
-    }
-
     void Start()
     {
         var data = GameManager.instance.getCharacterData();
@@ -64,10 +57,7 @@ public class UiStateBar : MonoBehaviour, ICharacterDataDidChangedHandler
 
     void updateUi(LGameStructure.CharacterData data)
     {
-        m_TextBuilder.Clear();
-        m_TextBuilder.Append("₣ ");
-        m_TextBuilder.Append(data.coin.ToString());
-        m_CoinText.text = m_TextBuilder.ToString();
+        m_CoinText.text = GameManager.formatCoinValue(data.coin);
 
         m_CurrentLiveText.text = data.shieldPercent.ToString();
         m_CurrentLiveImage.fillAmount = data.shieldPercent;
