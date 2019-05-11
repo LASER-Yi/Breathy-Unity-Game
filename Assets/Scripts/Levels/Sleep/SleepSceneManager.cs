@@ -11,7 +11,7 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
     private Light m_RoomLight;
     [SerializeField]
     private Light m_MoonLight;
-    private SleepMainUiController m_SceneUiController;
+    private new SleepMainUiController m_SceneUiController;
     new void Start()
     {
         base.Start();
@@ -23,7 +23,7 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
 
         m_CamController.setAttribute(attr);
 
-        m_SceneUiController = m_SceneUi.GetComponent<SleepMainUiController>();
+        m_SceneUiController = base.m_SceneUiController as SleepMainUiController;
         m_SceneUiController.showStartupAction(this);
 
         m_Game.setTimeSpeed(24f);
@@ -96,6 +96,5 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
              recoverRate * m_Param.shieldRecoverRate);
         }
         m_SceneUiController.showWakeupAction(this);
-
     }
 }

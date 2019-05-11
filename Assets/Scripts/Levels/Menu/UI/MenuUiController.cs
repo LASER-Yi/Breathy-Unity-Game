@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using LCameraSystem;
 
-public class MenuUiController : MonoBehaviour, IStackableUi
+public class MenuUiController : SceneBaseUiController
 {
     private HorizontalLayoutGroup m_BtnContainer;
 
@@ -33,20 +33,10 @@ public class MenuUiController : MonoBehaviour, IStackableUi
     {
         m_BtnContainer = GetComponentInChildren<HorizontalLayoutGroup>();
     }
-
-    public RectTransform getTransform(){
-        return transform as RectTransform;
-    }
-    public void onDidPushToStack(bool animate){
+    public override void onDidPushToStack(bool animate){
 
     }
-    public void onDidBecomeTop(){
-        gameObject.SetActive(true);
-    }
-    public void onWillNotBecomeTop(){
-        gameObject.SetActive(false);
-    }
-    public float onWillRemoveFromStack(bool animate){
+    public override float onWillRemoveFromStack(bool animate){
         return 0f;
     }
 

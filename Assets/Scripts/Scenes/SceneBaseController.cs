@@ -34,7 +34,7 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
-    protected GCanvasController m_UiController
+    protected GCanvasController m_CanvasController
     {
         get
         {
@@ -63,6 +63,7 @@ public abstract class SceneBaseController : MonoBehaviour
     [SerializeField]
     private RectTransform m_SceneUiPrefab;
     protected RectTransform m_SceneUi;
+    protected SceneBaseUiController m_SceneUiController;
 
     public void backToMenu()
     {
@@ -71,8 +72,9 @@ public abstract class SceneBaseController : MonoBehaviour
 
     public void attachSceneUi()
     {
-        m_UiController.cleanStack(true);
-        m_SceneUi = m_UiController.pushToStack(m_SceneUiPrefab, true);
+        m_CanvasController.cleanStack(true);
+        m_SceneUi = m_CanvasController.pushToStack(m_SceneUiPrefab, true);
+        m_SceneUiController = m_SceneUi.GetComponent<SceneBaseUiController>();
     }
 
     protected void Start()

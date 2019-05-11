@@ -6,21 +6,10 @@ using LCameraSystem;
 
 public class MenuSceneManager : SceneBaseController
 {
-    [SerializeField]
-    private RectTransform m_SelectPrefab;
-
-    private bool m_IsBtnEnable = false;
-    private MenuUiController m_SceneUiController;
-
-    public bool getButtonState()
-    {
-        return m_IsBtnEnable;
-    }
 
     new void Start()
     {
         base.Start();
-        m_SceneUiController = m_SceneUi.GetComponent<MenuUiController>();
         m_Game.resetWholeGame();
 
         m_Game.setClock(10f);
@@ -42,19 +31,28 @@ public class MenuSceneManager : SceneBaseController
             if (Input.anyKeyDown)
             {
                 m_IsAnyKeyDown = true;
-                var param = new LGameplay.SequenceTextParams("你好");
-                param.concat("这里是指挥中心").concat("欢迎来到我们的大家族", null, null, new UnityAction(setupMenuInterface));
-                m_UiController.setupFullScreenText(param);
+                var param = new LGameplay.SequenceTextParams("车辆");
+                param.concat("合格")
+                .concat("收入").concat("合格")
+                .concat("工作资历").concat("合格")
+                .concat("恭喜您通过了我们的审核，获得在雾之城中央财务处工作的资格")
+                .concat("您在云上XH-90214的房间已可以入住")
+                .concat("请明天上午9点前往云顶办公大楼报道")
+                .concat("雾之城云上人力资源处 | 2059.00.30", null, null, new UnityAction(setupMenuInterface));
+                m_CanvasController.setupFullScreenText(param);
             }
         }
     }
 
     void setupMenuInterface()
     {
-        m_SceneUiController.cleanBtnContainer();
-        m_SceneUiController.setupButton("开始游戏", new UnityAction(startGame));
-        m_SceneUiController.setupButton("关于", null);
-        m_SceneUiController.setupButton("结束游戏", new UnityAction(exitGame));
+        if(m_SceneUiController is MenuUiController mu){
+            mu.cleanBtnContainer();
+            mu.setupButton("开始游戏", new UnityAction(startGame));
+            mu.setupButton("关于", null);
+            mu.setupButton("结束游戏", new UnityAction(exitGame));
+        }
+        
         StartCoroutine(ieTransferOnStartup());
     }
 
@@ -82,7 +80,6 @@ public class MenuSceneManager : SceneBaseController
 
         yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 5f);
         m_CamController.startShakeCamera(2, 0.8f);
-        m_IsBtnEnable = true;
     }
 
 }

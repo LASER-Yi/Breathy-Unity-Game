@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SleepMainUiController : MonoBehaviour, IStackableUi
+public class SleepMainUiController : SceneBaseUiController
 {
     private UiActionContainer m_ActionContainer;
 
@@ -49,24 +49,21 @@ public class SleepMainUiController : MonoBehaviour, IStackableUi
         }
     }
 
-    public RectTransform getTransform()
-    {
-        return transform as RectTransform;
-    }
-
-    public void onDidPushToStack(bool animate)
+    public override void onDidPushToStack(bool animate)
     {
 
     }
-    public void onDidBecomeTop()
+    public override void onDidBecomeTop()
     {
+        base.onDidBecomeTop();
         m_ActionContainer.enableAction();
     }
-    public void onWillNotBecomeTop()
+    public override void onWillNotBecomeTop()
     {
+        base.onWillNotBecomeTop();
         m_ActionContainer.disableAction();
     }
-    public float onWillRemoveFromStack(bool animate)
+    public override float onWillRemoveFromStack(bool animate)
     {
         return 0f;
     }
