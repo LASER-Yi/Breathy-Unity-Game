@@ -34,9 +34,9 @@ namespace LCameraSystem
         //  Position
         //      Rotation
         //          Camera(with Roll)
-        private Transform m_RigPosition;
-        private Transform m_RigRotation;
-        private Transform m_RigCamera;
+        private Transform m_Outer;
+        private Transform m_Rig;
+        [SerializeField]
         private Camera m_Cam;
         [SerializeField]
         private Camera m_UiCam;
@@ -44,14 +44,13 @@ namespace LCameraSystem
         /* Controller */
         void Awake()
         {
-            m_RigCamera = transform;
             m_Cam = GetComponent<Camera>();
             if (transform.parent != null)
             {
-                m_RigRotation = m_RigCamera.parent;
-                if (m_RigRotation.parent != null)
+                m_Rig = m_Cam.transform.parent;
+                if (m_Rig.parent != null)
                 {
-                    m_RigPosition = m_RigRotation.parent;
+                    m_Outer = m_Rig.parent;
                 }
             }
         }
@@ -172,7 +171,7 @@ namespace LCameraSystem
         {
             get
             {
-                return m_RigRotation.rotation.eulerAngles.x;
+                return m_Rig.rotation.eulerAngles.x;
             }
         }
 
@@ -180,7 +179,7 @@ namespace LCameraSystem
         {
             get
             {
-                return m_RigRotation.rotation.eulerAngles.y;
+                return m_Outer.rotation.eulerAngles.y;
             }
         }
 
@@ -188,12 +187,12 @@ namespace LCameraSystem
         {
             get
             {
-                return m_RigCamera.localRotation.eulerAngles.z;
+                return m_Cam.transform.localRotation.eulerAngles.z;
             }
             set
             {
                 var rotator = Quaternion.Euler(0f, 0f, value);
-                m_RigCamera.localRotation = rotator;
+                m_Cam.transform.localRotation = rotator;
                 m_UiCam.transform.localRotation = rotator;
             }
         }
@@ -202,11 +201,11 @@ namespace LCameraSystem
         {
             get
             {
-                return m_RigPosition.position;
+                return m_Outer.position;
             }
             set
             {
-                m_RigPosition.position = value;
+                m_Outer.position = value;
             }
         }
 
@@ -219,17 +218,18 @@ namespace LCameraSystem
             set
             {
                 Vector3 euler = value.eulerAngles;
-                m_RigRotation.rotation = Quaternion.Euler(euler.x, euler.y, 0f);
+                m_Rig.localRotation = Quaternion.Euler(euler.x, 0f, 0f);
+                m_Outer.localRotation = Quaternion.Euler(0f, euler.y, 0f);
                 var rotator = Quaternion.Euler(0f, 0f, euler.z);
-                m_RigCamera.localRotation = rotator;
+                m_Cam.transform.localRotation = rotator;
                 m_UiCam.transform.localRotation = rotator;
             }
         }
 
         private void setTrueCameraPosition(Vector2 position)
         {
-            Vector3 pos = new Vector3(position.x, position.y, m_RigCamera.localPosition.z);
-            m_RigCamera.transform.localPosition = pos;
+            Vector3 pos = new Vector3(position.x, position.y, m_Cam.transform.localPosition.z);
+            m_Cam.transform.transform.localPosition = pos;
             m_UiCam.transform.localPosition = pos;
         }
 
@@ -237,13 +237,13 @@ namespace LCameraSystem
         {
             get
             {
-                return m_RigCamera.localPosition.z * -1f;
+                return m_Cam.transform.localPosition.z * -1f;
             }
             set
             {
-                var local = m_RigCamera.localPosition;
+                var local = m_Cam.transform.localPosition;
                 local.z = -value;
-                m_RigCamera.localPosition = local;
+                m_Cam.transform.localPosition = local;
                 m_UiCam.transform.localPosition = local;
             }
         }

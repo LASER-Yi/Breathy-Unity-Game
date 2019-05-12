@@ -12,6 +12,8 @@ public class PuzzleUiController : MonoBehaviour
     private Canvas m_PuzzleUi;
     private List<Transform> m_KeyboardObjects;
     private List<Text> m_PuzzleObjects;
+    [SerializeField]
+    private AudioClip m_PressEffect;
     void Awake()
     {
         // 动态绑定键盘，生成UI元素
@@ -68,6 +70,7 @@ public class PuzzleUiController : MonoBehaviour
         }
         if (pressKey is int pIndex)
         {
+            GSoundController.instance.playEffectClip(m_PressEffect);
             handleKeyPress(pIndex);
         }
     }

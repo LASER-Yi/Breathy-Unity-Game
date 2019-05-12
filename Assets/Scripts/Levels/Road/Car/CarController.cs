@@ -111,14 +111,7 @@ public class CarController : MonoBehaviour, IPawnController
 
     public bool isRoadInfoAvaliable()
     {
-        if (m_CurrentAttachRoad == null)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return m_CurrentAttachRoad != null;
     }
 
     public RoadChunk getRoadInfoChunk()

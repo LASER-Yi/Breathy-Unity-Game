@@ -11,7 +11,7 @@ public class MenuSceneManager : SceneBaseController
         base.Start();
         m_Game.resetWholeGame();
 
-        m_Game.setClock(10f);
+        m_Game.setClock(7f);
         var attr = CameraAttribute.Empty;
         attr.setPosition(Vector3.down * 30f);
         attr.setRotation(Quaternion.Euler(-1f, 0f, 0f));
@@ -88,7 +88,7 @@ public class MenuSceneManager : SceneBaseController
 
         CameraAttribute next = CameraAttribute.Empty;
         next.setPosition(Vector3.up * 15f);
-        next.setRotation(Quaternion.Euler(-2f, 0f, 0f));
+        next.setRotation(Quaternion.identity);
         next.setFov(17f);
 
         yield return CameraAnimator.instance.ieStartCameraNextKeyframe(next, 0.7f);

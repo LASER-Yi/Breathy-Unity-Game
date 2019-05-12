@@ -105,8 +105,7 @@ public class CameraFrameController : MonoBehaviour
         return Mathf.SmoothDamp(m_CharacterYAxisPercent, targetPercent, ref m_RefDeltaPercent, m_CameraCatchupDelay);
     }
 
-    void computeTargetPosition(float playerPercent){
-        var velocity = m_Character.getVelocity();
+    Vector3 computeTargetPosition(float playerPercent){
         var camera = m_Controller.getAttachCamera();
         var depth = m_Controller.getZLength();
 
@@ -126,11 +125,11 @@ public class CameraFrameController : MonoBehaviour
         var offset = virtualCameraPoint - virtualScreenChar;
 
         Vector3 original = m_Character.getWorldPosition();
-        m_TargetCameraPosition = (original + offset);
+        return (original + offset);
     }
 
-    void setCameraPosition(){
-        m_Controller.setPosition(m_TargetCameraPosition);
+    void setCameraPosition(Vector3 position){
+        m_Controller.setPosition(position);
     }
 
     void setupCamera(){
@@ -142,10 +141,14 @@ public class CameraFrameController : MonoBehaviour
         m_Controller.setAttribute(attr);
     }
 
-    void setZLength(){
-        float speed = m_Character?.getVelocity() ?? 0f;
-        float zlength = Mathf.SmoothStep(30f, 60f, speed / 40f);
+    void setZLength(float speed){
+        float zlength = Mathf.SmoothStep(10f, 60f, speed / 40f);
         m_Controller.setZLength(zlength);
+    }
+
+    void setRotation(float speed){
+        float rotation = Mathf.SmoothStep(75f, 55f, speed / 40f);
+        m_Controller.setRotation(Quaternion.Euler(rotation, 0f, 0f));
     }
 
     void Start(){
@@ -153,11 +156,14 @@ public class CameraFrameController : MonoBehaviour
     }
 
     void LateUpdate(){
-        if(m_IsEnableFollow && _chararcter != null){
-            float rate = computeCounterPosition();
-            computeTargetPosition(m_ButtonFramePercent);
-            setCameraPosition();
-            setZLength();
+        if(m_IsEnableFollow && m_Character != null){
+            // float rate = computeCounterPosition();
+            float speed = m_Character?.getVelocity() ?? 0f;
+            float rate = Mathf.SmoothStep(m_MidFramePercent, m_ButtonFramePercent, speed / 40f);
+            var position = computeTargetPosition(rate);
+            setCameraPosition(position);
+            setZLength(speed);
+            setRotation(speed);
         }
     }
 }

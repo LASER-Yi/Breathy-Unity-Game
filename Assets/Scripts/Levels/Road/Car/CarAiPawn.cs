@@ -94,8 +94,10 @@ public class CarAiPawn : MonoBehaviour
         }
     }
 
-    private RoadChunk m_RoadInfo{
-        get{
+    private RoadChunk m_RoadInfo
+    {
+        get
+        {
             return m_Controller.getRoadInfoChunk();
         }
     }
@@ -105,7 +107,7 @@ public class CarAiPawn : MonoBehaviour
     {
         m_Controller = GetComponent<CarController>();
         m_Collider = GetComponent<BoxCollider>();
-        
+
         m_ObstructLayer = 1 << LayerMask.NameToLayer("Car");
     }
 
@@ -117,7 +119,7 @@ public class CarAiPawn : MonoBehaviour
         var center = transform.position;
         var halfExt = Vector3.zero;
         halfExt.y = 1f;
-        halfExt.x = m_RoadInfo.getRoadWidthWorld() * 1.5f; 
+        halfExt.x = m_RoadInfo.getRoadWidthWorld() * 1.5f;
         halfExt.z = m_DynamicSafeDistance;
         // 检测方框和路面方向保持一致
         collCount = Physics.OverlapBoxNonAlloc(center, halfExt, collResults, m_RoadInfo.transform.rotation, m_ObstructLayer);
@@ -128,7 +130,7 @@ public class CarAiPawn : MonoBehaviour
         for (int i = 0; i < collCount; ++i)
         {
             var col = collResults[i];
-            if(col == null) continue;
+            if (col == null) continue;
             if (col.transform == transform) continue;
 
             var direction = col.transform.position - transform.position;
@@ -228,18 +230,23 @@ public class CarAiPawn : MonoBehaviour
 
     private int m_AiUpdateCounter = 30;
 
+    private Strategic m_SavedStra;
+
     void Update()
     {
         // Note: 为了避免影响帧数，请每帧不要进行太多探测
-        if (m_Controller.isRoadInfoAvaliable() && m_AiUpdateCounter >= 30)
+        if (m_Controller.isRoadInfoAvaliable())
         {
-            var env = computeEnvironment();
-            var stra = computeStrategic(env);
-            var action = generateAction(stra);
+            if (m_AiUpdateCounter >= 30)
+            {
+                var env = computeEnvironment();
+                m_SavedStra = computeStrategic(env);
+                m_AiUpdateCounter = 0;
+            }else{
+                ++m_AiUpdateCounter;
+            }
+            var action = generateAction(m_SavedStra);
             m_Controller.updateUserInput(action);
-            m_AiUpdateCounter = 0;
-        }else{
-            ++m_AiUpdateCounter;
         }
     }
 
@@ -296,7 +303,8 @@ public class CarAiPawn : MonoBehaviour
         Gizmos.color = Color.green;
         for (int i = 0; i < collCount; ++i)
         {
-            if(collResults[i] != null){
+            if (collResults[i] != null)
+            {
                 var position = collResults[i].transform.position;
                 Gizmos.DrawLine(origin, position);
             }
