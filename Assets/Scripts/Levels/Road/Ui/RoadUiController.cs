@@ -16,7 +16,7 @@ public class RoadUiController : SceneBaseUiController
 
     public float getPlayerVelocity()
     {
-        if (m_SceneController is RoadSceneManager rs)
+        if (m_SceneController is RoadSceneController rs)
         {
             return rs.getPlayerVelocity();
         }
@@ -25,7 +25,7 @@ public class RoadUiController : SceneBaseUiController
 
     public float getFinilizeDistance()
     {
-        if (m_SceneController is RoadSceneManager rs)
+        if (m_SceneController is RoadSceneController rs)
         {
             return rs.getDistanceToEndPoint();
         }

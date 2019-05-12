@@ -10,7 +10,6 @@ using UnityEngine;
 public class CarPlayerPawn : MonoBehaviour
 {
     private IPawnController m_Controller;
-    [SerializeField, Range(0, 0.25f)]
     private float m_IncreaseRate = 0.1f;
 
     void Awake()
@@ -19,7 +18,7 @@ public class CarPlayerPawn : MonoBehaviour
     }
 
     void Start(){
-        var manager = SceneBaseController.instance as RoadSceneManager;
+        var manager = SceneBaseController.instance as RoadSceneController;
         m_IncreaseRate = manager.getPressForce();
     }
 

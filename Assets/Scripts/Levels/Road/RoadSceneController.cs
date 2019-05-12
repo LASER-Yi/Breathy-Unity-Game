@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using LGameStructure;
 
-public class RoadSceneManager : SceneBaseController
+public class RoadSceneController : SceneBaseController
 {
     private CarController m_PlayerCar;
     [SerializeField]

@@ -27,7 +27,6 @@ public abstract class SceneBaseController : MonoBehaviour
             return _instance;
         }
     }
-
     protected GameManager m_Game{
         get{
             return GameManager.instance;

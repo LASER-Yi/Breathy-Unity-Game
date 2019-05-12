@@ -67,7 +67,8 @@ public class CarController : MonoBehaviour, IPawnController
         return m_CurrentVelocity;
     }
 
-    public void setEnginePower(float percent){
+    public void setEnginePower(float percent)
+    {
         m_CurrentEnginePercent = percent;
     }
 
@@ -79,11 +80,13 @@ public class CarController : MonoBehaviour, IPawnController
     private LayerMask m_RoadLayer;
     protected RoadChunk m_CurrentAttachRoad;
 
+    private float m_DestroyTimer = 0f;
     protected void updateRoadState()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, m_RoadLayer))
+        if (Physics.Raycast(transform.position + transform.up, -transform.up, out hit, 10f, m_RoadLayer))
         {
+            m_DestroyTimer = 0f;
             var road = hit.transform.GetComponentInParent<RoadChunk>();
             if (road != null)
             {
@@ -105,8 +108,14 @@ public class CarController : MonoBehaviour, IPawnController
                     // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
                 }
             }
-        }else{
-            Destroy(gameObject);
+        }
+        else
+        {
+            m_DestroyTimer += Time.deltaTime;
+            if (m_DestroyTimer > 1f)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 

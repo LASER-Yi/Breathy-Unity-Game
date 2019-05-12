@@ -6,7 +6,6 @@ using LCameraSystem;
 
 public class MenuSceneManager : SceneBaseController
 {
-
     new void Start()
     {
         base.Start();
@@ -33,14 +32,8 @@ public class MenuSceneManager : SceneBaseController
                 m_IsAnyKeyDown = true;
                 m_Sound.playBtnEffect();
 
-                var param = new LGameplay.SequenceTextParams("车辆");
-                param.concat("合格")
-                .concat("收入").concat("合格")
-                .concat("工作资历").concat("合格")
-                .concat("恭喜您通过了我们的审核，获得在雾之城中央财务处工作的资格")
-                .concat("您在云上XH-90214的房间已可以入住")
-                .concat("请明天上午9点前往云顶办公大楼报道")
-                .concat("雾之城云上人力资源处 | 2059.00.30", null, null, new UnityAction(setupMenuInterface));
+                var introText = DataManager.LoadTextSequence("Text/Menu");
+                var param = LGameplay.SequenceTextParams.computeParamsFromString(introText, new UnityAction(setupMenuInterface));
                 m_CanvasController.setupFullScreenText(param);
             }
         }
@@ -77,13 +70,23 @@ public class MenuSceneManager : SceneBaseController
     IEnumerator ieTransferOnStartup()
     {
         CameraAttribute target = CameraAttribute.Empty;
-        target.setPosition(Vector3.up * 10f);
-        target.setRotation(Quaternion.Euler(2f, 0f, 0f));
+        target.setPosition(Vector3.up * 65f);
+        target.setRotation(Quaternion.Euler(-5f, 0f, 0f));
         target.setZLength(250f);
+        target.setFov(60f);
 
         m_CamController.startShakeCamera(1, 0.8f);
-        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 5f);
-        
+        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 4.5f);
+
+        yield return new WaitForSeconds(1f);
+
+        CameraAttribute next = CameraAttribute.Empty;
+        next.setPosition(Vector3.up * 15f);
+        next.setRotation(Quaternion.Euler(-2f, 0f, 0f));
+        next.setFov(17f);
+
+        yield return CameraAnimator.instance.ieStartCameraNextKeyframe(next, 0.7f);
+
     }
 
 }

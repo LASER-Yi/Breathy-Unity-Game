@@ -85,13 +85,14 @@ namespace LGameplay{
             return nextScreen;
         }
 
-        public static SequenceTextParams computeParamsFromString(string text){
+        public static SequenceTextParams computeParamsFromString(string text, UnityAction action = null){
             var strList = text.Split('\n');
             var param = new SequenceTextParams(strList[0]);
             var start = param;
             for (int i = 1; i < strList.Length; ++i){
                 param = param.concat(strList[i]);
             }
+            param.nextAction = action;
             return start;
         }
     }

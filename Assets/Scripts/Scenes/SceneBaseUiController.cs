@@ -4,7 +4,11 @@ using UnityEngine;
 
 public abstract class SceneBaseUiController : MonoBehaviour, IStackableUi
 {
-    protected SceneBaseController m_SceneController;
+    protected SceneBaseController m_SceneController{
+        get{
+            return SceneBaseController.instance;
+        }
+    }
     protected bool m_IsEnableControl;
     public RectTransform getTransform()
     {

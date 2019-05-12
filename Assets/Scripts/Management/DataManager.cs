@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using LGameStructure;
 using LDataLoader;
+using LGameplay;
 
 namespace LDataLoader
 {
@@ -88,6 +89,11 @@ public class DataManager
         {
             return Application.persistentDataPath + "/save.brsd";
         }
+    }
+
+    public static string LoadTextSequence(string resourcePath){
+        var text = Resources.Load<TextAsset>(resourcePath);
+        return text.text;
     }
 
     DataManager()
