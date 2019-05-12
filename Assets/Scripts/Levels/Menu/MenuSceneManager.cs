@@ -31,6 +31,8 @@ public class MenuSceneManager : SceneBaseController
             if (Input.anyKeyDown)
             {
                 m_IsAnyKeyDown = true;
+                m_Sound.playBtnEffect();
+
                 var param = new LGameplay.SequenceTextParams("车辆");
                 param.concat("合格")
                 .concat("收入").concat("合格")
@@ -48,9 +50,10 @@ public class MenuSceneManager : SceneBaseController
     {
         if(m_SceneUiController is MenuUiController mu){
             mu.cleanBtnContainer();
-            mu.setupButton("开始游戏", new UnityAction(startGame));
-            mu.setupButton("关于", null);
-            mu.setupButton("结束游戏", new UnityAction(exitGame));
+            mu.setupButton("START GAME", new UnityAction(startGame));
+            mu.setupButton("ABOUT", null);
+            mu.setupButton("EXIT GAME", new UnityAction(exitGame));
+            mu.hideAnyText();
         }
         
         StartCoroutine(ieTransferOnStartup());

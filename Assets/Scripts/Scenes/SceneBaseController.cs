@@ -34,6 +34,12 @@ public abstract class SceneBaseController : MonoBehaviour
         }
     }
 
+    protected GSoundController m_Sound{
+        get{
+            return GSoundController.instance;
+        }
+    }
+
     protected GCanvasController m_CanvasController
     {
         get
@@ -65,6 +71,9 @@ public abstract class SceneBaseController : MonoBehaviour
     protected RectTransform m_SceneUi;
     protected SceneBaseUiController m_SceneUiController;
 
+    [SerializeField]
+    private List<AudioClip> m_BackgroundClip;
+
     public void backToMenu()
     {
         GSceneController.instance.LoadSceneAsync(GSceneController.ESceneIndex.Menu, false);
@@ -87,6 +96,10 @@ public abstract class SceneBaseController : MonoBehaviour
         if (m_IsShowAfterLoad)
         {
             StartCoroutine(ieShowTitle());
+        }
+        if(m_BackgroundClip.Count > 0){
+            var picker = Random.Range(0, m_BackgroundClip.Count);
+            m_Sound.swapBackground(m_BackgroundClip[picker]);
         }
     }
 

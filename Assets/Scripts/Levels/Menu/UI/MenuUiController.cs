@@ -7,12 +7,16 @@ using LCameraSystem;
 
 public class MenuUiController : SceneBaseUiController
 {
-    private HorizontalLayoutGroup m_BtnContainer;
+    private VerticalLayoutGroup m_BtnContainer;
+    [SerializeField]
+    private Text m_AnyKeyText;
 
     [SerializeField]
     private RectTransform m_BtnPrefab;
 
-    public delegate void BtnAction();
+    void Start(){
+        m_BtnContainer.gameObject.SetActive(false);
+    }
 
     public void cleanBtnContainer(){
         foreach(Transform item in m_BtnContainer.transform){
@@ -31,7 +35,12 @@ public class MenuUiController : SceneBaseUiController
 
     void Awake()
     {
-        m_BtnContainer = GetComponentInChildren<HorizontalLayoutGroup>();
+        m_BtnContainer = GetComponentInChildren<VerticalLayoutGroup>();
+    }
+
+    public void hideAnyText(){
+        m_AnyKeyText.gameObject.SetActive(false);
+        m_BtnContainer.gameObject.SetActive(true);
     }
     public override void onDidPushToStack(bool animate){
 
