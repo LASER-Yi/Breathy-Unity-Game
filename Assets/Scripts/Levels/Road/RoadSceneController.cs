@@ -38,12 +38,12 @@ public class RoadSceneController : SceneBaseController
 
     public float getPlayerVelocity()
     {
-        return m_PlayerCar.getVelocity();
+        return m_PlayerCar?.getVelocity() ?? 0f;
     }
 
     public float getDistanceToEndPoint()
     {
-        return Vector3.Distance(m_PlayerCar.transform.position, m_EndPoint.transform.position);
+        return Vector3.Distance(m_PlayerCar?.transform.position ?? m_EndPoint.transform.position, m_EndPoint.transform.position);
     }
 
     private bool m_IsTriggerEndPoint = false;

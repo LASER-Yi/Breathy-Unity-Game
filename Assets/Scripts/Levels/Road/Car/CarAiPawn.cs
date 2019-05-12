@@ -202,6 +202,7 @@ public class CarAiPawn : MonoBehaviour
         switch (m_AiType)
         {
             case EAiType.Conservative:
+                m_ConservativeAi.updateRoadState(m_RoadInfo.getRoadNum());
                 m_ConservativeAi.updateThreshold(m_WarnDistance, m_DynamicSafeDistance);
                 stra = m_ConservativeAi.tick(in env);
                 break;
@@ -225,15 +226,20 @@ public class CarAiPawn : MonoBehaviour
         return action;
     }
 
+    private int m_AiUpdateCounter = 30;
+
     void Update()
     {
         // Note: 为了避免影响帧数，请每帧不要进行太多探测
-        if (m_Controller.isRoadInfoAvaliable())
+        if (m_Controller.isRoadInfoAvaliable() && m_AiUpdateCounter >= 30)
         {
             var env = computeEnvironment();
             var stra = computeStrategic(env);
             var action = generateAction(stra);
             m_Controller.updateUserInput(action);
+            m_AiUpdateCounter = 0;
+        }else{
+            ++m_AiUpdateCounter;
         }
     }
 
@@ -247,11 +253,11 @@ public class CarAiPawn : MonoBehaviour
         // 加快回正速度
         if (percent * current < 0f)
         {
-            percent *= 4f;
+            percent *= 2f;
         }
         else
         {
-            percent /= 4f;
+            percent /= 2f;
         }
         percent = Mathf.Clamp(percent, -1f, 1f);
 
@@ -271,7 +277,7 @@ public class CarAiPawn : MonoBehaviour
     // 计算当前转向角度在水平轴上的投影
     float computeCurrentTurnProject()
     {
-        var direction = transform.TransformDirection(Vector3.forward);
+        var direction = transform.forward;
         var current = m_RoadInfo.computeDegreeProjection(direction);
         return current;
     }

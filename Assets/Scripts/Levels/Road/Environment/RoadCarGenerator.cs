@@ -38,7 +38,7 @@ public class RoadCarGenerator : MonoBehaviour
             var carPrefab = m_CarList[carPicker];
             var car = Instantiate(carPrefab, position, rotation, transform.root);
             var script = car.GetComponent<CarController>();
-            script.setEnginePower(0.75f);
+            script.setEnginePower(0.7f);
         }
     }
 

@@ -23,17 +23,15 @@ public class CarConservativeAi
     }
 
     // 车辆在跟随前车时使用的计时器
-    private float m_FollowThreshold = 10f;
-    private float m_FollowTimer;
+    private int m_FollowThreshold = 6;
+    private int m_FollowTimer;
 
     // State Machine
     // Follow <-> Override
     // All -> Stop
     // Stop -> Follow
     private EAiState m_State = EAiState.Follow;
-
     private bool m_IsComputedRoad = false;
-
     private float m_AiWarnDistance;
     private float m_AiSafeDistance;
 
@@ -44,6 +42,8 @@ public class CarConservativeAi
     private int m_TotalRoadNum = 0;
 
     private float m_ReactionTime = 0f;
+
+    private int m_ChangeCoolDownTimer = 5;
 
     public void updateThreshold(float warn, float safe)
     {
@@ -63,7 +63,7 @@ public class CarConservativeAi
         {
             case EAiState.Follow:
                 {
-                    m_FollowTimer = 0f;
+                    m_FollowTimer = 0;
                     break;
                 }
             case EAiState.Change:
@@ -78,10 +78,10 @@ public class CarConservativeAi
     {
         var stra = m_PrevStrategic;
 
-        // if (isNeedTriggerBrake(in env))
-        // {
-        //     changeAiState(EAiState.Stop);
-        // }
+        if (isNeedTriggerBrake(in env))
+        {
+            changeAiState(EAiState.Stop);
+        }
 
         switch (m_State)
         {
@@ -90,48 +90,45 @@ public class CarConservativeAi
                     stra.brake = false;
                     stra.power = computeFollowOutput(in env);
                     stra.targetRoadNumber = env.roadNumber;
-                    m_IsComputedRoad = false;
 
                     var relativeSpeed = Mathf.Abs(computeRelativeSpeed(in env, EDirection.front));
 
-                    if (stra.power < 0.75f && env.frontDistance > m_AiWarnDistance)
+                    if (stra.power < 0.75f)
                     {
-                        m_FollowTimer += Time.deltaTime;
+                        m_FollowTimer += 1;
                     }
                     else
                     {
-                        m_FollowTimer = 0f;
+                        m_FollowTimer = 0;
                     }
 
-                    if (m_FollowTimer > m_FollowThreshold)
+                    m_ChangeCoolDownTimer -= 1;
+
+                    if (m_FollowTimer > m_FollowThreshold || (env.speed > 20f && env.frontDistance < m_AiSafeDistance * 0.8f))
                     {
-                        changeAiState(EAiState.Change);
-                        m_FollowTimer = 0f;
+                        if (m_ChangeCoolDownTimer <= 0)
+                        {
+                            changeAiState(EAiState.Change);
+                        }
                     }
                     break;
                 }
 
             case EAiState.Change:
                 {
+                    stra.power = 0.7f;
+                    stra.brake = false;
                     if (!m_IsComputedRoad)
                     {
                         stra.targetRoadNumber = computeNewRoadNumber(in env);
                         m_IsComputedRoad = true;
                     }
 
-                    if (stra.targetRoadNumber == env.roadNumber)
+                    m_ChangeCoolDownTimer += 1;
+
+                    if (stra.targetRoadNumber == env.roadNumber || m_ChangeCoolDownTimer >= 5f)
                     {
                         changeAiState(EAiState.Follow);
-                        m_FollowTimer = 0f;
-                    }
-                    else
-                    {
-                        // 防止变道期间空位被抢占
-                        stra.targetRoadNumber = computeNewRoadNumber(in env);
-                        if (stra.targetRoadNumber == env.roadNumber)
-                        {
-                            changeAiState(EAiState.Follow);
-                        }
                     }
                     break;
                 }
@@ -144,36 +141,31 @@ public class CarConservativeAi
 
                     if (env.frontDistance > m_AiWarnDistance)
                     {
-                        m_State = EAiState.Follow;
+                        changeAiState(EAiState.Follow);
                     }
                     break;
                 }
         }
 
+        m_ChangeCoolDownTimer = Mathf.Clamp(m_ChangeCoolDownTimer, 0, 5);
+
         m_PrevStrategic = stra;
         m_PrevEnvironment = env;
         return stra;
     }
-
-
     bool isNeedTriggerBrake(in Environment env)
     {
-        var relative = computeRelativeSpeed(in env, EDirection.front);
-        var relSpeed = Mathf.Abs(relative);
-        var isForwardClosing = relative < 0;
+        // var relative = computeRelativeSpeed(in env, EDirection.front);
+        // var relSpeed = Mathf.Abs(relative);
+        // var isForwardClosing = relative < 0;
         var forward = env.frontDistance;
 
-        if (isForwardClosing)   // 前车接近中
+        if (forward < m_AiWarnDistance)   // 前车接近中
         {
-            if (relSpeed > (env.speed * 0.9) && env.speed > 10f)
-            {
-                // return true;
-            }
+            return true;
         }
         return false;
     }
-
-    float m_PrevRelSpeed = 0f;
 
     float computeRelativeSpeed(in Environment curr, EDirection dir)
     {
@@ -257,7 +249,6 @@ public class CarConservativeAi
             if (relativeSpeed < 0)
             {
                 deltaOutput -= Mathf.Lerp(0f, 0.2f, relativePercent);
-
             }
             deltaOutput -= Mathf.Lerp(0f, 0.2f, offsetPercent);
         }

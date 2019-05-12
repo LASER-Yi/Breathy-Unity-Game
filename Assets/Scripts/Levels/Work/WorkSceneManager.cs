@@ -11,7 +11,7 @@ public class WorkSceneManager : SceneBaseController, ITimeDidChangedHandler
 
     private FpsCameraController m_FpsCamController;
 
-    private WorkUiManager m_SceneUiController;
+    private new WorkUiManager m_SceneUiController;
 
     void Awake(){
         m_FpsCamController = GetComponent<FpsCameraController>();

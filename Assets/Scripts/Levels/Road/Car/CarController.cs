@@ -88,29 +88,19 @@ public class CarController : MonoBehaviour, IPawnController
         {
             m_DestroyTimer = 0f;
             var road = hit.transform.GetComponentInParent<RoadChunk>();
-            if (road != null)
+            if (m_CurrentAttachRoad != road)
             {
-                if (m_CurrentAttachRoad != null)
-                {
-                    if (m_CurrentAttachRoad != road)
-                    {
-                        // 更新路
-                        m_CurrentAttachRoad.removeCarFromRoad();
-                        road.addCarToRoad();
-                        m_CurrentAttachRoad = road;
-                        // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
-                    }
-                }
-                else
-                {
-                    road.addCarToRoad();
-                    m_CurrentAttachRoad = road;
-                    // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
-                }
+                // 更新路
+                m_CurrentAttachRoad?.removeCarFromRoad();
+                road?.addCarToRoad();
+                m_CurrentAttachRoad = road;
+                // m_ConservativeAi.updateRoadState(m_AttachRoad.getRoadNum());
             }
         }
         else
         {
+            m_CurrentAttachRoad?.removeCarFromRoad();
+            m_CurrentAttachRoad = null;
             m_DestroyTimer += Time.deltaTime;
             if (m_DestroyTimer > 1f)
             {
@@ -171,7 +161,7 @@ public class CarController : MonoBehaviour, IPawnController
 
         if (m_IsBrake)
         {
-            m_CurrentEnginePercent -= Time.deltaTime * 3f;
+            m_CurrentEnginePercent -= Time.deltaTime / 2f;
         }
         else if (m_TargetEnginePercent > m_CurrentEnginePercent)
         {
@@ -202,9 +192,8 @@ public class CarController : MonoBehaviour, IPawnController
         float fwd = computeForward(turnRadius, velocity);
         float shift = computeShift(turnRadius, velocity);
 
-        Vector3 deltaPosition = Vector3.forward * fwd + Vector3.right * shift;
-
-        m_Rigibody.MovePosition(transform.position + transform.TransformDirection(deltaPosition * Time.deltaTime));
+        Vector3 deltaPosition = transform.forward * fwd + transform.right * shift;
+        m_Rigibody.MovePosition(transform.position + deltaPosition * Time.deltaTime);
 
         float deltaAngle = computeObjectRotateAngle(shift) * Time.deltaTime;
         var currentRotator = transform.rotation;
@@ -232,8 +221,8 @@ public class CarController : MonoBehaviour, IPawnController
 
         // 可视化车辆控制信息
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.forward) * power);
-        Gizmos.DrawLine(origin, origin + transform.TransformDirection(Vector3.right) * (turn / m_FrontWheelRotation));
+        Gizmos.DrawLine(origin, origin + transform.forward * power);
+        Gizmos.DrawLine(origin, origin + transform.right * (turn / m_FrontWheelRotation));
     }
 
 }

@@ -142,15 +142,22 @@ public class CameraFrameController : MonoBehaviour
         m_Controller.setAttribute(attr);
     }
 
+    void setZLength(){
+        float speed = m_Character?.getVelocity() ?? 0f;
+        float zlength = Mathf.SmoothStep(30f, 60f, speed / 40f);
+        m_Controller.setZLength(zlength);
+    }
+
     void Start(){
         setupCamera();
     }
 
     void LateUpdate(){
-        if(m_IsEnableFollow){
+        if(m_IsEnableFollow && _chararcter != null){
             float rate = computeCounterPosition();
             computeTargetPosition(m_ButtonFramePercent);
             setCameraPosition();
+            setZLength();
         }
     }
 }
