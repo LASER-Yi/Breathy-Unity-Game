@@ -21,7 +21,7 @@ public class UiHoverButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     }
     
     public void setFormatterText(string text){
-        m_BtnText.text = "[ " + text + " ]";
+        m_BtnText.text = text;
     }
 
 }

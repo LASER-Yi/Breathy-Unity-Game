@@ -84,8 +84,8 @@ public class SleepSceneManager : SceneBaseController, ITimeDidChangedHandler
         yield return m_SceneUiController.transformStateBar();
         float currentTimer = 0f;
         float waitTimer = m_Game.startLerpTime(8, 20);
-
-        float recoverRate = 1f / (waitTimer + 2f);
+        float recoverRate = 1f / waitTimer;
+        // float recoverRate = 0.85f / ;
 
         while (currentTimer < waitTimer)
         {

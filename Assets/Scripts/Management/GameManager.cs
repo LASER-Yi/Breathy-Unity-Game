@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
     }
 
     public bool tryBuyShopItems(ShopItem item){
-        if(m_Character.coin > item.value){
+        if(m_Character.coin >= item.value){
             if(m_CurrentShopItem.Remove(item)){
                 m_CurrentOwnItem.Add(item);
                 m_Character.coin -= item.value;
@@ -289,8 +289,10 @@ public class GameManager : MonoBehaviour
     {
         float value = hour;
         value += (float)minute / 60f;
-        StartCoroutine(ieDayLerp(value, 5f));
-        return 5f;
+        var tocSecond = value - m_CurrentClock;
+        if(tocSecond < 0) tocSecond += 24f;
+        StartCoroutine(ieDayLerp(value, tocSecond));
+        return tocSecond;
     }
 
     IEnumerator ieDayLerp(float toValue, float timer)

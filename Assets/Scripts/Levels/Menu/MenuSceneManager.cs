@@ -78,8 +78,9 @@ public class MenuSceneManager : SceneBaseController
         target.setRotation(Quaternion.Euler(2f, 0f, 0f));
         target.setZLength(250f);
 
+        m_CamController.startShakeCamera(1, 0.8f);
         yield return CameraAnimator.instance.ieStartCameraNextKeyframe(target, 5f);
-        m_CamController.startShakeCamera(2, 0.8f);
+        
     }
 
 }
