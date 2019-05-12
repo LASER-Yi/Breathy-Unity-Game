@@ -11,12 +11,19 @@ public class RoadNode : MonoBehaviour
     private RoadNode m_FrontRoad = null;          // 此路面的前一区块
     private RoadNode m_BehideRoad = null;           // 此路面的后一区块
 
+    private List<RoadChunk> m_Chunks;
+
     [SerializeField]
     private float m_RoadLength;
 
     public float getRoadLength()
     {
         return m_RoadLength;
+    }
+
+    public RoadChunk getRandomChunk(){
+        var picker = Random.Range(0, m_Chunks.Count);
+        return m_Chunks[picker];
     }
 
     public float getRoadLengthWorld(){
@@ -31,6 +38,7 @@ public class RoadNode : MonoBehaviour
     {
         ++count;
         gameObject.name = "Road_" + count;
+        m_Chunks = new List<RoadChunk>(GetComponentsInChildren<RoadChunk>());
     }
 
     public RoadNode createRoadFront(GameObject prefab)

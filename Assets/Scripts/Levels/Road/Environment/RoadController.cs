@@ -10,10 +10,6 @@ public class RoadController : MonoBehaviour
     private RoadNode m_FirstRoad = null;    // 指向此路面区块链的头部（前方)
     private RoadNode m_LastRoad = null;     // 指向此路面区块链的尾部（后方）
     private IPawnController m_Player;
-    [SerializeField]
-    private GameObject m_FrontRoadCollider;
-    [SerializeField]
-    private GameObject m_BackRoadCollider;
 
     [SerializeField]
     private int m_MaxRoadCount = 20;
@@ -31,13 +27,19 @@ public class RoadController : MonoBehaviour
     void setFirstRoad(RoadNode node)
     {
         m_FirstRoad = node;
-        m_FrontRoadCollider.transform.position = node.transform.position;
+    }
+
+    public int getRoadCount(){
+        return m_RoadCount;
+    }
+
+    public RoadNode getLastRoadNode(){
+        return m_LastRoad;
     }
 
     void setLastRoad(RoadNode node)
     {
         m_LastRoad = node;
-        m_BackRoadCollider.transform.position = node.transform.position;
     }
 
     public void initalRoadChunk()
