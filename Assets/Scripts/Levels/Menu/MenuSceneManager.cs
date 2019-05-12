@@ -44,12 +44,18 @@ public class MenuSceneManager : SceneBaseController
         if(m_SceneUiController is MenuUiController mu){
             mu.cleanBtnContainer();
             mu.setupButton("START GAME", new UnityAction(startGame));
-            mu.setupButton("ABOUT", null);
+            mu.setupButton("ABOUT", new UnityAction(aboutGame));
             mu.setupButton("EXIT GAME", new UnityAction(exitGame));
             mu.hideAnyText();
         }
         
         StartCoroutine(ieTransferOnStartup());
+    }
+
+    private void aboutGame(){
+        if(m_SceneUiController is MenuUiController mu){
+            mu.showAboutScreen();
+        }
     }
 
     private void startGame()

@@ -9,6 +9,11 @@ public abstract class SceneBaseUiController : MonoBehaviour, IStackableUi
             return SceneBaseController.instance;
         }
     }
+    protected GCanvasController m_CanvasController{
+        get{
+            return GCanvasController.instance;
+        }
+    }
     protected bool m_IsEnableControl;
     public RectTransform getTransform()
     {

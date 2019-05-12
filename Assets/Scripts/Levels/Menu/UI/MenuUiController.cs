@@ -14,8 +14,15 @@ public class MenuUiController : SceneBaseUiController
     [SerializeField]
     private RectTransform m_BtnPrefab;
 
+    [SerializeField]
+    private RectTransform m_AboutPrefab;
+
     void Start(){
         m_BtnContainer.gameObject.SetActive(false);
+    }
+
+    public void showAboutScreen(){
+        m_CanvasController.pushToStack(m_AboutPrefab, false);
     }
 
     public void cleanBtnContainer(){
