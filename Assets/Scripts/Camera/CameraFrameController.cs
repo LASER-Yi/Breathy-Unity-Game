@@ -142,12 +142,12 @@ public class CameraFrameController : MonoBehaviour
     }
 
     void setZLength(float speed){
-        float zlength = Mathf.SmoothStep(10f, 60f, speed / 40f);
+        float zlength = Mathf.SmoothStep(10f, 60f, speed);
         m_Controller.setZLength(zlength);
     }
 
     void setRotation(float speed){
-        float rotation = Mathf.SmoothStep(75f, 55f, speed / 40f);
+        float rotation = Mathf.SmoothStep(75f, 55f, speed);
         m_Controller.setRotation(Quaternion.Euler(rotation, 0f, 0f));
     }
 
@@ -158,12 +158,13 @@ public class CameraFrameController : MonoBehaviour
     void LateUpdate(){
         if(m_IsEnableFollow && m_Character != null){
             // float rate = computeCounterPosition();
-            float speed = m_Character?.getVelocity() ?? 0f;
-            float rate = Mathf.SmoothStep(m_MidFramePercent, m_ButtonFramePercent, speed / 40f);
+            float speed = m_Character.getVelocity();
+            float speedPercent = Mathf.Clamp01(speed / 20f);
+            float rate = Mathf.SmoothStep(m_MidFramePercent, m_ButtonFramePercent, speedPercent);
             var position = computeTargetPosition(rate);
             setCameraPosition(position);
-            setZLength(speed);
-            setRotation(speed);
+            setZLength(speedPercent);
+            setRotation(speedPercent);
         }
     }
 }

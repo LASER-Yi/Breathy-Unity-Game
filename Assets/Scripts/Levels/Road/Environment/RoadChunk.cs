@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 
 // 与车辆AI进行通信
@@ -115,6 +117,7 @@ public class RoadChunk : MonoBehaviour
     }
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(RoadChunk))]
 public class RoadObjectEditor : Editor
 {
@@ -154,3 +157,5 @@ public class RoadObjectEditor : Editor
         Gizmos.DrawRay(new Ray(script.transform.position, forward));
     }
 }
+
+#endif

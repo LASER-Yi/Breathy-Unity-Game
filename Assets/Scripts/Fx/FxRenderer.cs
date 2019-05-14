@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 [ExecuteInEditMode]
 public class FxRenderer : MonoBehaviour
@@ -97,6 +99,8 @@ public class FxRenderer : MonoBehaviour
     }
 }
 
+#if UNITY_EDITOR
+
 [CustomEditor(typeof(FxRenderer))]
 public class FxRendererEditor : Editor
 {
@@ -110,3 +114,5 @@ public class FxRendererEditor : Editor
         }
     }
 }
+
+#endif

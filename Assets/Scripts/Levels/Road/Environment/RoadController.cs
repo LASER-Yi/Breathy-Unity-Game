@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 // 管理路面的实例化和删除
 // 在路面前方和后方放置Trigger, 用于移除AI车辆
@@ -145,6 +147,8 @@ public class RoadController : MonoBehaviour
     }
 }
 
+#if UNITY_EDITOR
+
 [CustomEditor(typeof(RoadController))]
 public class RoadControllerEditor : Editor
 {
@@ -173,3 +177,5 @@ public class RoadControllerEditor : Editor
         }
     }
 }
+
+#endif

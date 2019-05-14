@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine.SceneManagement;
 
 public abstract class SceneBaseController : MonoBehaviour
@@ -149,6 +151,7 @@ public abstract class SceneBaseController : MonoBehaviour
     // }
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(SceneBaseController))]
 class SceneBaseControllerEditor : Editor
 {
@@ -162,3 +165,4 @@ class SceneBaseControllerEditor : Editor
         }
     }
 }
+#endif

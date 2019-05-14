@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using CarAiAttribute;
 
 // 自动往道路前方移动
@@ -296,6 +298,7 @@ public class CarAiPawn : MonoBehaviour
         }
     }
 
+    #if UNITY_EDITOR
     void OnDrawGizmos()
     {
         var origin = transform.position;
@@ -310,7 +313,11 @@ public class CarAiPawn : MonoBehaviour
             }
         }
     }
+
+    #endif
 }
+
+#if UNITY_EDITOR
 
 [CustomEditor(typeof(CarAiPawn))]
 public class CarAiPawnEditor : Editor
@@ -335,3 +342,5 @@ public class CarAiPawnEditor : Editor
         Gizmos.DrawWireSphere(center, warn);
     }
 }
+
+#endif

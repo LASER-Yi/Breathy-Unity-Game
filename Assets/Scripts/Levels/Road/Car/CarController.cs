@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 
 [RequireComponent(typeof(Rigidbody))]
@@ -220,6 +222,7 @@ public class CarController : MonoBehaviour, IPawnController
 
 }
 
+#if UNITY_EDITOR
 class CarControllerEditor : Editor
 {
     [DrawGizmo(GizmoType.Selected)]
@@ -241,3 +244,5 @@ class CarControllerEditor : Editor
         Gizmos.DrawLine(backLeft, backRight);
     }
 }
+
+#endif

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 [ExecuteInEditMode]
 public class UiBlurBackgroundRenderer : MonoBehaviour
@@ -112,6 +114,7 @@ public class UiBlurBackgroundRenderer : MonoBehaviour
     }
 }
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(UiBlurBackgroundRenderer))]
 public class RenderUiBackgroundEditor : Editor
 {
@@ -125,3 +128,5 @@ public class RenderUiBackgroundEditor : Editor
         }
     }
 }
+
+#endif
